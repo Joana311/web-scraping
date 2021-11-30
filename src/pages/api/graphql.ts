@@ -24,45 +24,27 @@ export const config : PageConfig= {
   },
 };
 
-// const cors = Cors({
-//   origin: "https://studio.apollographql.com/",
-//   allowCredentials: true
-// });
-
+const cors = Cors({allowMethods: ['PUT', 'POST'] 
+});
+  
+const server = new ApolloServer({
   // plugins: [
   //   process.env.NODE_ENV === "production"
   //     ? ApolloServerPluginLandingPageDisabled()
   //     : ApolloServerPluginLandingPageGraphQLPlayground(),
   // ],
-const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 const startServer = server.start();
 
-export default async(req, res) => {
+export default cors(async(req, res) => {
   if (req.method === "OPTIONS") {
     res.end();
     return false;
   }
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://studio.apollographql.com");
-  res.setHeader("Access-Control-Allow-Methods", "POST");
   await startServer;
   await server.createHandler({ path: "/api/graphql" })(req, res);
-};
+});
 
-// module.exports = server.start().then(async (req,res) => {
-//   return await server.createHandler({path:'/api/graphql'})(req, res);
-// });
 
-// module.exports = server.start().then((req) => {
-//     server.createHandler({path:'/api/graphql'})(req,res)
-//     .then(()=>{
-//       return cors((req, res) => {
-//         req.method === 'OPTIONS' ? console.log('Message') : handler(req, res)
-//     });
-//   });
-//   });
