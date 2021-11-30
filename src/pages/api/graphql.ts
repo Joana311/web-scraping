@@ -18,35 +18,41 @@ import {
 
 //we dont want it to pasrse the body
 //Graphql by defualt will handle that, we just want the headers?
-export const config = {
+export const config : PageConfig= {
   api: {
     bodyParser: false,
   },
 };
 
-const cors = Cors({
-  origin: "https://studio.apollographql.com",
-  allowCredentials: true
-});
-const server = new ApolloServer({
+// const cors = Cors({
+//   origin: "https://studio.apollographql.com/",
+//   allowCredentials: true
+// });
+
   // plugins: [
   //   process.env.NODE_ENV === "production"
   //     ? ApolloServerPluginLandingPageDisabled()
   //     : ApolloServerPluginLandingPageGraphQLPlayground(),
   // ],
+const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 const startServer = server.start();
 
-export default cors(async function handler(req, res) {
-  await startServer;
+export default async(req, res) => {
   if (req.method === "OPTIONS") {
     res.end();
     return false;
   }
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://studio.apollographql.com");
+  res.setHeader("Access-Control-Allow-Methods", "POST");
+  await startServer;
   await server.createHandler({ path: "/api/graphql" })(req, res);
-});
+};
 
 // module.exports = server.start().then(async (req,res) => {
 //   return await server.createHandler({path:'/api/graphql'})(req, res);
