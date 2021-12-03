@@ -26,7 +26,7 @@ export const config : PageConfig= {
 
 const cors = Cors({allowMethods: ['PUT', 'POST'] 
 });
-  
+//Un-comment to run on old UI for Apollo
 const server = new ApolloServer({
   // plugins: [
   //   process.env.NODE_ENV === "production"

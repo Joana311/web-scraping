@@ -16,18 +16,19 @@ export const typeDefs = gql`
     exerciseHistory: [ExerciseHistory!]!
   }
   type ExerciseHistory {
-    user: User!
+    ownerID: ID!
     date: String!
     sets: [Set!]!
   }
   type Set {
-    exercise: Exercise!
+    exerciseID: ID!
     reps: Int!
     rpe: Int!
   }
   type Exercise {
+    id:ID!
     name: String!
-    url: String!
+    url: String
   }
 `;
 
