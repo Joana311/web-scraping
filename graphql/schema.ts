@@ -3,7 +3,8 @@ export const typeDefs = gql`
   type Query {
     hello: String!
     getAllUsers(last: Int): [User!]!
-    allExercises(last: Int): [Exercise!]!
+    grabSingleUser(name: String, email: String): User!
+    allExercises(last: Int): [Exercise]
   }
 
   type mutation {
@@ -13,7 +14,7 @@ export const typeDefs = gql`
     id: ID!
     name: String!
     email: String!
-    exerciseHistory: [Workout!]!
+    exerciseHistory: [Workout!]
   }
   type Workout {
     ownerID: ID!

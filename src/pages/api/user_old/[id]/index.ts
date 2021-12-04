@@ -1,7 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
-import  sqlite3  from "sqlite3";
-import { open } from "sqlite";
+
 
 export interface User{
     name: string;
@@ -10,7 +9,7 @@ export interface User{
     ExerciseHistory?: {};
 }
 
-export default async function getUserById(req: NextApiRequest, res: NextApiResponse){
+export default async function getUserByName(req: NextApiRequest, res: NextApiResponse){
     if (req.method !== 'GET'){
         res.status(500).json({message:"Only Get Request Accepted"})
     }

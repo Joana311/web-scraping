@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { ExercisesData } from '../exrxData/data';
+import { ExercisesData } from "../exrxData/data";
 const exercisesData = [
   {
     //id: undefined,
@@ -53,11 +53,33 @@ const prisma = new PrismaClient();
 // })(ExercisesData);
 
 async function main() {
-  await prisma.user.create({
-    data: {
-      name: "Pablo123",
-      email: "pigbig@test.com",
-    },
+  await prisma.user.createMany({
+    data: [
+      {
+        name: "Pablo123",
+        email: "pigbig@test.com",
+      },
+      {
+        name: "xGirl",
+        email: "catch_me@outside.com",
+      },
+      {
+        name: "SeniorDaddy",
+        email: "bartGooden24@quest.com",
+      },
+      {
+        name: "MikeBiggums",
+        email: "rogue@quest.com",
+      },
+      {
+        name: "Kitten",
+        email: "goodgirl@hotmail.com",
+      },
+      {
+        name: "Pablo_007",
+        email: "bigpig@tiktok.com",
+      },
+    ],
   });
   await prisma.exercise.createMany({
     data: exercisesData,
