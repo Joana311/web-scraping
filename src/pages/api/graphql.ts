@@ -3,6 +3,7 @@ import  Cors  from "micro-cors";
 import { PageConfig } from "next";
 import { typeDefs } from "../../../graphql/schema";
 import { resolvers } from "../../../graphql/resolvers";
+import { createContext } from "../../../graphql/context";
 
 import {
   ApolloServerPluginLandingPageGraphQLPlayground,
@@ -26,6 +27,7 @@ export const config : PageConfig= {
 
 const cors = Cors({allowMethods: ['PUT', 'POST'] 
 });
+//Make sure u open Sanbox in INCOGNITO Adblock will fuck up the CORS
 //Un-comment to run on old UI for Apollo
 const server = new ApolloServer({
   // plugins: [
@@ -35,6 +37,7 @@ const server = new ApolloServer({
   // ],
   typeDefs,
   resolvers,
+  context:createContext,
 });
 const startServer = server.start();
 

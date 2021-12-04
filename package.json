@@ -2,7 +2,6 @@
   "name": "progress-tracker2021-nextjs",
   "proxy": "http://localhost:3000",
   "private": true,
-
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -22,7 +21,12 @@
   "dependencies": {
     "@apollo/client": "^3.5.5",
     "@babel/core": "^7.0.0",
+    "@emotion/react": "^11.7.0",
+    "@emotion/server": "^11.4.0",
+    "@emotion/styled": "^11.6.0",
     "@material-ui/core": "^4.12.3",
+    "@mui/icons-material": "^5.2.0",
+    "@mui/material": "^5.2.2",
     "@prisma/client": "^3.6.0",
     "apollo-server": "^3.5.0",
     "apollo-server-core": "^3.5.0",
@@ -40,6 +44,7 @@
     "micro": "^9.3.4",
     "micro-cors": "^0.1.1",
     "next": "12.0.2",
+    "nexus": "^1.1.0",
     "nodemon": "^2.0.15",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -47,6 +52,7 @@
     "type-is": "^1.6.18"
   },
   "devDependencies": {
+    "@emotion/eslint-plugin": "^11.7.0",
     "@types/graphql": "^14.5.0",
     "@types/micro-cors": "^0.1.2",
     "@types/node": "^16.11.10",

@@ -5,21 +5,10 @@ export function HomePage({muscleGroupData}) {
   const [muscleGroups, setMuscleGroups] = useState(muscleGroupData);
   return (
     <div>
-      <h1>Hello Kav</h1>
+      <h1>Hello Sexy</h1>
       <Link href={"/List"}>View List</Link>
       <br />
-      <Link href={"/Exercises"}>View Exercises</Link>
-      <div>
-        {muscleGroups.map(
-          (muscleGroup: { name: string; href: string; muscles: {} }, index) => {
-            return (
-              <>
-                <h1 key={index}>{muscleGroup.name} </h1>
-              </>
-            );
-          }
-        )}
-      </div>
+      <Link href={"/ExercisesDirectory"}>View Exercises</Link>
     </div>
   );
 }

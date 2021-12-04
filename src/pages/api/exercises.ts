@@ -1,12 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import {open} from 'sqlite';
-import sqlite3 from 'sqlite3';
 
 export interface Exercise{
     id: number;
+    excerciseID?: string;
     name: string;
-    link: string;
-    excerciseID?: number;
+    url: string;
 }
 export default async function getAllExercises(req: NextApiRequest, res: NextApiResponse){
     if (req.method !== 'GET'){
