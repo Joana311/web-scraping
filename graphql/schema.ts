@@ -1,15 +1,20 @@
 import { gql } from "apollo-server-micro";
+
 export const typeDefs = gql`
   type Query {
     hello: String!
     getAllUsers(last: Int): [User!]!
-    grabSingleUser(name: String, email: String): User!
+    grabSingleUser(name: String, email: String, id: ID): User!
     allExercises(last: Int): [Exercise]
+    user(name: String, email: String, id: ID!): User
   }
 
-  type mutation {
+  type Mutation {
+
     createUser(name: String!, email: String!): User!
-  }
+    addEmptyWorkout(ownerID: ID!): [Workout]
+    createWorkout(ownerID: ID!): User
+    }
   type User {
     id: ID!
     name: String!
@@ -17,10 +22,10 @@ export const typeDefs = gql`
     exerciseHistory: [Workout!]
   }
   type Workout {
-    ownerID: ID!
-    owner: User!
+    ownerID: ID
+    owner: User
     date: String!
-    sets: [Set!]!
+    sets: [Set]
   }
   type Set {
     exerciseID: ID!

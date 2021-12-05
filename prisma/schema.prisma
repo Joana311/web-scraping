@@ -19,7 +19,7 @@ model User {
 
 model Workout {
   id      String   @id @default(uuid())
-  owner   User     @relation(fields: [ownerID], references: [id])
+  owner   User?    @relation(fields: [ownerID], references: [id])
   ownerID String
   date    DateTime @default(now())
   sets    Set[]
@@ -34,12 +34,10 @@ model Exercise {
 }
 
 model Set {
-  exercise   Exercise @relation(fields: [exerciseID], references: [id])
-  exerciseID Int
-  workout    Workout  @relation(fields: [workoutID], references: [id])
-  workoutID  String
-  reps       Int
-  rpe        Int
-
-  @@id([exerciseID, workoutID])
+  exercise   Exercise? @relation(fields: [exerciseID], references: [id])
+  exerciseID Int?
+  workout    Workout   @relation(fields: [workoutID], references: [id])
+  workoutID  String    @unique
+  reps       Int       @default(0)
+  rpe        Int       @default(0)
 }
