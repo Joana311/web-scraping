@@ -79,11 +79,15 @@ async function main() {
         name: "Pablo_007",
         email: "bigpig@tiktok.com",
       },
+      {
+        name: "Scott",
+        email: "scott@dobyns.co",
+      },
     ],
   });
-  await prisma.exercise.createMany({
-    data: exercisesData,
-  });
+  // await prisma.exercise.createMany({
+  //   data: exercisesData,
+  // });
 }
 
 main()

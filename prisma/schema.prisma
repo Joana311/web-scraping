@@ -11,10 +11,10 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(uuid())
-  name            String
-  email           String    @unique
-  exerciseHistory Workout[]
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  workouts Workout[]
 }
 
 model Workout {

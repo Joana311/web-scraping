@@ -5,44 +5,40 @@ import { gql, useMutation } from "@apollo/client";
 import apolloClient from "../../lib/apollo";
 import { GetServerSideProps, NextPageContext } from "next";
 import { resolvers } from "../../graphql/resolvers";
-import user from "../pages/[user]/index";
+import {User} from '../pages/[user]/index'
+import { ownerWindow } from '@mui/material';
+
 //Not sure if this is even needed tbh
-const addWorkoutQuery = gql`
-  mutation Mutation($ownerID: ID!) {
-    addEmptyWorkout(ownerID: $ownerID) {
-      exerciseHistory {
-    #     sets {
-    #       rpe
-    #       reps
-    #       exerciseID
-    #     }
-        ownerID
-      }
+const ADD_EMPTY_WORKOUT = gql`
+mutation AddEmptyWorkout($ownerId: ID!) {
+  addEmptyWorkout(ownerID: $ownerId) {
+    ownerID
+    date
+    sets {
+      exerciseID
+      ownerID
+      reps
+      rpe
     }
   }
+}
 `;
 // https://reactjs.org/docs/conditional-rendering.html
 
-export interface User {
-  name: string;
-  email: string;
-  id: string;
-  exerciseHistory: {} | undefined;
-}
 interface Props {
   user: User;
 }
 
 export const UserWorkouts: NextPage<Props> = (props, NextPageContext) => {
-  const [addUserWorkout, { data, loading, error }] =
-    useMutation(addWorkoutQuery);
+  const [addEmptyWorkout, { data, loading, error }] =
+    useMutation(ADD_EMPTY_WORKOUT);
 
-  console.log(data)
+  //console.log(data)
   const [addWorkout, setAddWorkout] = useState(false);
   useEffect(() => {
       if (data){
-          console.log(data.user);
-          props.user.exerciseHistory = data.user.exerciseHistory;
+          //console.log(data.user);
+          props.user.workouts = data.user.workouts;
       }
   }, [addWorkout]);
 
@@ -51,25 +47,24 @@ export const UserWorkouts: NextPage<Props> = (props, NextPageContext) => {
   //console.log(props)
   return (
     <>
-      {console.log(user.exerciseHistory)}
-      {}
+      {/* {console.log(user.exerciseHistory)} */}
       <a>
-        {user.exerciseHistory
-          ? () => {
-              <>
-                <a>"THIS SHOULD SHOW UP WHEN WE HAVE SOME EXERCISE HISTORY"</a>
-              </>;
-            }
-          : "Nothing Logged Yet"}{" "}
+        {user.workouts.length?
+            <>
+              {user.workouts.map( (workout, index) =>(
+                <h2 key={index}> { workout.date } </h2>
+                ))
+              }
+            </>
+        : "Nothing Logged Yet"}{" "}
       </a>
       <br></br>
       {console.log(user.id)}
       <button
         onClick={() =>
-          addUserWorkout({
-            variables: {
-              ownerID: user.id,
-            },
+          addEmptyWorkout({variables:{
+            ownerId: user.id
+          }
           })
         }
       >

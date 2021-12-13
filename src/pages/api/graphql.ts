@@ -9,7 +9,7 @@ import {
   ApolloServerPluginLandingPageGraphQLPlayground,
   ApolloServerPluginLandingPageDisabled,
 } from "apollo-server-core";
-
+//Apollo 
 //Apollo Server simply resolves the graphql schemas using the resolver functions
 //ApolloServer3 doesnt auto use Playground anymore. it redirects to apollo studio so
 //we need to use micro CORS to deal with the  CORS errors for the requests
