@@ -8,11 +8,10 @@ import type { Context } from "../graphql/context";
 
 import { typeDefs } from "./schema";
 import { gql } from "@apollo/client";
-import { UserWorkouts } from '../src/containers/UserWorkouts';
+import { UserWorkouts } from "../src/containers/UserWorkouts";
 import { DateTimeResolver } from "graphql-scalars";
 
-
-//You should be getting recommendations the whole time you type 
+//You should be getting recommendations the whole time you type
 //(except for the top level names which you make up yourself). \
 //If you’re not, run
 //“Apollo: Reload Schema”
@@ -24,42 +23,48 @@ export const resolvers = {
   //Since we are using prisma. all the Query language is taken care of
   // date: DateTimeResolver,
   Query: {
-    allExercises: async (_parent, _args, ctx: Context) =>
-      await ctx.prisma.exercise.findMany(),
+    allExercises: async (_parent, _args, ctx: Context) => {
+      await ctx.prisma.exercise.findMany();
+    },
     user: async (
       _parent,
       args: { name?: string; email?: string },
-      ctx: Context ) =>
-        await ctx.prisma.user.findFirst({
-          where: {
-            name: args.name,
-            email: args.email,
-          },
-          include: {
-            workouts: true
-          },
-          rejectOnNotFound: true,
-      }),
-
-      workout: async(_parent,args:{ownerID: string, date: string}, ctx: Context)=>{
-        return await ctx.prisma.workout.findMany({
-          where:{
-            ownerID: args.ownerID
-          },
-          include: {sets:true}
-        })
-      },
-    exercisehistory: async (parent,args:{name: string},ctx: Context) =>{
+      ctx: Context
+    ) => {
+      await ctx.prisma.user.findFirst({
+        where: {
+          name: args.name,
+          email: args.email,
+        },
+        include: {
+          workouts: true,
+        },
+        rejectOnNotFound: true,
+      });
+    },
+    workout: async (
+      _parent,
+      args: { ownerID: string; date: string },
+      ctx: Context
+    ) => {
+      return await ctx.prisma.workout.findMany({
+        where: {
+          ownerID: args.ownerID,
+        },
+        include: { sets: true },
+      });
+    },
+    exercisehistory: async (parent, args: { name: string }, ctx: Context) => {
       const data = await ctx.prisma.user.findFirst({
-        where:{
-          name: args.name
+        where: {
+          name: args.name,
         },
-        include:{
-          workouts:true,
+        include: {
+          workouts: true,
         },
-      })
+      });
       return data;
-    }
+    },
   },
   Mutation: {
     addEmptyWorkout: async (
@@ -69,25 +74,24 @@ export const resolvers = {
     ) => {
       //console.log({args})
       await ctx.prisma.workout.create({
-        data:{
-          owner:{
-            connect: {id: args.ownerID},
-            
+        data: {
+          owner: {
+            connect: { id: args.ownerID },
           },
-          sets:{
-            create:{
+          sets: {
+            create: {
               exerciseID: undefined,
               reps: 0,
-              rpe: 0, 
-            }
-          }
+              rpe: 0,
+            },
+          },
         },
-      })
+      });
       return ctx.prisma.workout.findMany({
-        where:{
-          ownerID: args.ownerID
-        }
+        where: {
+          ownerID: args.ownerID,
+        },
       });
     },
-  }
+  },
 };

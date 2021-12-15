@@ -2,8 +2,9 @@ import { ApolloServer } from "apollo-server-micro";
 import  Cors  from "micro-cors";
 import { PageConfig } from "next";
 import { typeDefs } from "../../../graphql/schema";
-import { resolvers } from "../../../graphql/resolvers";
+import { resolvers } from '../../../graphql/resolvers';
 import { createContext } from "../../../graphql/context";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 
 import {
   ApolloServerPluginLandingPageGraphQLPlayground,
@@ -25,16 +26,26 @@ export const config : PageConfig= {
   },
 };
 
+export const schema = makeExecutableSchema({ typeDefs });
+
 const cors = Cors({allowMethods: ['PUT', 'POST'] 
 });
 //Make sure u open Sanbox in INCOGNITO Adblock will fuck up the CORS
 //Un-comment to run on old UI for Apollo
+
+// const server = new ApolloServer({
+//   // plugins: [
+//   //   process.env.NODE_ENV === "production"
+//   //     ? ApolloServerPluginLandingPageDisabled()
+//   //     : ApolloServerPluginLandingPageGraphQLPlayground(),
+//   // ],
+//   typeDefs,
+//   resolvers,
+//   context:createContext,
+// });
+
+//this server has the exectuable schema
 const server = new ApolloServer({
-  // plugins: [
-  //   process.env.NODE_ENV === "production"
-  //     ? ApolloServerPluginLandingPageDisabled()
-  //     : ApolloServerPluginLandingPageGraphQLPlayground(),
-  // ],
   typeDefs,
   resolvers,
   context:createContext,
