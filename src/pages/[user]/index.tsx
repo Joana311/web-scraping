@@ -21,23 +21,10 @@ const QUERY_USER = gql`
         date
         sets {
           exerciseID
+          workoutID
           reps
           rpe
-          ownerID
         }
-      }
-    }
-  }
-`;
-const USER_WORKOUTS = gql`
-  query Workout($ownerId: ID) {
-    workout(ownerID: $ownerId) {
-      ownerID
-      date
-      sets {
-        exerciseID
-        reps
-        rpe
       }
     }
   }
@@ -121,7 +108,7 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
 
   return {
     props: {
-      user: result
-    }
+      user: result,
+    },
   };
 };

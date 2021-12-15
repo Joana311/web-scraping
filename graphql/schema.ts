@@ -9,21 +9,19 @@ import { gql } from "apollo-server-micro";
 
 export const typeDefs = gql`
   type Query {
-    getAllUsers(last: Int): [User!]!
     allExercises(last: Int): [Exercise]
-    exercisehistory(name: String): User
     users:[User]
     user(name: String, email: String, id: ID): User
-    # workouts: [Workout]
-    workout(ownerID: ID, date: String): [Workout]
-    set(exerciseID: ID, ownerID: ID): [Set]
+    workouts(ownerID: ID!, date: String): [Workout]
+    workout(ownerID: ID!, date:String): Workout
+    set(exerciseID: ID, ownerID: ID!): [Set]
     sets: [Set]
     exercise(uuid:ID!,name:String): Exercise
   }
 
   type Mutation {
     createUser(name: String!, email: String!): User!
-    addEmptyWorkout(ownerID: ID!): [Workout]
+    addEmptyWorkout(ownerID: ID!): User
     createWorkout(ownerID: ID!): User
     }
   type User {
@@ -40,7 +38,7 @@ export const typeDefs = gql`
   }
   type Set {
     exerciseID: ID
-    ownerID: ID!
+    workoutID: ID!
     reps: Int
     rpe: Int
   }

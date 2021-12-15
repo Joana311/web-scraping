@@ -30,7 +30,7 @@ export const resolvers = {
       _parent,
       args: { name?: string; email?: string },
       ctx: Context
-    ) => {
+    ) =>
       await ctx.prisma.user.findFirst({
         where: {
           name: args.name,
@@ -40,9 +40,20 @@ export const resolvers = {
           workouts: true,
         },
         rejectOnNotFound: true,
+      }),
+    workout: async (
+      _parent,
+      args: { ownerID: string; date: string },
+      ctx: Context
+    ) => {
+      return await ctx.prisma.workout.findFirst({
+        where: {
+          ownerID: args.ownerID,
+          date: args.date,
+        },
       });
     },
-    workout: async (
+    workouts: async (
       _parent,
       args: { ownerID: string; date: string },
       ctx: Context
@@ -54,21 +65,10 @@ export const resolvers = {
         include: { sets: true },
       });
     },
-    exercisehistory: async (parent, args: { name: string }, ctx: Context) => {
-      const data = await ctx.prisma.user.findFirst({
-        where: {
-          name: args.name,
-        },
-        include: {
-          workouts: true,
-        },
-      });
-      return data;
-    },
   },
   Mutation: {
     addEmptyWorkout: async (
-      _parent,
+      parent,
       args: { ownerID: string },
       ctx: Context
     ) => {
@@ -87,11 +87,14 @@ export const resolvers = {
           },
         },
       });
-      return ctx.prisma.workout.findMany({
+      return ctx.prisma.user.findUnique({
         where: {
-          ownerID: args.ownerID,
+          id: args.ownerID,
         },
       });
     },
   },
+  Workout:{
+    
+  }
 };
