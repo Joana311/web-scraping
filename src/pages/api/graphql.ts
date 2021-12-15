@@ -2,7 +2,7 @@ import { ApolloServer } from "apollo-server-micro";
 import  Cors  from "micro-cors";
 import { PageConfig } from "next";
 import { typeDefs } from "../../../graphql/schema";
-import { resolvers } from '../../../graphql/resolvers';
+import { resolvers } from "../../../graphql/resolvers";
 import { createContext } from "../../../graphql/context";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
@@ -10,46 +10,26 @@ import {
   ApolloServerPluginLandingPageGraphQLPlayground,
   ApolloServerPluginLandingPageDisabled,
 } from "apollo-server-core";
-//Apollo 
-//Apollo Server simply resolves the graphql schemas using the resolver functions
-//ApolloServer3 doesnt auto use Playground anymore. it redirects to apollo studio so
-//we need to use micro CORS to deal with the  CORS errors for the requests
-//comming in from outside of the domain
 
-//https://github.com/apollographql/apollo-server/discussions/5503
-
-//we dont want it to pasrse the body
-//Graphql by defualt will handle that, we just want the headers?
 export const config : PageConfig= {
   api: {
     bodyParser: false,
   },
 };
 
-export const schema = makeExecutableSchema({ typeDefs });
+export const schema = makeExecutableSchema({ typeDefs, resolvers });
+//console.log(schema)
 
 const cors = Cors({allowMethods: ['PUT', 'POST'] 
 });
 //Make sure u open Sanbox in INCOGNITO Adblock will fuck up the CORS
-//Un-comment to run on old UI for Apollo
 
-// const server = new ApolloServer({
-//   // plugins: [
-//   //   process.env.NODE_ENV === "production"
-//   //     ? ApolloServerPluginLandingPageDisabled()
-//   //     : ApolloServerPluginLandingPageGraphQLPlayground(),
-//   // ],
-//   typeDefs,
-//   resolvers,
-//   context:createContext,
-// });
-
-//this server has the exectuable schema
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   context:createContext,
 });
+
 const startServer = server.start();
 
 export default cors(async(req, res) => {

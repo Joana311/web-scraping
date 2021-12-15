@@ -6,13 +6,13 @@
 //   })
 
 import { Prisma, PrismaClient } from "@prisma/client";
-declare global {
-  namespace NodeJS {
-    interface Global {
-      prisma: PrismaClient;
-    }
-  }
-}
+// declare global {
+//   namespace NodeJS {
+//     interface Global {
+//       prisma: PrismaClient;
+//     }
+//   }
+// }
 let prisma: PrismaClient;
 
 if (typeof window === "undefined") {
@@ -20,7 +20,8 @@ if (typeof window === "undefined") {
     prisma = new PrismaClient();
   } else {
     if (!global.prisma) {
-      global.prisma = new PrismaClient();
+      global.prisma = new PrismaClient({log: ['query']}
+      );
     }
     prisma = global.prisma;
   }

@@ -6,11 +6,10 @@ import {
   useMutation,
 } from "@apollo/client";
 import myApolloClient from "../../../lib/apollo";
-import { initializeApollo } from "../../../lib/apollo";
+//import { initializeApollo } from "../../../lib/apollo";
 import { GetServerSideProps, NextPageContext } from "next";
 import { UserWorkouts } from "../../containers/UserWorkouts";
 import { useEffect, useState } from "react";
-import { typeDefs } from "../../../graphql/schema";
 const QUERY_USER = gql`
   query User($name: String) {
     user(name: $name) {
@@ -65,16 +64,9 @@ export interface User {
 
 export interface UserPageProps {
   user: User;
-  initialApolloState: any;
 }
 export default function user({ user }: UserPageProps) {
   const [User, setUser] = useState(user);
-
-  const { data } = useQuery(USER_WORKOUTS, {
-    variables: {
-      ownerId: User.id,
-    },
-  });
 
   const addWorkoutHandler = () => {
     const [addEmptyWorkout, { data, error: addWorkoutError }] =
@@ -93,14 +85,6 @@ export default function user({ user }: UserPageProps) {
   useEffect(() => {
     //console.log("renderParent");
   }, [User.workouts]);
-
-  if (data) {
-    // console.log(data.workout);
-    if (User.workouts != data.workout) {
-      //console.log("here");
-      //setUser({ ...User, workouts: data.workout });
-    }
-  }
 
   return (
     <div>
@@ -125,7 +109,7 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
   //this is the one im currently using coz dumb
   const apolloClient = myApolloClient;
 
-  const { data, error } = await apolloClient.query({
+  const { data, error } = await myApolloClient.query({
     query: QUERY_USER,
     variables: { name: context.query.user },
   });
@@ -137,8 +121,7 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
 
   return {
     props: {
-      user: result,
-      initialApolloState: apolloClient.cache.extract(),
-    },
+      user: result
+    }
   };
 };

@@ -7,22 +7,23 @@ import { CacheProvider, EmotionCache } from '@emotion/react';
 import theme from '../../styles/theme';
 import createEmotionCache from '../../lib/createEmotionCache';
 import { ApolloProvider, ApolloClient } from '@apollo/client';
-import {useApollo} from '../../lib/apollo';
-
+//import {useApollo} from '../../lib/apollo';
+import myApolloClient from '../../lib/apollo';
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
 interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache;
-  apolloClient?: any;
+  //apolloClient?: any;
 }
 
 const App = (props: MyAppProps) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-  const apolloClient = useApollo(pageProps.intialApolloState);
+  //const apolloClient = useApollo(pageProps.intialApolloState);
+  const apolloClient = myApolloClient
   return (
     <CacheProvider value={emotionCache}>
-    <ApolloProvider client={apolloClient}>
+    <ApolloProvider client={myApolloClient}>
       <Head>
         <title>My page</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
