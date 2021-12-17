@@ -3,8 +3,8 @@ import { NextPage } from "next";
 import React, { useState, useEffect } from "react";
 import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { GetServerSideProps, NextPageContext } from "next";
-import { User } from "../pages/[user]/index";
 import { ownerWindow } from "@mui/material";
+import { User, Workout, } from "../../graphql/generated/graphql";
 
 //Not sure if this is even needed tbh
 const ADD_EMPTY_WORKOUT = gql`
@@ -37,7 +37,7 @@ const USER_WORKOUTS = gql`
 // https://reactjs.org/docs/conditional-rendering.html
 
 interface Props {
-  user: User;
+  workouts: Workout[] | null,
   update: any;
 }
 export const parseDate = (intString) => {
@@ -46,19 +46,27 @@ export const parseDate = (intString) => {
 };
 
 export const UserWorkouts: NextPage<Props> = (props, NextPageContext) => {
-  //have to destructre the interface
-  const { user, update } = props;
-
+  const { workouts, update } = props;
   const [addWorkout, setAddWorkout] = useState(false);
-
   return (
     <>
-      {user.workouts.length ? (
+      {workouts.length ? (
         <>
-          {user.workouts.map((workout, index) => (
-            <> 
-            <h2 key={index}> {parseDate(workout.date).toLocaleString()}</h2>
-            <pre>workout info here</pre>
+          {workouts.map((workout, index) => (
+            <>
+              <h2 key={index}> {parseDate(workout.date).toLocaleString()}</h2>
+              {workout.sets.map((set, index) => {
+                return (
+                  <>
+                    <div key={index}>{set.exerciseID? set.exerciseID :
+                    <>
+                    no data yet
+                    <button>add Exercise</button>
+                    </>
+                    }</div>
+                  </>
+                );
+              })}
             </>
           ))}
         </>
@@ -67,7 +75,14 @@ export const UserWorkouts: NextPage<Props> = (props, NextPageContext) => {
       )}{" "}
       <br></br>
       {/* {console.log(user.id)} */}
-      <button onClick={update}>Add</button>
+      <button
+        onClick={() => {
+          update();
+          console.log("clicked");
+        }}
+      >
+        Add
+      </button>
     </>
   );
 };

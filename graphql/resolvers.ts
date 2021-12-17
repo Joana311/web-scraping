@@ -10,6 +10,7 @@ import { typeDefs } from "./schema";
 import { gql } from "@apollo/client";
 import { UserWorkouts } from "../src/containers/UserWorkouts";
 import { DateTimeResolver } from "graphql-scalars";
+import { TurnSlightRightTwoTone } from "@mui/icons-material";
 
 //You should be getting recommendations the whole time you type
 //(except for the top level names which you make up yourself). \
@@ -81,8 +82,8 @@ export const resolvers = {
           sets: {
             create: {
               exerciseID: undefined,
-              reps: 0,
-              rpe: 0,
+              reps: Number(0),
+              rpe: Number(0),
             },
           },
         },
@@ -91,10 +92,26 @@ export const resolvers = {
         where: {
           id: args.ownerID,
         },
+        include: {
+          workouts: {
+            include: {
+              sets: true,
+            },
+          },
+        },
       });
     },
   },
-  Workout:{
-    
-  }
+  Workout: {
+    sets: async (parent, args, ctx) => {
+      //console.log(parent.ownerID);
+      const res = await ctx.prisma.set.findMany({
+        where: {
+          workoutID: parent.id,
+        },
+      });
+      //console.log(res)
+      return res;
+    },
+  },
 };

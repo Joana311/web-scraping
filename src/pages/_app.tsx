@@ -14,7 +14,7 @@ const clientSideEmotionCache = createEmotionCache();
 
 interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache;
-  //apolloClient?: any;
+  pageProps
 }
 
 const App = (props: MyAppProps) => {
