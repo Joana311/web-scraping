@@ -9,6 +9,7 @@ import createEmotionCache from '../../lib/createEmotionCache';
 import { ApolloProvider, ApolloClient } from '@apollo/client';
 //import {useApollo} from '../../lib/apollo';
 import myApolloClient from '../../lib/apollo';
+import HeaderBar from '../components/HeaderBar';
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 

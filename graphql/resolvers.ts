@@ -8,9 +8,10 @@ import type { Context } from "../graphql/context";
 
 import { typeDefs } from "./schema";
 import { gql } from "@apollo/client";
-import { UserWorkouts } from "../src/containers/UserWorkouts";
 import { DateTimeResolver } from "graphql-scalars";
 import { TurnSlightRightTwoTone } from "@mui/icons-material";
+import { ExerciseResolvers } from "./generated/graphql";
+import { connect } from "http2";
 
 //You should be getting recommendations the whole time you type
 //(except for the top level names which you make up yourself). \
@@ -25,7 +26,14 @@ export const resolvers = {
   // date: DateTimeResolver,
   Query: {
     allExercises: async (_parent, _args, ctx: Context) => {
-      await ctx.prisma.exercise.findMany();
+      return await ctx.prisma.exercise.findMany({
+        select: {
+          name: true,
+          id: true,
+          url: true,
+          uuid: true,
+        },
+      });
     },
     user: async (
       _parent,
@@ -68,6 +76,36 @@ export const resolvers = {
     },
   },
   Mutation: {
+    addWorkoutSet: async (
+      parent,
+      args: {
+        workoutID: string;
+        exerciseID: string;
+        reps: number;
+        rpe: number;
+      },
+      ctx: Context
+    ) => {
+      const data = await ctx.prisma.set.create({
+        data: {
+          workoutID: String(args.workoutID),
+          exerciseID: String(args.exerciseID),
+          reps: args.reps,
+          rpe: 0,
+        },
+      });
+      console.log("set added ");
+      return ctx.prisma.user.findFirst({
+        where:{
+          workouts:{
+            some:{
+              id: args.workoutID
+            }
+          }
+        }
+      });
+    },
+
     addEmptyWorkout: async (
       parent,
       args: { ownerID: string },
@@ -98,6 +136,22 @@ export const resolvers = {
               sets: true,
             },
           },
+        },
+      });
+    },
+  },
+  Exercise: {
+    id: async (parent) => {
+      //console.log(parent.id);
+      return parent.id;
+    },
+    uuid: async (parent) => {
+      return parent.uuid;
+    },
+    inSets: async (parent, args, ctx) => {
+      await ctx.prisma.set.findMany({
+        where: {
+          exerciseID: parent.uuid,
         },
       });
     },

@@ -85,9 +85,9 @@ async function main() {
       },
     ],
   });
-  // await prisma.exercise.createMany({
-  //   data: exercisesData,
-  // });
+  await prisma.exercise.createMany({
+    data: exercisesData,
+  });
 }
 
 main()

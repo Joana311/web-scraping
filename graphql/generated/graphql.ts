@@ -28,6 +28,7 @@ export type Exercise = {
 export type Mutation = {
   __typename?: 'Mutation';
   addEmptyWorkout?: Maybe<User>;
+  addWorkoutSet?: Maybe<User>;
   createUser: User;
   createWorkout?: Maybe<User>;
 };
@@ -35,6 +36,14 @@ export type Mutation = {
 
 export type MutationAddEmptyWorkoutArgs = {
   ownerID: Scalars['ID'];
+};
+
+
+export type MutationAddWorkoutSetArgs = {
+  exerciseID: Scalars['ID'];
+  reps?: InputMaybe<Scalars['Int']>;
+  rpe?: InputMaybe<Scalars['Int']>;
+  workoutID: Scalars['ID'];
 };
 
 
@@ -51,7 +60,6 @@ export type MutationCreateWorkoutArgs = {
 export type Query = {
   __typename?: 'Query';
   allExercises?: Maybe<Array<Maybe<Exercise>>>;
-  exercise?: Maybe<Exercise>;
   set?: Maybe<Array<Maybe<Set>>>;
   sets?: Maybe<Array<Maybe<Set>>>;
   user?: Maybe<User>;
@@ -63,12 +71,6 @@ export type Query = {
 
 export type QueryAllExercisesArgs = {
   last?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type QueryExerciseArgs = {
-  name?: InputMaybe<Scalars['String']>;
-  uuid: Scalars['ID'];
 };
 
 
@@ -227,13 +229,13 @@ export type ExerciseResolvers<ContextType = Context, ParentType extends Resolver
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   addEmptyWorkout?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationAddEmptyWorkoutArgs, 'ownerID'>>;
+  addWorkoutSet?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationAddWorkoutSetArgs, 'exerciseID' | 'workoutID'>>;
   createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'email' | 'name'>>;
   createWorkout?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateWorkoutArgs, 'ownerID'>>;
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   allExercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Exercise']>>>, ParentType, ContextType, RequireFields<QueryAllExercisesArgs, never>>;
-  exercise?: Resolver<Maybe<ResolversTypes['Exercise']>, ParentType, ContextType, RequireFields<QueryExerciseArgs, 'uuid'>>;
   set?: Resolver<Maybe<Array<Maybe<ResolversTypes['Set']>>>, ParentType, ContextType, RequireFields<QuerySetArgs, 'ownerID'>>;
   sets?: Resolver<Maybe<Array<Maybe<ResolversTypes['Set']>>>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, never>>;

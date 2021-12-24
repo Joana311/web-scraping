@@ -34,10 +34,11 @@ model Exercise {
 }
 
 model Set {
-  exercise   Exercise? @relation(fields: [exerciseID], references: [id])
-  exerciseID Int?
-  workout    Workout   @relation(fields: [workoutID], references: [id])
-  workoutID  String    @unique
+  id         String    @id @default(cuid())
+  exercise   Exercise? @relation(fields: [exerciseID], references: [uuid])
+  exerciseID String?
+  workout    Workout?  @relation(fields: [workoutID], references: [id])
+  workoutID  String?
   reps       Int       @default(0)
   rpe        Int       @default(0)
 }

@@ -11,8 +11,9 @@ import { GetServerSideProps, NextPageContext } from "next";
 import { UserWorkouts } from "../../containers/UserWorkouts";
 import { useEffect, useState } from "react";
 import { User } from "../../../graphql/generated/graphql";
-import { createNumericLiteral } from "typescript";
 import { ConstructionOutlined } from "@mui/icons-material";
+import HeaderBar from "../../components/HeaderBar";
+import Link from "next/link";
 const QUERY_USER = gql`
   query User($name: String) {
     user(name: $name) {
@@ -20,6 +21,7 @@ const QUERY_USER = gql`
       name
       email
       workouts {
+        id
         ownerID
         date
         sets {
@@ -39,6 +41,7 @@ const ADD_EMPTY_WORKOUT = gql`
     name
     email
     workouts {
+      id
       ownerID
       date
       sets {
@@ -67,6 +70,11 @@ export default function user({ user }: UserPageProps) {
     console.log(User)
   })();
 
+  const editWorkoutHandler = () => {
+    
+    <Link as= { `/${User.name}/addWorkout` } href='/[user]/addWorkout'> add Exerercise</Link>
+  }
+
   const [addEmptyWorkout, { error: addWorkoutError }] =
       useMutation(ADD_EMPTY_WORKOUT);
 
@@ -90,16 +98,17 @@ export default function user({ user }: UserPageProps) {
   // }, []);
 
   return (
-    <div>
-      <h1>{User.name}'s Profile</h1>
+    <HeaderBar userName={User.name}>
+    <>
       <div>
         <h3>Workouts</h3>
-        <UserWorkouts workouts={User.workouts} update={addWorkoutHandler} />
+        <UserWorkouts User={User} update={addWorkoutHandler} edit={editWorkoutHandler}/>
       </div>
       <div>
         <h3>{user.name}'s Exercises</h3>
       </div>
-    </div>
+    </>
+    </HeaderBar>
   );
 }
 //cannot use apollo's useQuery hook inside of another react hook must use the client
@@ -112,6 +121,7 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
   //this is the one im currently using coz dumb
   const apolloClient = myApolloClient;
   console.log(myApolloClient.extract())
+  console.log(context.query)
 
   const { data, error } = await myApolloClient.query({
     query: QUERY_USER,

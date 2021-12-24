@@ -16,13 +16,13 @@ export const typeDefs = gql`
     workout(ownerID: ID!, date:String): Workout
     set(exerciseID: ID, ownerID: ID!): [Set]
     sets: [Set]
-    exercise(uuid:ID!,name:String): Exercise
   }
 
   type Mutation {
     createUser(name: String!, email: String!): User!
     addEmptyWorkout(ownerID: ID!): User
     createWorkout(ownerID: ID!): User
+    addWorkoutSet(workoutID: ID!, exerciseID: ID!, reps: Int, rpe: Int): User
     }
   type User {
     id: ID!
@@ -31,6 +31,7 @@ export const typeDefs = gql`
     workouts: [Workout]
   }
   type Workout {
+    id: ID!
     ownerID: ID!
     owner: User
     date: String!
@@ -44,7 +45,7 @@ export const typeDefs = gql`
   }
   type Exercise {
     id: Int
-    uuid:ID!
+    uuid: ID!
     name: String!
     url: String
     inSets: [Set]
