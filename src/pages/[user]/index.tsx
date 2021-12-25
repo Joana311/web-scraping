@@ -25,6 +25,8 @@ const QUERY_USER = gql`
         ownerID
         date
         sets {
+          id
+          createdAt
           exerciseID
           workoutID
           reps
@@ -45,6 +47,8 @@ const ADD_EMPTY_WORKOUT = gql`
       ownerID
       date
       sets {
+        id
+        createdAt
         exerciseID
         workoutID
         reps

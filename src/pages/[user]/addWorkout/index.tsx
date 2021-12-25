@@ -1,18 +1,23 @@
 import React, { useState } from "react";
-import HeaderBar from "../../components/HeaderBar";
+import HeaderBar from "../../../components/HeaderBar";
 import {
   Exercise,
   Set,
   User,
-  Workout,
   ExerciseResolvers,
-} from "../../../graphql/generated/graphql";
+} from "../../../../graphql/generated/graphql";
+import {
+  MutationAddWorkoutSetArgs,
+  Workout,
+} from "../../../../graphql/generated/graphql";
 import { GetServerSideProps, GetStaticProps, NextPage } from "next";
-import myApolloClient from "../../../lib/apollo";
-import { gql, useMutation } from "@apollo/client";
+import myApolloClient from "../../../../lib/apollo";
+import { gql, OperationVariables, useMutation } from "@apollo/client";
 import { Grid, FormControl, Box, Card } from "@mui/material";
 import { useEffect } from "react";
 import Router from "next/router";
+import Link from "next/link";
+import { WorkOutlineRounded } from "@mui/icons-material";
 const GET_ALL_EXERCISES = gql`
   query AllExercises {
     allExercises {
@@ -24,18 +29,20 @@ const GET_ALL_EXERCISES = gql`
 `;
 const ADD_SET_TO_WORKOUT = gql`
   mutation AddWorkoutSet(
+    $id: ID
     $workoutID: ID!
     $exerciseID: ID!
     $reps: Int
     $rpe: Int
   ) {
     addWorkoutSet(
+      id: $id
       workoutID: $workoutID
       exerciseID: $exerciseID
       reps: $reps
       rpe: $rpe
     ) {
-      name
+      id
     }
   }
 `;
@@ -64,47 +71,96 @@ export interface workoutData {
 // have option for new set.
 // have option ok or save
 function addWorkout({ Exercises, User }: addWorkoutProps) {
-  const [showExercises, setShowExercises] = useState<Boolean>(true)
+  const [showExercises, setShowExercises] = useState<Boolean>(true);
   const [selectedExercise, setSelectedExercise] = useState<Exercise>();
   const [formData, setFormData] = useState<Set[]>([]);
   const [setCount, setSetCount] = useState(0);
   const [repCount, setRepCount] = useState(0);
   //Apollo Hooks
-  const [addSet, { data }] = useMutation(ADD_SET_TO_WORKOUT);
+  const [addSet, { data }] = useMutation<any, MutationAddWorkoutSetArgs>(
+    ADD_SET_TO_WORKOUT
+  );
+  //routing Handlers
+  const overviewWorkoutHandler = (workoutId) => (
+    <Link
+      as={`/${User.name}/addWorkout/overview?id=${workoutId}`}
+      href="/[user]/addWorkout/overview"
+    >
+      <button> Overview</button>
+    </Link>
+  );
   //State Related Handlers
-  const toggleExerciseList = () =>{
-    setShowExercises(prevState => !prevState)
-  }
+  const toggleExerciseList = () => {
+    setShowExercises((prevState) => !prevState);
+  };
   const handleRepsUpdate = (updateFunction, index) => {
-    const updateForm = [
-      ...(formData.slice(0, index) || []),
+    // const updateForm = [
+    //   ...(formData.slice(0, index) || []),
+    //   {
+    //     ...formData[index],
+    //     reps: updateFunction(formData[index].reps),
+    //   },
+    //   ...(formData.slice(index + 1) || []),
+    // ];
+    // setFormData(updateForm);
+
+    setFormData((prevState) => [
+      ...(prevState.slice(0, index) || []),
       {
-        ...formData[index],
-        reps: updateFunction(formData[index].reps),
+        ...prevState[index],
+        reps: updateFunction(prevState[index].reps),
       },
-      ...(formData.slice(index + 1) || []),
-    ];
-    setFormData(updateForm);
+      ...(prevState.slice(index + 1) || []),
+    ]);
+  };
+
+  const handleSetId = (setId: string, index) => {
+    setFormData((prevState) => [
+      ...(prevState.slice(0, index) || []),
+      {
+        ...prevState[index],
+        id: setId,
+      },
+      ...(prevState.slice(index + 1) || []),
+    ]);
   };
 
   //Database Handlers
   const saveSets = async () => {
-    for (const set of formData) {
-      let { workoutID, exerciseID, reps, rpe } = set;
-      console.log({set})
-      await addSet({
+    for (const [index, set] of formData.entries()) {
+      let { workoutID, exerciseID, reps, rpe, id: SetId } = set;
+      // console.log({ set });
+      //console.log(`${SetId} lives in state`);
+
+      const { data } = await addSet({
         variables: {
+          id: SetId,
           workoutID: workoutID,
           exerciseID: exerciseID,
           reps: reps,
           rpe: rpe,
         },
       });
+      if (await data.addWorkoutSet) {
+        let { id } = data.addWorkoutSet;
+        //console.log(id)
+
+        if (id) {
+          console.log(
+            `updating id ${data.addWorkoutSet.id} to Set state on index: ${index}`
+          );
+          handleSetId(id, index);
+        }
+      } else {
+        console.log("Previous Set Updated");
+      }
     }
-    console.log("hello");
+    //console.log(formData);
   };
   const initializeSet = () => {
     let newSet: Set = {
+      createdAt: undefined,
+      id: undefined,
       rpe: 0,
       reps: 0,
       exerciseID: selectedExercise.uuid,
@@ -117,7 +173,7 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
 
   useEffect(() => {
     if (setCount != 0) {
-      console.log(setCount);
+      console.log(formData);
     }
   }, [formData]);
 
@@ -165,15 +221,13 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
                       <button
                         onClick={() => {
                           saveSets();
+                          //console.log(formData)
                         }}
                       >
                         Save
                       </button>
                     )}
-                    <button
-                    onClick={toggleExerciseList}>
-                      New Exercise
-                    </button>
+                    <button onClick={toggleExerciseList}>New Exercise</button>
                   </>
                 )}
               </Box>
@@ -192,8 +246,6 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
                     setSelectedExercise(() => ({
                       name: exercise.name,
                       uuid: exercise.uuid,
-          
-
                     }));
                   }}
                 >
@@ -203,6 +255,11 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
             </Grid>
           )}
         </Grid>
+        {formData.length > 0 && (
+          <Grid item>
+            {overviewWorkoutHandler(String(Router.router.query.id))}
+          </Grid>
+        )}
       </HeaderBar>
     </>
   );

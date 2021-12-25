@@ -16,6 +16,8 @@ const ADD_EMPTY_WORKOUT = gql`
       ownerID
       date
       sets {
+        id
+        createdAt
         exerciseID
         reps
         rpe
@@ -31,6 +33,7 @@ const USER_WORKOUTS = gql`
       ownerID
       date
       sets {
+
         reps
         rpe
         exerciseID

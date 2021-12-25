@@ -28,7 +28,7 @@ export type Exercise = {
 export type Mutation = {
   __typename?: 'Mutation';
   addEmptyWorkout?: Maybe<User>;
-  addWorkoutSet?: Maybe<User>;
+  addWorkoutSet?: Maybe<Set>;
   createUser: User;
   createWorkout?: Maybe<User>;
 };
@@ -41,6 +41,7 @@ export type MutationAddEmptyWorkoutArgs = {
 
 export type MutationAddWorkoutSetArgs = {
   exerciseID: Scalars['ID'];
+  id?: InputMaybe<Scalars['ID']>;
   reps?: InputMaybe<Scalars['Int']>;
   rpe?: InputMaybe<Scalars['Int']>;
   workoutID: Scalars['ID'];
@@ -100,7 +101,9 @@ export type QueryWorkoutsArgs = {
 
 export type Set = {
   __typename?: 'Set';
+  createdAt?: Maybe<Scalars['String']>;
   exerciseID?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
   reps?: Maybe<Scalars['Int']>;
   rpe?: Maybe<Scalars['Int']>;
   workoutID: Scalars['ID'];
@@ -117,6 +120,7 @@ export type User = {
 export type Workout = {
   __typename?: 'Workout';
   date: Scalars['String'];
+  id: Scalars['ID'];
   owner?: Maybe<User>;
   ownerID: Scalars['ID'];
   sets?: Maybe<Array<Maybe<Set>>>;
@@ -229,7 +233,7 @@ export type ExerciseResolvers<ContextType = Context, ParentType extends Resolver
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   addEmptyWorkout?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationAddEmptyWorkoutArgs, 'ownerID'>>;
-  addWorkoutSet?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationAddWorkoutSetArgs, 'exerciseID' | 'workoutID'>>;
+  addWorkoutSet?: Resolver<Maybe<ResolversTypes['Set']>, ParentType, ContextType, RequireFields<MutationAddWorkoutSetArgs, 'exerciseID' | 'workoutID'>>;
   createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'email' | 'name'>>;
   createWorkout?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateWorkoutArgs, 'ownerID'>>;
 }>;
@@ -245,7 +249,9 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 }>;
 
 export type SetResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Set'] = ResolversParentTypes['Set']> = ResolversObject<{
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   exerciseID?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   reps?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   rpe?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   workoutID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -262,6 +268,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 
 export type WorkoutResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Workout'] = ResolversParentTypes['Workout']> = ResolversObject<{
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   owner?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   ownerID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   sets?: Resolver<Maybe<Array<Maybe<ResolversTypes['Set']>>>, ParentType, ContextType>;

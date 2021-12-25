@@ -52,13 +52,16 @@ export const resolvers = {
       }),
     workout: async (
       _parent,
-      args: { ownerID: string; date: string },
+      args: { workoutId: string; date: string },
       ctx: Context
     ) => {
       return await ctx.prisma.workout.findFirst({
         where: {
-          ownerID: args.ownerID,
+          id: args.workoutId,
           date: args.date,
+        },
+        include: {
+          owner: true,
         },
       });
     },
@@ -74,11 +77,26 @@ export const resolvers = {
         include: { sets: true },
       });
     },
+    workoutByExercises: async (parent, args, ctx: Context) => {
+      return await ctx.prisma.exercise.findMany({
+        where: {
+          inSets: {
+            every: {
+              workoutID: args.id,
+            },
+          },
+        },
+        include:{
+          inSets:true
+        }
+      });
+    },
   },
   Mutation: {
     addWorkoutSet: async (
       parent,
       args: {
+        id: string;
         workoutID: string;
         exerciseID: string;
         reps: number;
@@ -86,24 +104,29 @@ export const resolvers = {
       },
       ctx: Context
     ) => {
-      const data = await ctx.prisma.set.create({
-        data: {
+      const data = await ctx.prisma.set.upsert({
+        where: {
+          id: args.id || "",
+        },
+        create: {
           workoutID: String(args.workoutID),
           exerciseID: String(args.exerciseID),
           reps: args.reps,
           rpe: 0,
         },
+        update: {
+          workoutID: String(args.workoutID),
+          exerciseID: String(args.exerciseID),
+          reps: args.reps,
+          rpe: 0,
+        },
+        select: {
+          id: true,
+        },
       });
-      console.log("set added ");
-      return ctx.prisma.user.findFirst({
-        where:{
-          workouts:{
-            some:{
-              id: args.workoutID
-            }
-          }
-        }
-      });
+      //console.log(data)
+      if (!args.id) return data;
+      else return null;
     },
 
     addEmptyWorkout: async (
@@ -149,14 +172,22 @@ export const resolvers = {
       return parent.uuid;
     },
     inSets: async (parent, args, ctx) => {
-      await ctx.prisma.set.findMany({
+      return await ctx.prisma.set.findMany({
         where: {
           exerciseID: parent.uuid,
-        },
+        }
       });
     },
   },
   Workout: {
+    // owner: async (parent, args, ctx) =>{
+    //   const res = await ctx.prisma.user.findUnique({
+    //     where:{
+    //       id: parent.ownerID
+    //     }
+    //   })
+    //   return res
+    // },
     sets: async (parent, args, ctx) => {
       //console.log(parent.ownerID);
       const res = await ctx.prisma.set.findMany({

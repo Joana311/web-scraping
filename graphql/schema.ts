@@ -1,7 +1,7 @@
 import { gql } from "apollo-server-micro";
-//npx prisma format 
+//npx prisma format
 
-//You should be getting recommendations the whole time you type 
+//You should be getting recommendations the whole time you type
 //(except for the top level names which you make up yourself). \
 //If you’re not, run
 //“Apollo: Reload Schema”
@@ -10,10 +10,11 @@ import { gql } from "apollo-server-micro";
 export const typeDefs = gql`
   type Query {
     allExercises(last: Int): [Exercise]
-    users:[User]
+    workoutByExercises(id: ID!): [Exercise]
+    users: [User]
     user(name: String, email: String, id: ID): User
     workouts(ownerID: ID!, date: String): [Workout]
-    workout(ownerID: ID!, date:String): Workout
+    workout(id: ID!, date: String): Workout
     set(exerciseID: ID, ownerID: ID!): [Set]
     sets: [Set]
   }
@@ -22,8 +23,14 @@ export const typeDefs = gql`
     createUser(name: String!, email: String!): User!
     addEmptyWorkout(ownerID: ID!): User
     createWorkout(ownerID: ID!): User
-    addWorkoutSet(workoutID: ID!, exerciseID: ID!, reps: Int, rpe: Int): User
-    }
+    addWorkoutSet(
+      id: ID
+      workoutID: ID!
+      exerciseID: ID!
+      reps: Int
+      rpe: Int
+    ): Set
+  }
   type User {
     id: ID!
     name: String!
@@ -38,6 +45,8 @@ export const typeDefs = gql`
     sets: [Set]
   }
   type Set {
+    id: ID!
+    createdAt: String
     exerciseID: ID
     workoutID: ID!
     reps: Int
@@ -51,17 +60,3 @@ export const typeDefs = gql`
     inSets: [Set]
   }
 `;
-
-// {
-//     getAllExercisesLogged{
-//      allUsers{
-//         name
-//             email
-//                 exerciseHistory{
-//                     sets{
-//                         exercise
-//             }
-//         }
-//      }
-//     }
-//   }
