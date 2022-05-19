@@ -40,6 +40,7 @@ model Set {
   exerciseID String?
   workout    Workout?  @relation(fields: [workoutID], references: [id])
   workoutID  String?
+  weight     Int?
   reps       Int       @default(0)
   rpe        Int       @default(0)
 }

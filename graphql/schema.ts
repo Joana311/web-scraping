@@ -49,6 +49,7 @@ export const typeDefs = gql`
     createdAt: String
     exerciseID: ID
     workoutID: ID!
+    weight: Int
     reps: Int
     rpe: Int
   }
