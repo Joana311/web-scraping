@@ -32,6 +32,8 @@
     "apollo-server-micro": "^3.5.0",
     "babel": "^6.23.0",
     "dataloader": "^2.0.0",
+    "date-fns": "^2.28.0",
+    "dayjs": "^1.11.2",
     "esm": "^3.2.25",
     "graphql": "^15.0.0",
     "graphql-directive-private": "^2.0.3",

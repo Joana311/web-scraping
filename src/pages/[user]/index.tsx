@@ -68,7 +68,7 @@ export default function user({ user }: UserPageProps) {
 
   const run = (() => {
     console.log("render page")
-    console.log (`this is Props: `)
+    console.log(`this is Props: `)
     console.log(user)
     console.log(`this is State: $`)
     console.log(User)

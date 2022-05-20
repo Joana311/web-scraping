@@ -4,7 +4,7 @@ import React from "react";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
 
-function HomePageMenu() {
+function LandingPageMenu() {
   return (
     <>
       <Stack
@@ -20,6 +20,7 @@ function HomePageMenu() {
       >
         <Button
           variant="contained"
+          disabled={true}
           sx={{
             height: "45px",
             fontSize: "1rem",
@@ -27,20 +28,20 @@ function HomePageMenu() {
         >
           Log in
         </Button>
-        <Button
-          variant="contained"
-          sx={{
-            height: "45px",
-            fontSize: "1rem",
-          }}
-        >
-          <Link >
-          Continue As Guest
-          </Link>
-        </Button>
+        <Link as={"/guest"} href={"/[user]"}>
+          <Button
+            variant="contained"
+            sx={{
+              height: "45px",
+              fontSize: "1rem",
+            }}
+          >
+            Continue As Guest
+          </Button>
+        </Link>
       </Stack>
     </>
   );
 }
 
-export default HomePageMenu;
+export default LandingPageMenu;

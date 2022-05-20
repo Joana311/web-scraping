@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Grid, Typography } from "@mui/material";
-import HomePageMenu from "../components/HomePageMenu";
-export function HomePage({ UserInfo }) {
+import LandingPageMenu from "../components/LandingPageMenu";
+export function LandingPage({ UserInfo }) {
   const [userName, setUserName] = useState(undefined);
   useEffect(() => {
     setUserName(UserInfo.name);
@@ -16,7 +16,11 @@ export function HomePage({ UserInfo }) {
           container
           justifyContent="center"
           xs={12}
-          sx={{ mt: "2rem", border: "1px solid black", height: "min-content" }}
+          sx={{
+            mt: "2rem",
+            // border: "1px solid black",
+            height: "min-content",
+          }}
         >
           {userName ? (
             <h1>Welcome {userName}</h1>
@@ -31,13 +35,13 @@ export function HomePage({ UserInfo }) {
           xs={12}
           sx={{ border: "1px solid black", height: "max-content" }}
         >
-          <HomePageMenu />
+          <LandingPageMenu />
         </Grid>
       </Grid>
     </>
   );
 }
-HomePage.getInitialProps = async () => {
+LandingPage.getInitialProps = async () => {
   const data = undefined;
   return { UserInfo: { name: data } };
 };

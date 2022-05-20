@@ -14,9 +14,11 @@ import { User } from "../../../graphql/generated/graphql";
 import { ConstructionOutlined } from "@mui/icons-material";
 import HeaderBar from "../../components/HeaderBar";
 import Link from "next/link";
-import { Box, Button, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
 import RecentUserWokrouts from "../../components/page utility/RecentUserWokrouts";
 import styled from "@mui/system/styled";
+import Card from "@mui/material/Card";
+import dayjs from "dayjs";
 const QUERY_USER = gql`
   query User($name: String) {
     user(name: $name) {
@@ -68,7 +70,13 @@ export interface UserPageProps {
 //React Functional Component
 export default function test({ user }: UserPageProps) {
   const [User, setUser] = useState<User>(user);
-
+  // get today's date as Day of the Week/Month/Day
+  // const getDate = () => {
+  //   //format like "Fri, Mar 15"
+  //   return dayjs().format("dddd, MMM D");
+  // }
+  const [todaysDate, setTodaysDate] = useState(dayjs().format("dddd, MMM D"));
+  console.log(todaysDate);
   const editWorkoutHandler = () => {
     <Link as={`/${User.name}/addWorkout`} href="/[user]/addWorkout">
       {" "}
@@ -78,7 +86,6 @@ export default function test({ user }: UserPageProps) {
 
   const [addEmptyWorkout, { error: addWorkoutError }] =
     useMutation(ADD_EMPTY_WORKOUT);
-
   const addWorkoutHandler = async () => {
     if (addWorkoutError) {
       return <pre>ERROR ADDING WORKOUT</pre>;
@@ -90,89 +97,84 @@ export default function test({ user }: UserPageProps) {
   };
 
   return (
-    <HeaderBar userName={User.name}>
-      <>
+    <>
+      <Stack
+        sx={{
+          backgroundColor: "#000",
+          height: "100vh",
+          justifyContent: "center",
+          pl: "1em",
+          pr: "1em",
+        }}
+      >
         <Box
+          component={Card}
           sx={{
-            backgroundColor: "#2c2f33",
-            border: "3px dashed",
-            height: "calc(100vh - 60px)",
+            marginTop: "1em",
+            minHeight: "max-content",
+            paddingTop: "3px",
+            backgroundColor: "#000",
+            border: "1px solid white",
           }}
         >
-          <Box
-            component={Banner}
-            sx={{
-              borderRadius: 4,
-              marginTop: "5vh",
-              minHeight: "100px",
-              paddingTop: "3px",
-              paddingLeft: "15px",
-
-              //border: "4px solid green",
-            }}
+          <Typography
+            className="date"
+            fontSize={".85rem"}
+            sx={{ pl: "0.1rem" }}
           >
-            <Typography variant={"h5"}>Recent Workouts:</Typography>
-            <RecentUserWokrouts></RecentUserWokrouts>
-          </Box>
-          <Grid
-            container
-            xs={12}
-            sx={{
-              marginTop: "22vh",
-              height: 300,
-              display: "flex",
-              //border: "4px solid green",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-            }}
-          >
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-            >
-              <Link as={`/${User.name}/addWorkout`} href="/[user]/addWorkout">
-                <Button variant="outlined" sx={{ ...buttonClass }}>
-                  {"Continue or Add Workout "}
-                </Button>
-              </Link>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-            >
-              <Button disabled sx={{ ...buttonClass }}>
-                PlaceHolder
-              </Button>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-            >
-              <Button sx={{ ...buttonClass }}>Workout History</Button>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-            >
-              <Button sx={{ ...buttonClass }}>Friends</Button>
-            </Grid>
-          </Grid>
+            {todaysDate}
+          </Typography>
+          <Typography variant={"h5"}>Summary</Typography>
         </Box>
-        <UserWorkouts
-          User={User}
-          update={addWorkoutHandler}
-          edit={editWorkoutHandler}
-        />
-
-        <div>
-          <h3>{user.name}'s Exercises</h3>
-        </div>
-      </>
-    </HeaderBar>
+        {/* <RecentUserWokrouts></RecentUserWokrouts> */}
+        <Grid
+          container
+          xs={12}
+          sx={{
+            marginTop: "22vh",
+            height: 300,
+            display: "flex",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+          }}
+        >
+          <Grid
+            item
+            xs={6}
+            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
+          >
+            <Link as={`/${User.name}/addWorkout`} href="/[user]/addWorkout">
+              <Button variant="outlined" sx={{ ...buttonClass }}>
+                {"Continue or Add Workout "}
+              </Button>
+            </Link>
+          </Grid>
+          <Grid
+            item
+            xs={6}
+            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
+          >
+            <Button disabled sx={{ ...buttonClass }}>
+              PlaceHolder
+            </Button>
+          </Grid>
+          <Grid
+            item
+            xs={6}
+            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
+          >
+            <Button sx={{ ...buttonClass }}>Workout History</Button>
+          </Grid>
+          <Grid
+            item
+            xs={6}
+            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
+          >
+            <Button sx={{ ...buttonClass }}>Friends</Button>
+          </Grid>
+        </Grid>
+      </Stack>
+    </>
   );
 }
 export const Banner = styled("div")({
@@ -187,7 +189,6 @@ export const buttonClass = {
   minWidth: 110,
   minHeight: 110,
   borderRadius: "50%",
-  boxShadow: 3,
   //border: "2px solid",
 };
 
