@@ -10,7 +10,13 @@
     "**/.project": true,
     "**/.settings": true,
     "**/.factorypath": true,
-    "node_modules": true
+    "node_modules": true,
+    "src/pages/[user]/workout/_index.tsx": true,
+    "src/pages/[user]/_index.tsx": true
   },
-  "hide-files.files": ["node_modules"]
+  "hide-files.files": [
+    "node_modules",
+    "src/pages/[user]/workout/_index.tsx",
+    "src/pages/[user]/_index.tsx"
+  ]
 }
