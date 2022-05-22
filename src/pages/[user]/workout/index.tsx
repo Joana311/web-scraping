@@ -5,6 +5,7 @@ import RecentWorkouts from "../../../components/RecentWorkouts";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import dayjs from "dayjs";
 import ExerciseSummary from "../../../components/ExerciseSummary/ExerciseSummary";
+import Link from "next/link";
 
 function workout() {
   const [todaysDate, setTodaysDate] = React.useState(
@@ -75,13 +76,15 @@ function workout() {
                 mr: ".6em",
               }}
             >
-              <AccountCircleIcon fontSize="large"></AccountCircleIcon>
+              <Link as="/guest" href="/[user]">
+                <AccountCircleIcon fontSize="large"></AccountCircleIcon>
+              </Link>
             </Grid>
           </Grid>
         </Box>
         <Box
           sx={{
-            border: "1px solid white",
+            // border: "1px solid white",
             mt: "2em",
             backgroundColor: "inherit",
             // minHeight: "max-content",
@@ -91,7 +94,7 @@ function workout() {
         </Box>
         <Box
           sx={{
-            border: "1px solid white",
+            // border: "1px solid white",
             mt: "2em",
             backgroundColor: "inherit",
             minHeight: "max-content",

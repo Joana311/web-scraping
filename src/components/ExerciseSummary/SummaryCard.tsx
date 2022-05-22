@@ -14,8 +14,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Input,
+  colors,
+  TextField,
+  InputLabel,
 } from "@mui/material";
 import React, { Fragment } from "react";
+import workout from "../../pages/[user]/workout/index";
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
 interface ExerciseSummaryProps {
   exercise: {
@@ -28,8 +33,9 @@ interface ExerciseSummaryProps {
       rpe: number;
     }[];
   };
+  isActive: boolean;
 }
-export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
+export const SummaryCard = ({ exercise, isActive }: ExerciseSummaryProps) => {
   const [expanded, setExpanded] = React.useState(false);
   const handler = () => {
     setExpanded((prev) => !prev);
@@ -51,7 +57,7 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
         borderRadius={2}
         sx={{
           display: "flex",
-          border: "1px dashed white",
+          // border: "1px dashed white",
           width: "100%",
           px: ".5rem",
           minHeight: "max-content",
@@ -61,14 +67,18 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
           container
           component={Box}
           className="exercise-summary"
-          sx={{ justifyContent: "space-between", height: "min-content" }}
+          sx={{
+            py: "0.25rem",
+            justifyContent: "space-between",
+            height: "min-content",
+          }}
         >
           <Grid
             item
             className="exercise-name"
             sx={{ border: borders && "1px solid red" }}
           >
-            <Stack sx={{ height: "100%" }}>
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Exercise</Typography>
               <Typography variant="h6" sx={{ ...exerciseSummaryInfo }}>
                 {exercise.name}
@@ -80,9 +90,15 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
             className="exercise-variant"
             sx={{ border: borders && "1px solid yellow" }}
           >
-            <Stack sx={{ height: "100%" }}>
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Variant</Typography>
-              <Typography variant="h6" sx={{ ...exerciseSummaryInfo }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  ...exerciseSummaryInfo,
+                  fontSize: "1rem",
+                }}
+              >
                 {exercise.variant}
               </Typography>
             </Stack>
@@ -92,9 +108,15 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
             className="target-muscle"
             sx={{ border: borders && "1px solid green" }}
           >
-            <Stack sx={{ height: "100%" }}>
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Muscle</Typography>
-              <Typography variant="h6" sx={{ ...exerciseSummaryInfo }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  ...exerciseSummaryInfo,
+                  fontSize: "1rem",
+                }}
+              >
                 {exercise.muscle}
               </Typography>
             </Stack>
@@ -104,9 +126,12 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
             className="set-count"
             sx={{ border: borders && "1px solid blue" }}
           >
-            <Stack sx={{ height: "100%" }}>
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Sets</Typography>
-              <Typography variant="h6" sx={{ ...exerciseSummaryInfo }}>
+              <Typography
+                variant="h6"
+                sx={{ ...exerciseSummaryInfo, fontSize: "1.1rem" }}
+              >
                 {exercise.sets.length}
               </Typography>
             </Stack>
@@ -129,7 +154,7 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
             </ButtonBase>
           </Grid>
         </Grid>
-        <Collapse in={expanded}>
+        <Collapse className="exercise-details" in={expanded}>
           <Divider sx={{ backgroundColor: "text.secondary" }} />
           <TableContainer
             sx={{
@@ -138,12 +163,11 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
               "& .MuiTableCell-root": {
                 border: "0",
                 py: "0.1rem",
-                pl: "0.5rem",
               },
               "& .MuiTableBody-root": {
                 "& .MuiTableCell-root": {
-                  border: "0",
-                  fontWeight: "light",
+                  // border: { borders } && "1px solid pink",
+                  fontWeight: 100,
                   fontSize: "1rem",
                 },
               },
@@ -160,20 +184,131 @@ export const SummaryCard = ({ exercise }: ExerciseSummaryProps) => {
               </TableHead>
               <TableBody>
                 {exercise.sets.map((set, index) => (
-                  <TableRow key={index} sx={{}}>
+                  <TableRow
+                    key={index}
+                    sx={{
+                      "& .MuiTableCell-root": {
+                        maxWidth: "min-content",
+                      },
+                    }}
+                  >
                     <TableCell align="center">{index + 1}</TableCell>
                     <TableCell align="center">{set.weight}</TableCell>
                     <TableCell align="center">{set.reps}</TableCell>
                     <TableCell align="center">{set.rpe}</TableCell>
                   </TableRow>
                 ))}
+                <TableRow
+                  sx={{
+                    height: ".2rem",
+                  }}
+                ></TableRow>
+                {isActive && (
+                  <>
+                    <TableRow
+                      sx={{
+                        "& .MuiTableCell-root": {
+                          pt: "0.6rem",
+                          borderTop: "1px solid",
+                          borderColor: "text.secondary",
+                        },
+                      }}
+                    >
+                      <TableCell
+                        align="center"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {exercise.sets.length + 1}
+                      </TableCell>
+                      <TableCell align="center">
+                        <TextField
+                          variant="outlined"
+                          label="Weight"
+                          type="numeric"
+                          color="info"
+                          InputLabelProps={{
+                            shrink: true,
+                            disableAnimation: true,
+                          }}
+                          sx={{ ...inputBox }}
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <TextField
+                          variant="outlined"
+                          label="Reps"
+                          type="numeric"
+                          color="info"
+                          InputLabelProps={{
+                            shrink: true,
+                            disableAnimation: true,
+                          }}
+                          sx={{ ...inputBox }}
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <TextField
+                          variant="outlined"
+                          label="RPE"
+                          type="numeric"
+                          color="info"
+                          InputLabelProps={{
+                            shrink: true,
+                            disableAnimation: true,
+                          }}
+                          sx={{ ...inputBox }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  </>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
+          <Box
+            sx={{
+              mx: "-.5rem",
+              borderTop: "1px solid white",
+              borderBottom: "1px solid white",
+              borderRadius: "0 0 .5rem .5rem",
+            }}
+          >
+            <ButtonBase sx={{ width: "100%", py: ".2rem" }}>
+              <Typography fontWeight={"bold"} fontSize="1rem">
+                Add Set
+              </Typography>
+            </ButtonBase>
+          </Box>
         </Collapse>
       </Stack>
     </>
   );
+};
+const inputBox: SxProps = {
+  borderRadius: 1,
+  // border: "1px solid white",
+  fontSize: "1.2rem",
+  width: "7ch",
+  fontWeight: "semi-bold",
+  fontFamily: "monospace",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "text.secondary",
+  },
+
+  "& .Mui-focused": {
+    borderColor: "#fff",
+  },
+
+  "& .MuiTextField-root": {},
+  "& .MuiInputBase-input": {
+    pl: "0.8rem",
+    py: "0.2rem",
+    "& .MuiInputLabel-root": {
+      margin: 0,
+    },
+  },
 };
 const infoHeaders: SxProps = {
   fontSize: ".8rem",

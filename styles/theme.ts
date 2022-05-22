@@ -9,10 +9,13 @@ const theme = createTheme({
       secondary: "#898A8A",
     },
     primary: {
-      main: "#556cd6",
+      main: "#000",
     },
     secondary: {
       main: "rgba(53, 53, 53, 0.72)",
+    },
+    info: {
+      main: "#fff",
     },
     error: {
       main: red.A400,

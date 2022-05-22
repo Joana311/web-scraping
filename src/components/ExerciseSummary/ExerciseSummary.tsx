@@ -46,7 +46,7 @@ const ExerciseSummary = () => {
           className="exercises-title-bar"
           sx={{
             display: "flex",
-            border: "1px dashed white",
+            // border: "1px dashed white",
             justifyContent: "space-between",
             width: "100%",
           }}
@@ -70,13 +70,13 @@ const ExerciseSummary = () => {
             <></>
           )}
         </Box>
-        <Stack spacing={"0.5rem"}>
+        <Stack spacing={"0.7rem"}>
           <ButtonBase
             sx={{
               borderRadius: 2,
               backgroundColor: "secondary.main",
               display: "flex",
-              border: "1px solid white",
+              // border: "1px solid white",
               width: "100%",
               px: ".5rem",
               py: ".2rem",
@@ -89,11 +89,13 @@ const ExerciseSummary = () => {
               fontSize=".9rem"
               sx={{ height: "max-content" }}
             >
-              Add New
+              New Exercise
             </Typography>
           </ButtonBase>
           {exercises.map((exercise, index) => {
-            return <SummaryCard exercise={exercise} key={index} />;
+            return (
+              <SummaryCard exercise={exercise} isActive={true} key={index} />
+            );
           })}
         </Stack>
       </Stack>
