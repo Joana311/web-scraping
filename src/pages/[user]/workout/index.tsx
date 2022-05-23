@@ -84,7 +84,7 @@ function workout() {
         </Box>
         <Box
           sx={{
-            // border: "1px solid white",
+            border: "1px dashed blue",
             mt: "2em",
             backgroundColor: "inherit",
             // minHeight: "max-content",
@@ -92,14 +92,14 @@ function workout() {
         >
           <ExerciseSummary />
         </Box>
-        <Box
+        {/* <Box
           sx={{
-            // border: "1px solid white",
+            border: "1px solid white",
             mt: "2em",
             backgroundColor: "inherit",
             minHeight: "max-content",
           }}
-        ></Box>
+        ></Box> */}
       </Stack>
     </>
   );

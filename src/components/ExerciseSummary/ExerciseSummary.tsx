@@ -10,9 +10,11 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { SummaryCard } from "./SummaryCard";
+import AddExercise from "../../containers/AddExercise";
 
 const ExerciseSummary = () => {
   const [showMore, toggleShowMore] = React.useState(false);
+  const [showExercise, toggleShowExercise] = React.useState(false);
   const exercises = [
     {
       name: "Bench Press",
@@ -39,6 +41,14 @@ const ExerciseSummary = () => {
   ];
   exercises.length > 2 && toggleShowMore(true);
   const borders = false;
+
+  const addExercise = () => {
+    toggleShowExercise(true);
+  };
+  if (showExercise) {
+    return <AddExercise props={toggleShowExercise} />;
+  }
+
   return (
     <>
       <Stack>
@@ -72,11 +82,12 @@ const ExerciseSummary = () => {
         </Box>
         <Stack spacing={"0.7rem"}>
           <ButtonBase
+            onClick={addExercise}
             sx={{
               borderRadius: 2,
               backgroundColor: "secondary.main",
               display: "flex",
-              // border: "1px solid white",
+              border: "1px solid white",
               width: "100%",
               px: ".5rem",
               py: ".2rem",
