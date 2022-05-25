@@ -5,6 +5,10 @@ import { typeDefs } from "../../../graphql/schema";
 import { resolvers } from "../../../graphql/resolvers";
 import { createContext } from "../../../graphql/context";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+<<<<<<< Updated upstream
+=======
+import {SCHEMA_QUERY} from "@graphql-tools/apollo-engine-loader";
+>>>>>>> Stashed changes
 
 import {
   ApolloServerPluginLandingPageGraphQLPlayground,
@@ -16,6 +20,7 @@ export const config : PageConfig= {
     bodyParser: false,
   },
 };
+export const schema = makeExecutableSchema({ typeDefs });
 
 export const schema = makeExecutableSchema({ typeDefs, resolvers });
 //console.log(schema)

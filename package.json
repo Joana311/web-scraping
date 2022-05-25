@@ -21,10 +21,18 @@
     "@babel/core": "^7.0.0",
     "@emotion/react": "^11.9.0",
     "@emotion/server": "^11.4.0",
+<<<<<<< Updated upstream
     "@emotion/styled": "^11.8.1",
     "@graphql-tools/schema": "^8.3.1",
     "@mui/icons-material": "^5.2.4",
     "@mui/material": "^5.8.0",
+=======
+    "@emotion/styled": "^11.6.0",
+    "@graphql-tools/apollo-engine-loader": "^7.2.1",
+    "@material-ui/core": "^4.12.3",
+    "@mui/icons-material": "^5.2.0",
+    "@mui/material": "^5.2.2",
+>>>>>>> Stashed changes
     "@prisma/client": "^3.6.0",
     "apollo-graphql": "^0.9.5",
     "apollo-server": "^3.5.0",
