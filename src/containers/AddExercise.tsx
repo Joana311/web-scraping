@@ -49,11 +49,7 @@ const AddExercise = (props) => {
             height: "min-content",
           }}
         >
-          <Grid
-            item
-            className="exercise-name"
-            sx={{ border:"1px solid red" }}
-          >
+          <Grid item className="exercise-name" sx={{ border: "1px solid red" }}>
             <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Exercise</Typography>
               <Typography variant="h6" sx={{ ...exerciseSummaryInfo }}>
@@ -167,7 +163,7 @@ const AddExercise = (props) => {
         </Box>
         <Stack spacing={"0.7rem"} direction="column">
           {exercises.map((exercise, index) => {
-            return summaryCard(exercise);
+            // return summaryCard(exercise);
           })}
         </Stack>
       </Box>
