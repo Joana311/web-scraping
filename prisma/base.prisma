@@ -1,0 +1,52 @@
+//The [db push] command pushes the state of your Prisma schema file
+// to the database without using migrations.
+//It creates the database if the database does not exist.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  workouts Workout[]
+}
+
+model Workout {
+  id      String   @id @default(uuid())
+  owner   User?    @relation(fields: [ownerID], references: [id])
+  ownerID String
+  date    DateTime @default(now())
+  sets    Set[]
+}
+
+model UserExercise {
+  exercise   Exercise @relation(fields: [exerciseID], references: [id])
+  exerciseID String
+  uuid       String   @id @default(uuid())
+  name       String
+  url        String
+  inSets     Set[]
+}
+
+model Set {
+  createdAt      DateTime      @default(now())
+  id             String        @id @default(cuid())
+  workout        Workout?      @relation(fields: [workoutID], references: [id])
+  workoutID      String?
+  weight         Int?
+  reps           Int           @default(0)
+  rpe            Int           @default(0)
+  UserExercise   UserExercise? @relation(fields: [userExerciseID], references: [uuid])
+  userExerciseID String?
+}
+
+model Exercise {
+  id           String         @id @default(uuid())
+  UserExercise UserExercise[]
+}

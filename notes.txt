@@ -1,7 +1,16 @@
 
-Generate Prisma Client npx prisma generate
-npx prisma studio for dbclient  
-prisma migrate dev. 
+Generate Prisma Client:
+
+    `npx prisma generate`
+
+Browser Database:
+
+    `npx prisma studio`
+
+Push changes to db:
+
+    `prisma migrate dev`
+    
 Apollo Server is for connecting API's im guessing. like a server for endpoints to get rerouted to graphql.
 
 Client is like a little worker dude that executes queries you give it and stuff

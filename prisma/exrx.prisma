@@ -1,0 +1,28 @@
+model Exercise {
+    id            String     @id @default(uuid())
+    name          String
+    href          String?
+    force         String?
+    equipment     Equipment? @relation(fields: [equipmentName], references: [name])
+    equipmentName String?
+    Muscle        Muscle?    @relation(fields: [muscleName], references: [name])
+    muscleName    String?
+}
+
+model Equipment {
+    name     String     @unique
+    exercises Exercise[]
+}
+
+model BodyPart {
+    name    String   @unique
+    muscles Muscle[]
+    href    String?
+}
+
+model Muscle {
+    name         String     @unique
+    bodypart     BodyPart   @relation(fields: [bodyPartName], references: [name])
+    bodyPartName String
+    exercises    Exercise[]
+}

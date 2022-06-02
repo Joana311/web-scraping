@@ -18,5 +18,6 @@
     "node_modules",
     "src/pages/[user]/workout/_index.tsx",
     "src/pages/[user]/_index.tsx"
-  ]
+  ],
+  "cSpell.words": ["exrx", "prismix", "Sternocleidomastoid", "Supraspinatus"]
 }

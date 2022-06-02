@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { ExercisesData } from "../exrxData/data";
 const exercisesData = [
   {
     //id: undefined,
