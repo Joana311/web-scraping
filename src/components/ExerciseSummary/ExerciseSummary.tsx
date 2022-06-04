@@ -50,7 +50,7 @@ const ExerciseSummary = ({ exrx_data }: ExerciseSummaryProps) => {
   };
   if (showExercise) {
     return (
-      <AddExercise 
+      <AddExercise
         toggle={() => {
           toggleShowExercise(false);
         }}

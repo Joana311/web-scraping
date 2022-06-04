@@ -15,23 +15,24 @@ function workout({ exercise_directory }: WorkoutPageProps) {
   );
   return (
     <>
-      <Stack
+      <Box
         sx={{
           backgroundColor: "#000",
           height: "100vh",
           maxHeight: "100vh",
           pl: "1em",
           pr: "1em",
-          // overflowY: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          overflowY: "hidden",
         }}
       >
         <Box
+          className="nav-bar"
           sx={{
             marginTop: "1em",
-            minHeight: "max-content",
-            // paddingTop: "3px",
+            height: "5vh",
             backgroundColor: "#000",
-            // border: "1px solid white",
           }}
         >
           <Grid
@@ -88,19 +89,18 @@ function workout({ exercise_directory }: WorkoutPageProps) {
         </Box>
         <Box
           sx={{
-            border: "1px dashed blue",
+            // border: "1px dashed orange",
             mt: "2em",
             mb: ".25em",
             backgroundColor: "inherit",
-            overflow: "visible",
-            // maxHeight: "100%",
-            height: "fill-available",
+            height: "100%",
+            maxHeight: "100%",
             width: "100%",
           }}
         >
           <ExerciseSummary exrx_data={exercise_directory} />
         </Box>
-      </Stack>
+      </Box>
     </>
   );
 }

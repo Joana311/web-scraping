@@ -20,9 +20,10 @@ if (typeof window === "undefined") {
     prisma = new PrismaClient();
   } else {
     if (!global.prisma) {
-      console.log(`global prisma client shouldnt exist: ${global}}`)
-      global.prisma = new PrismaClient({/*log: ['query']*/}
-      );
+      console.log(`global prisma client shouldnt exist: ${global}}`);
+      global.prisma = new PrismaClient({
+        /*log: ['query']*/
+      });
     }
     prisma = global.prisma;
   }

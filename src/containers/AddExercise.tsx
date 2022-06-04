@@ -42,14 +42,17 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
     window.open(href, "_blank");
   };
 
+  const CAPACITY = 15;
+
   const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>, key) => {
-    console.log(e.target.checked);
+    console.log("checkbox selected");
 
     setExerciseSelected((exerciseMap) => {
       exerciseMap.set(key, e.target.checked);
       const amount = [...exerciseMap.values()].filter(
         (value) => value == true
       ).length;
+      console.log("total calculated");
       setAmountSelected(amount);
       return exerciseMap;
     });
@@ -90,7 +93,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
           <Box
             className="exercise-info"
             sx={{
-              border: borders && "1px solid red",
+              // border: borders && "1px solid red",
               width: "100%",
               pl: "0.25rem",
             }}
@@ -106,7 +109,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
               <Stack direction="row" gap="1rem">
                 <Box
                   className="target-muscle"
-                  sx={{ border: borders && "px solid green" }}
+                  sx={{ border: borders ? "px solid green" : "none" }}
                 >
                   <Stack
                     sx={{ height: "100%", justifyContent: "space-between" }}
@@ -128,7 +131,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
 
                 <Box
                   className="movement-force"
-                  sx={{ border: borders && "1px solid orange" }}
+                  sx={{ border: borders ? "1px solid orange" : "none" }}
                 >
                   <Stack
                     sx={{ height: "100%", justifyContent: "space-between" }}
@@ -148,7 +151,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
 
                 <Box
                   className="exercise-equipment"
-                  sx={{ border: borders && "1px solid yellow" }}
+                  sx={{ border: borders ? "1px solid yellow" : "none" }}
                 >
                   <Stack
                     sx={{ height: "100%", justifyContent: "space-between" }}
@@ -199,16 +202,28 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
     );
   };
   return (
-    <Box sx={{ border: "3px solid pink", position: "relative", width: "100%", height: "100%" }}>
+    <Box
+      sx={{
+        // border: "3px solid white",
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        maxHeight: "100%",
+        display: "flex",
+        flexDirection: "column",
+        // overflowY: "auto",
+      }}
+    >
       <Box
         className="search-bar"
         sx={{
           border: "1px solid white",
-          width: "100%",
+          width: "fill-available",
           // mt: "-1rem",
           borderRadius: 2,
           px: ".5rem",
           mb: ".8rem",
+          maxHeight: "min-content",
         }}
       >
         <Input placeholder="Search..."></Input>
@@ -220,7 +235,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
           // border: "1px dashed white",
           justifyContent: "space-between",
           width: "100%",
-          height: "min-content",
+          maxHeight: "min-content",
         }}
       >
         <Typography fontSize={`1rem`} fontWeight={"regular"}>
@@ -241,31 +256,66 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
         </Link>
       </Box>
       <Box
-        className="available-exercises-container"
+        className="scroll-add-container"
         sx={{
-          border: "1px solid white",
-          overflowY: "visible",
-          height: "fill-available",
+          // border: "1px solid red",
+          // overflowY: "visible",
           width: "100%",
+          flex: "1",
+          position: "relative",
         }}
       >
         <Box
+          className="fade-top"
+          sx={{
+            height: "2rem",
+            position: "absolute",
+            top: "-0.1rem",
+            width: "100%",
+            color: "white",
+            zIndex: 1,
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,1) , rgba(0,0,0,0.1))",
+          }}
+        />
+        <Box
           className="scrollable-exercises"
           sx={{
-            border: "2px dashed green",
+            // border: "2px dashed green",
             overflowY: "scroll",
-            maxHeight: "100%",
-            // pb: "3rem",
+            // height: "400px",
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            pb: "3rem",
           }}
         >
-          <Stack spacing={"0.7rem"} direction="column">
+          <Stack
+            spacing={"0.7rem"}
+            direction="column"
+            sx={{ minHeight: "fill", pt: ".5rem"}}
+          >
             {exercises.map((exercise, key) => {
-              if (key < 8) {
+              if (key < CAPACITY) {
                 return summaryCard(exercise, key);
               }
             })}
           </Stack>
         </Box>
+        <Box
+          className="fade-bottom"
+          sx={{
+            height: "3rem",
+            position: "absolute",
+            bottom: "-0.1rem",
+
+            width: "100%",
+            color: "black",
+            zIndex: 1,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,1) , rgba(0,0,0,0.1))",
+          }}
+        />
         <Box
           className="add-button-container"
           sx={{
@@ -274,6 +324,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
             justifyContent: "center",
             position: "absolute",
             bottom: ".5rem",
+            zIndex: 2,
           }}
         >
           <ButtonBase
