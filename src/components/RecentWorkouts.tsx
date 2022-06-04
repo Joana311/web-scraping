@@ -7,6 +7,7 @@ import {
   Button,
   ButtonBase,
 } from "@mui/material";
+import { Exercise } from "@prisma/client";
 import Link from "next/link";
 import React from "react";
 
@@ -203,7 +204,7 @@ const RecentWorkouts = () => {
                   pr: ".8em",
                   fontSize: ".9rem",
                   textDecoration: "underline",
-                  color: colors.blue[500],
+                  color: colors.blue[600],
                 }}
               >
                 view all

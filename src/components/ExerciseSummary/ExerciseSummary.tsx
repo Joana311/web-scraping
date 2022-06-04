@@ -9,10 +9,13 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { SummaryCard } from "./SummaryCard";
+import { SummaryCard } from "./UserExerciseSummaryCard";
 import AddExercise from "../../containers/AddExercise";
-
-const ExerciseSummary = () => {
+import { Exercise } from "@prisma/client";
+interface ExerciseSummaryProps {
+  exrx_data: Exercise[];
+}
+const ExerciseSummary = ({ exrx_data }: ExerciseSummaryProps) => {
   const [showMore, toggleShowMore] = React.useState(false);
   const [showExercise, toggleShowExercise] = React.useState(false);
   const exercises = [
@@ -46,12 +49,19 @@ const ExerciseSummary = () => {
     toggleShowExercise(true);
   };
   if (showExercise) {
-    return <AddExercise props={toggleShowExercise} />;
+    return (
+      <AddExercise 
+        toggle={() => {
+          toggleShowExercise(false);
+        }}
+        exercises={exrx_data}
+      />
+    );
   }
 
   return (
     <>
-      <Stack>
+      <Stack sx={{ width: "100%" }}>
         <Box
           className="exercises-title-bar"
           sx={{
@@ -70,7 +80,7 @@ const ExerciseSummary = () => {
                   pr: ".8em",
                   fontSize: ".9rem",
                   textDecoration: "underline",
-                  color: colors.blue[500],
+                  color: colors.blue[600],
                 }}
               >
                 view all

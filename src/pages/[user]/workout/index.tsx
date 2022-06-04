@@ -1,13 +1,15 @@
-import { Stack, Box, Grid, Typography } from "@mui/material";
+import { Stack, Box, Grid, Typography, Input } from "@mui/material";
 import React from "react";
-import DailyActivitySummary from "../../../components/DailyActivitySummary";
-import RecentWorkouts from "../../../components/RecentWorkouts";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import dayjs from "dayjs";
 import ExerciseSummary from "../../../components/ExerciseSummary/ExerciseSummary";
 import Link from "next/link";
-
-function workout() {
+import { Exercise, PrismaClient } from "@prisma/client";
+import { GetStaticProps, GetServerSideProps } from "next";
+interface WorkoutPageProps {
+  exercise_directory: Exercise[];
+}
+function workout({ exercise_directory }: WorkoutPageProps) {
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
   );
@@ -16,9 +18,11 @@ function workout() {
       <Stack
         sx={{
           backgroundColor: "#000",
-          minHeight: "100vh",
+          height: "100vh",
+          maxHeight: "100vh",
           pl: "1em",
           pr: "1em",
+          // overflowY: "hidden",
         }}
       >
         <Box
@@ -86,23 +90,30 @@ function workout() {
           sx={{
             border: "1px dashed blue",
             mt: "2em",
+            mb: ".25em",
             backgroundColor: "inherit",
-            // minHeight: "max-content",
+            overflow: "visible",
+            // maxHeight: "100%",
+            height: "fill-available",
+            width: "100%",
           }}
         >
-          <ExerciseSummary />
+          <ExerciseSummary exrx_data={exercise_directory} />
         </Box>
-        {/* <Box
-          sx={{
-            border: "1px solid white",
-            mt: "2em",
-            backgroundColor: "inherit",
-            minHeight: "max-content",
-          }}
-        ></Box> */}
       </Stack>
     </>
   );
 }
 
 export default workout;
+export const getServerSideProps: GetServerSideProps<WorkoutPageProps> = async (
+  context
+) => {
+  const prisma = new PrismaClient();
+  const exercise_directory = await prisma.exercise.findMany();
+  return {
+    props: {
+      exercise_directory: exercise_directory,
+    },
+  };
+};

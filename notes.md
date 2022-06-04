@@ -1,16 +1,20 @@
 
 Generate Prisma Client:
 
-    `npx prisma generate`
+`npx prisma generate`
 
 Browser Database:
 
-    `npx prisma studio`
+`npx prisma studio`
 
-Push changes to db:
+Push changes to db & reseed:
 
-    `prisma migrate dev`
-    
+`prisma migrate dev`
+
+Push raw table changes:
+
+`prisma db push`
+
 Apollo Server is for connecting API's im guessing. like a server for endpoints to get rerouted to graphql.
 
 Client is like a little worker dude that executes queries you give it and stuff

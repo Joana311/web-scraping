@@ -18,6 +18,8 @@ import dayjs from "dayjs";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DailyActivitySummary from "../../components/DailyActivitySummary";
 import RecentWorkouts from "../../components/RecentWorkouts";
+import prisma from "../../../lib/prisma";
+import { Exercise, PrismaClient } from "@prisma/client";
 const QUERY_USER = gql`
   query User($name: String) {
     user(name: $name) {
@@ -64,10 +66,11 @@ const ADD_EMPTY_WORKOUT = gql`
 `;
 export interface UserPageProps {
   user: User;
+  exercises: Exercise[];
 }
 
 //React Functional Component
-export default function user({ user }: UserPageProps) {
+export default function user({ user, exercises }: UserPageProps) {
   const [User, setUser] = useState<User>(user);
   // get today's date as Day of the Week/Month/Day
   // const getDate = () => {
@@ -76,12 +79,6 @@ export default function user({ user }: UserPageProps) {
   // }
   const [todaysDate, setTodaysDate] = useState(dayjs().format("dddd, MMM D"));
   console.log(todaysDate);
-  const editWorkoutHandler = () => {
-    <Link as={`/${User.name}/addWorkout`} href="/[user]/addWorkout">
-      {" "}
-      add Exerercise
-    </Link>;
-  };
 
   const [addEmptyWorkout, { error: addWorkoutError }] =
     useMutation(ADD_EMPTY_WORKOUT);
@@ -253,24 +250,29 @@ export const buttonClass = {
 export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
   context
 ) => {
+  const prisma = new PrismaClient();
   //this is the one we want to use with caching
   //const apolloClient = initializeApollo();
 
   //this is the one im currently using coz dumb
-  const apolloClient = myApolloClient;
+  // const apolloClient = myApolloClient;
 
-  const { data, error } = await myApolloClient.query({
-    query: QUERY_USER,
-    variables: { name: context.query.user },
+  // const { data, error } = await myApolloClient.query({
+  //   query: QUERY_USER,
+  //   variables: { name: context.query.user },
+  // });
+  // const result = data.user;
+  // if (error) {
+  //   return <pre>Error getting User: {`${error.message}`}</pre>;
+  // }
+  const exercises = await prisma.exercise.findMany();
+  const user = await prisma.user.findFirst({
+    where: { name: context.query.user as string },
   });
-  const result = data.user;
-  if (error) {
-    return <pre>Error getting User: {`${error.message}`}</pre>;
-  }
   return {
     props: {
-      user: result,
-      initialApolloState: null,
+      user: user,
+      exercises: exercises,
     },
   };
 };

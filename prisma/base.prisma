@@ -26,12 +26,13 @@ model Workout {
 }
 
 model UserExercise {
-  exercise   Exercise @relation(fields: [exerciseID], references: [id])
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
   exerciseID String
   uuid       String   @id @default(uuid())
   name       String
   url        String
   inSets     Set[]
+  exerciseId String
 }
 
 model Set {

@@ -1,7 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import {open} from 'sqlite';
-import sqlite3 from 'sqlite3';
-
 export interface Exercise{
     id: number;
     name: string;

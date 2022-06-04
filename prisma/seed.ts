@@ -1,55 +1,74 @@
 import { PrismaClient } from "@prisma/client";
-const exercisesData = [
-  {
-    //id: undefined,
-    name: "Barbell-BenchPress",
-    url: "https://exrx.net/WeightExercises/PectoralSternal/BBBenchPress",
-  },
-  {
-    //id: undefined,
-    name: "Barbell-Deadlift",
-    url: "https://exrx.net/WeightExercises/GluteusMaximus/BBDeadlift",
-  },
-  {
-    //id: undefined,
-    name: "Barbell-Lying Triceps Extension",
-    url: "https://exrx.net/WeightExercises/Triceps/BBLyingTriExt",
-  },
-  {
-    //id: undefined,
-    name: "Barbell-Hammer Curl",
-    url: "https://exrx.net/WeightExercises/Brachioradialis/CBHammerCurl",
-  },
-  {
-    //id: undefined,
-    name: "Cable-Neck Flexion",
-    url: "https://exrx.net/WeightExercises/Sternocleidomastoid/STNeckFlexion",
-  },
-];
-const prisma = new PrismaClient();
+import fs from "fs";
 
-// function reformattData(ExerciseData: typeof ExercisesData){
-//   let store = [];
-//   ExerciseData.forEach(e => {
-//     store.push({
-//       name: e.name,
-//       url: e.url,
-//     });
-//   });
-//   return store;
-// };
-// const Data =  reformattData(ExercisesData);
-// const reformattedData = (async(ExercisesData) => {
-//   let store = [];
-//   ExercisesData.forEach(e => {
-//     store.push({
-//       //id: undefined,
-//       name: e.name,
-//       url: e.url,
-//     });
-//   });
-//   return store;
-// })(ExercisesData);
+const testMuscleGroups = ["shoulders", "chest", "back", "upper arms"];
+const exercise_data: [any] = JSON.parse(
+  fs.readFileSync(process.cwd() + `/exrxData/data.json`, "utf8")
+);
+
+const prisma = new PrismaClient({ log: ["query", "info", "warn"] });
+
+async function seedExercisesData() {
+  const chosen_data = exercise_data.filter((muscle_group) =>
+    testMuscleGroups.includes(muscle_group.name.toLowerCase())
+  );
+  chosen_data.map(async (muscle_group) => {
+    const { name: bodypart_name, href: bodypart_href, muscles } = muscle_group;
+    for (const muscle_name in muscles) {
+      const equipment_list = muscles[muscle_name];
+      for (const equipment_name in equipment_list) {
+        const exercises = equipment_list[equipment_name];
+        await exercises.map(async (exercise) => {
+          // debugger;
+          try {
+            await prisma.exercise.create({
+              data: {
+                name: exercise.name.toLowerCase(),
+                href: exercise.href,
+                video_url: exercise.vimeoUrl,
+                equipment: {
+                  connectOrCreate: {
+                    create: {
+                      name: equipment_name.toLowerCase(),
+                    },
+                    where: {
+                      name: equipment_name.toLowerCase(),
+                    },
+                  },
+                },
+                force: exercise.classification.force,
+                muscle: {
+                  connectOrCreate: {
+                    create: {
+                      name: muscle_name.toLowerCase(),
+                      bodypart: {
+                        connectOrCreate: {
+                          create: {
+                            name: bodypart_name.toLowerCase(),
+                            href: bodypart_href,
+                          },
+                          where: {
+                            name: bodypart_name.toLowerCase(),
+                          },
+                        },
+                      },
+                    },
+                    where: {
+                      name: muscle_name.toLowerCase(),
+                    },
+                  },
+                },
+              },
+            });
+          } catch (error) {
+            console.log(error);
+            debugger;
+          }
+        });
+      }
+    }
+  });
+}
 
 async function main() {
   await prisma.user.createMany({
@@ -84,9 +103,7 @@ async function main() {
       },
     ],
   });
-  await prisma.exercise.createMany({
-    data: exercisesData,
-  });
+  await seedExercisesData();
 }
 
 main()

@@ -57,7 +57,6 @@ export const SummaryCard = ({ exercise, isActive }: ExerciseSummaryProps) => {
         borderRadius={2}
         sx={{
           display: "flex",
-          // border: "1px dashed white",
           width: "100%",
           px: ".5rem",
           minHeight: "max-content",

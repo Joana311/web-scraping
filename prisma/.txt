@@ -1,0 +1,17 @@
+[BodyPart]: {
+    name
+    href
+    [Muscles]: {
+        name
+        [Exercises]: {
+            name
+            href
+            etc
+            [Equipment] : {
+                name
+                [Muscles]
+            }
+
+        }
+    } 
+}
