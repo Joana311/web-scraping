@@ -30,8 +30,11 @@ To get a div to fill space with using height: 'fill-available'. Any siblings sha
 
     [ ] add the actual 'add' functionality that should add the selected exercises to the "Workout Report" `/[user]/workout`
 
+
 [-] introduce functionality to add an empty Workout for a User.
 
+    [ ] fetch actual workout information for a given user. 
+    
 [ ] introduce functionality to add a new UserExercise in db for a Workout.
 
     - should use real Exercises provided by AddExercises.
