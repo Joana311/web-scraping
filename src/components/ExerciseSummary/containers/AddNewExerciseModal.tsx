@@ -13,28 +13,63 @@ import {
   Container,
 } from "@mui/material";
 import Link from "next/link";
-import React from "react";
-import { SummaryCard } from "../components/ExerciseSummary/UserExerciseSummaryCard";
-import exercises from "../pages/api/exercises";
+import React, { SyntheticEvent } from "react";
+import { SummaryCard } from "../components/SummaryCardComponent";
+import exercises from "../../../pages/api/exercises";
 import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
-import { Context } from "../../graphql/context";
+import { Context } from "../../../../graphql/context";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 interface AddExerciseProps {
   toggle?: () => void;
   exercises?: Exercise[];
 }
+const infoIconCssProps: SxProps = {
+  display: "flex",
+  color: "text",
+};
+const infoLabelsCss: SxProps = {
+  fontSize: ".6rem",
+  fontWeight: "semi-bold",
+  color: "text.secondary",
+  mt: "-.25rem",
+  letterSpacing: ".05rem",
+};
+const infoValueCss: SxProps = {
+  textTransform: "capitalize",
+  mt: "-.25rem",
+  fontWeight: "light",
+  maxWidth: "10ch",
+  fontSize: ".9rem",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+const exerciseNameCss: SxProps = {
+  fontWeight: "medium",
+  width: "max-content",
+  alignSelf: "start",
+  textTransform: "capitalize",
+  fontSize: "1.3rem",
+};
 
-const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
+const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
   const toggleShowExercise = toggle;
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(
     new Map<any, boolean>()
   );
+  const [isScrolledTop, setIsScrolledTop] = React.useState(true);
   const borders = false;
   const addSelected = () => {
     console.log("placeholder for add selected");
-    return false;
+    const selected = [...selectedExerciseMap.values()].filter(
+      (value) => value == true
+    );
+    if (selected.length > 0) {
+      
+    }
+    return;
   };
   const moreInfoHandler = (href: string) => {
     //open exercise.href in a new tab
@@ -45,19 +80,32 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
   const CAPACITY = 15;
 
   const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>, key) => {
-    console.log("checkbox selected");
+    // console.log("checkbox selected");
 
     setExerciseSelected((exerciseMap) => {
+      // add element key to map with a value of true
       exerciseMap.set(key, e.target.checked);
+      // count amount of selected exercises (value is true)
       const amount = [...exerciseMap.values()].filter(
         (value) => value == true
       ).length;
-      console.log("total calculated");
       setAmountSelected(amount);
       return exerciseMap;
     });
   };
-  const summaryCard = (exercise: Exercise, summaryCardKey) => {
+
+  const prevScrollPosition = React.useRef(0);
+  const handleScroll = (event: SyntheticEvent) => {
+    // ts-ignore
+    const scrollPosition = (event.target as HTMLDivElement).scrollTop;
+    console.log(scrollPosition);
+    // if (scrollPosition < 100 && prevScrollPosition.current >= 100) {
+    //   setIsScrolledTop(true);
+    // }
+    // prevScrollPosition.current = scrollPosition;
+    setIsScrolledTop(scrollPosition < 10);
+  };
+  const ExerciseDescriptionComponent = (exercise: Exercise, summaryCardKey) => {
     return (
       <>
         <Stack
@@ -87,7 +135,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
             <Checkbox
               checked={selectedExerciseMap[summaryCardKey]}
               onChange={(e) => handleCheckBox(e, summaryCardKey)}
-              sx={{ "&.Mui-checked": { color: colors.blue[600] } }}
+              sx={{ "&.Mui-checked": { color: "blue.main" } }}
             />
           </Box>
           <Box
@@ -248,7 +296,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
               pr: ".8em",
               fontSize: ".9rem",
               textDecoration: "underline",
-              color: colors.blue[600],
+              color: "blue.main",
             }}
           >
             view all
@@ -268,6 +316,8 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
         <Box
           className="fade-top"
           sx={{
+            opacity: isScrolledTop && "0.5",
+            transition: "opacity .3s",
             height: "2rem",
             position: "absolute",
             top: "-0.1rem",
@@ -275,11 +325,11 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
             color: "white",
             zIndex: 1,
             background:
-              "linear-gradient(to bottom, rgba(0,0,0,1) , rgba(0,0,0,0.1))",
+              "linear-gradient(to bottom, rgba(0,0,0,1) , rgba(0,0,0,0))",
           }}
         />
         <Box
-          className="scrollable-exercises"
+          id="scrollable-exercises"
           sx={{
             // border: "2px dashed green",
             overflowY: "scroll",
@@ -289,15 +339,16 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
             position: "absolute",
             pb: "3rem",
           }}
+          onScroll={handleScroll}
         >
           <Stack
             spacing={"0.7rem"}
             direction="column"
-            sx={{ minHeight: "fill", pt: ".5rem"}}
+            sx={{ minHeight: "fill", pt: ".5rem", px: ".25rem" }}
           >
             {exercises.map((exercise, key) => {
               if (key < CAPACITY) {
-                return summaryCard(exercise, key);
+                return ExerciseDescriptionComponent(exercise, key);
               }
             })}
           </Stack>
@@ -305,7 +356,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
         <Box
           className="fade-bottom"
           sx={{
-            height: "3rem",
+            height: "5rem",
             position: "absolute",
             bottom: "-0.1rem",
 
@@ -313,7 +364,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
             color: "black",
             zIndex: 1,
             background:
-              "linear-gradient(to top, rgba(0,0,0,1) , rgba(0,0,0,0.1))",
+              "linear-gradient(to top, rgba(0,0,0,.9) 30% , rgba(0,0,0,0))",
           }}
         />
         <Box
@@ -331,7 +382,7 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
             onClick={addSelected}
             sx={{
               display: amountSelected ? "" : "none",
-              backgroundColor: amountSelected ? colors.blue[600] : "#fff",
+              backgroundColor: amountSelected ? "blue.main" : "#fff",
               borderRadius: 2,
               //   border: "1px solid white",
               width: "70%",
@@ -355,32 +406,4 @@ const AddExercise = ({ exercises, toggle }: AddExerciseProps) => {
     </Box>
   );
 };
-const infoIconCssProps: SxProps = {
-  display: "flex",
-  color: "text",
-};
-const infoLabelsCss: SxProps = {
-  fontSize: ".6rem",
-  fontWeight: "semi-bold",
-  color: "text.secondary",
-  mt: "-.25rem",
-  letterSpacing: ".05rem",
-};
-const infoValueCss: SxProps = {
-  textTransform: "capitalize",
-  mt: "-.25rem",
-  fontWeight: "light",
-  maxWidth: "10ch",
-  fontSize: ".9rem",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-const exerciseNameCss: SxProps = {
-  fontWeight: "medium",
-  width: "max-content",
-  alignSelf: "start",
-  textTransform: "capitalize",
-  fontSize: "1.3rem",
-};
-export default AddExercise;
+export default AddNewExerciseModal;

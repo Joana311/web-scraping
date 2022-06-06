@@ -18,8 +18,12 @@ import dayjs from "dayjs";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DailyActivitySummary from "../../components/DailyActivitySummary";
 import RecentWorkouts from "../../components/RecentWorkouts";
-import prisma from "../../../lib/prisma";
 import { Exercise, PrismaClient } from "@prisma/client";
+import createWorkout, {
+  UserWorkoutWithExercises,
+} from "../../../lib/mutations/createWorkout";
+import getWorkouts from "../../../lib/queries/getWorkouts";
+import { useRouter } from "next/router";
 const QUERY_USER = gql`
   query User($name: String) {
     user(name: $name) {
@@ -67,31 +71,21 @@ const ADD_EMPTY_WORKOUT = gql`
 export interface UserPageProps {
   user: User;
   exercises: Exercise[];
+  recent_workouts: UserWorkoutWithExercises[];
 }
 
+//TODO
+// Pull last 5 workouts from database
 //React Functional Component
-export default function user({ user, exercises }: UserPageProps) {
+export default function user({
+  user,
+  exercises,
+  recent_workouts,
+}: UserPageProps) {
   const [User, setUser] = useState<User>(user);
-  // get today's date as Day of the Week/Month/Day
-  // const getDate = () => {
-  //   //format like "Fri, Mar 15"
-  //   return dayjs().format("dddd, MMM D");
-  // }
   const [todaysDate, setTodaysDate] = useState(dayjs().format("dddd, MMM D"));
   console.log(todaysDate);
-
-  const [addEmptyWorkout, { error: addWorkoutError }] =
-    useMutation(ADD_EMPTY_WORKOUT);
-  const addWorkoutHandler = async () => {
-    if (addWorkoutError) {
-      return <pre>ERROR ADDING WORKOUT</pre>;
-    }
-    const res = await addEmptyWorkout({ variables: { ownerId: user.id } });
-    if (res) {
-      setUser({ ...User, workouts: res.data.addEmptyWorkout.workouts });
-    }
-  };
-
+  const router = useRouter();
   return (
     <>
       <Stack
@@ -179,54 +173,10 @@ export default function user({ user, exercises }: UserPageProps) {
             minHeight: "max-content",
           }}
         >
-          <RecentWorkouts />
+          <RecentWorkouts
+            recentWorkouts={recent_workouts}
+          />
         </Box>
-        {/* <Grid
-          container
-          xs={12}
-          sx={{
-            marginTop: "22vh",
-            height: 300,
-            display: "flex",
-            justifyContent: "space-evenly",
-            alignItems: "center",
-          }}
-        >
-          <Grid 
-            item
-            xs={6}
-            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-          >
-            <Link as={`/${User.name}/addWorkout`} href="/[user]/addWorkout">
-              <Button variant="outlined" sx={{ ...buttonClass }}>
-                {"Continue or Add Workout "}
-              </Button>
-            </Link>
-          </Grid>
-          <Grid
-            item
-            xs={6}
-            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-          >
-            <Button disabled sx={{ ...buttonClass }}>
-              PlaceHolder
-            </Button>
-          </Grid>
-          <Grid
-            item
-            xs={6}
-            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-          >
-            <Button sx={{ ...buttonClass }}>Workout History</Button>
-          </Grid>
-          <Grid
-            item
-            xs={6}
-            sx={{ display: "flex", justifyContent: "center", minWidth: 110 }}
-          >
-            <Button sx={{ ...buttonClass }}>Friends</Button>
-          </Grid>
-        </Grid> */}
       </Stack>
     </>
   );
@@ -247,32 +197,21 @@ export const buttonClass = {
 };
 
 //cannot use apollo's useQuery hook inside of another react hook must use the client
-export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
-  context
-) => {
+export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   const prisma = new PrismaClient();
-  //this is the one we want to use with caching
-  //const apolloClient = initializeApollo();
-
-  //this is the one im currently using coz dumb
-  // const apolloClient = myApolloClient;
-
-  // const { data, error } = await myApolloClient.query({
-  //   query: QUERY_USER,
-  //   variables: { name: context.query.user },
-  // });
-  // const result = data.user;
-  // if (error) {
-  //   return <pre>Error getting User: {`${error.message}`}</pre>;
-  // }
   const exercises = await prisma.exercise.findMany();
   const user = await prisma.user.findFirst({
     where: { name: context.query.user as string },
   });
+  const recent_workouts: UserWorkoutWithExercises[] = await getWorkouts(
+    user.id
+  );
+  
   return {
     props: {
       user: user,
       exercises: exercises,
+      recent_workouts: recent_workouts,
     },
   };
 };

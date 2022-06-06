@@ -9,15 +9,35 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { SummaryCard } from "./UserExerciseSummaryCard";
-import AddExercise from "../../containers/AddExercise";
+import { SummaryCard } from "./components/SummaryCardComponent";
+import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
+import { UserWorkoutWithExercises } from "../../../lib/mutations/createWorkout";
 interface ExerciseSummaryProps {
   exrx_data: Exercise[];
+  exercises: UserWorkoutWithExercises["exercises"];
 }
-const ExerciseSummary = ({ exrx_data }: ExerciseSummaryProps) => {
+const ExerciseSummary = ({
+  exrx_data,
+  exercises: ex,
+}: ExerciseSummaryProps) => {
   const [showMore, toggleShowMore] = React.useState(false);
   const [showExercise, toggleShowExercise] = React.useState(false);
+  const _ =
+    ex?.map((exercise) => {
+      return {
+        name: exercise.exercise.name,
+        muscle: exercise.exercise.muscle_name,
+        variant: exercise.exercise.equipment_name,
+        sets: exercise.sets.map((set) => {
+          return {
+            weight: set.weight,
+            reps: set.reps,
+            rpe: set.rpe,
+          };
+        }),
+      };
+    }) || [];
   const exercises = [
     {
       name: "Bench Press",
@@ -50,7 +70,7 @@ const ExerciseSummary = ({ exrx_data }: ExerciseSummaryProps) => {
   };
   if (showExercise) {
     return (
-      <AddExercise
+      <AddNewExerciseModal
         toggle={() => {
           toggleShowExercise(false);
         }}
@@ -113,11 +133,28 @@ const ExerciseSummary = ({ exrx_data }: ExerciseSummaryProps) => {
               New Exercise
             </Typography>
           </ButtonBase>
-          {exercises.map((exercise, index) => {
+
+          {_.map((exercise, index) => {
             return (
               <SummaryCard exercise={exercise} isActive={true} key={index} />
             );
           })}
+          {!_.length && (
+            <Typography
+              // component="body"
+              sx={{
+                fontSize: "1rem",
+                fontWeight: "light",
+                color: "text.secondary",
+                width: "100%",
+                display: "inline-block",
+              }}
+            >
+              <span>{"No Exercises"}</span>
+              <br />
+              <span>{'Click "New Exercise" to get started.'}</span>
+            </Typography>
+          )}
         </Stack>
       </Stack>
     </>
