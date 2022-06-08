@@ -2,7 +2,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
 import fetch from 'isomorphic-unfetch';
-import { VehiclePerson } from '../../api/VehiclePerson';
 
 export interface ListProps {
     userList?: VehiclePerson[];

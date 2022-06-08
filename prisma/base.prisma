@@ -11,19 +11,24 @@ datasource db {
 }
 
 model User {
-  id       String        @id @default(uuid())
-  name     String
-  email    String        @unique
+  id         String   @id @default(uuid())
+  firstname  String
+  lastname   String
+  username   String
+  created_at DateTime @default(now())
+  email      String   @unique
+  password   String   @ignore
+
   workouts UserWorkout[]
 }
 
 model UserWorkout {
-  createdAt DateTime       @default(now())
-  endedAt   DateTime?
-  id        String         @id @default(cuid())
-  owner     User?          @relation(fields: [owner_id], references: [id])
-  owner_id  String
-  exercises UserExercise[]
+  created_at DateTime       @default(now())
+  ended_at   DateTime?
+  id         String         @id @default(cuid())
+  owner      User?          @relation(fields: [owner_id], references: [id])
+  owner_id   String
+  exercises  UserExercise[]
 }
 
 model UserExercise {
@@ -36,7 +41,7 @@ model UserExercise {
 }
 
 model Set {
-  updatedAt        DateTime      @updatedAt
+  updated_at       DateTime      @updatedAt
   id               String        @id @default(cuid())
   weight           Int?
   reps             Int           @default(0)

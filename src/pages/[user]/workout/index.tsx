@@ -11,19 +11,22 @@ import createWorkout, {
   UserWorkoutWithExercises,
 } from "../../../../lib/mutations/createWorkout";
 import { getWorkoutById } from "../../../../lib/queries/getWorkouts";
+import { useRouter } from "next/router";
 interface WorkoutPageProps {
   exercise_directory: Exercise[];
-  user_workout: UserWorkoutWithExercises;
+  current_workout: UserWorkoutWithExercises;
 }
 
 type Set = Omit<Prisma_Set, "id" | "updatedAt">;
 
-function workout({ exercise_directory, user_workout }: WorkoutPageProps) {
+function workout({ exercise_directory, current_workout }: WorkoutPageProps) {
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
   );
-  const [workout_exercises, setWorkoutExercises] =
-    React.useState<typeof user_workout.exercises>(undefined);
+
+  const [workoutExercises, setWorkoutExercises] = React.useState<
+    typeof current_workout.exercises
+  >(current_workout.exercises);
   return (
     <>
       <Box
@@ -111,7 +114,7 @@ function workout({ exercise_directory, user_workout }: WorkoutPageProps) {
         >
           <ExerciseSummary
             exrx_data={exercise_directory}
-            exercises={workout_exercises}
+            workout_exercises={workoutExercises}
           />
         </Box>
       </Box>
@@ -122,12 +125,13 @@ function workout({ exercise_directory, user_workout }: WorkoutPageProps) {
 export default workout;
 export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   let workout: UserWorkoutWithExercises | undefined = null;
-  // console.log(context);
+  console.group("User Workout Page getServerSideProps");
   const active_workout_id = context.query.id?.toString();
   const user_name = context.query.user?.toString();
+  let new_exercise_ids = context.query.new;
   // const active_workout_id = "1";
-  console.log(active_workout_id);
-  console.log(context.query);
+  console.log("workout id: ", active_workout_id);
+  console.log("query params: ", context.query);
   const user_id = (
     await prisma.user.findFirst({
       where: {
@@ -139,6 +143,15 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
     })
   )?.id;
 
+  new_exercise_ids =
+    typeof new_exercise_ids === "string"
+      ? [new_exercise_ids]
+      : new_exercise_ids;
+
+  new_exercise_ids?.filter((exercise_id) => {
+    /c(\S){24}/.test(exercise_id);
+  });
+  // console.log(new_exercise_ids);
   if (active_workout_id) {
     switch (true) {
       case /new/.test(active_workout_id): {
@@ -146,8 +159,8 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
           console.log("creating workout");
           workout = await createWorkout(user_id);
         } catch (error) {
-          console.log(error);
-          workout = null;
+          console.log(error.message);
+          workout = error.workout ?? null;
         }
         break;
       }
@@ -163,19 +176,25 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   }
   if (!workout) {
     console.log("no workout found, error adding new workout");
+    console.groupEnd();
     return {
       redirect: {
         permanent: false,
         destination: `/${user_name}#bad-request`,
       },
     };
+  } else {
+    console.log("workout found");
+    console.log(workout);
+    console.groupEnd();
+    const exercise_directory = await prisma.exercise.findMany();
+    context.res.setHeader("location", `/${user_name}/workout?id=${workout.id}`);
+
+    return {
+      props: {
+        exercise_directory: exercise_directory,
+        current_workout: workout,
+      },
+    };
   }
-  console.log(workout);
-  const exercise_directory = await prisma.exercise.findMany();
-  return {
-    props: {
-      exercise_directory: exercise_directory,
-      current_workout: workout,
-    },
-  };
 };

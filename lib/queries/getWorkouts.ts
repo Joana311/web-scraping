@@ -3,13 +3,14 @@ import prisma from "../prisma";
 
 export default async function getWorkouts(owner_id) {
   // console.log(owner_id);
-  debugger;
+  // debugger;
   const workouts = await prisma.userWorkout.findMany({
     where: { owner_id: owner_id },
     include: { exercises: { include: { exercise: true, sets: true } } },
-    take: 5,
+    take: 7,
   });
   // debugger;
+  console.log.apply(workouts);
   return workouts;
 }
 export async function getWorkoutById(workout_id) {

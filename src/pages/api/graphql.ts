@@ -1,5 +1,5 @@
 import { ApolloServer } from "apollo-server-micro";
-import  Cors  from "micro-cors";
+import Cors from "micro-cors";
 import { PageConfig } from "next";
 import { typeDefs } from "../../../graphql/schema";
 import { resolvers } from "../../../graphql/resolvers";
@@ -11,7 +11,7 @@ import {
   ApolloServerPluginLandingPageDisabled,
 } from "apollo-server-core";
 
-export const config : PageConfig= {
+export const config: PageConfig = {
   api: {
     bodyParser: false,
   },
@@ -20,25 +20,26 @@ export const config : PageConfig= {
 export const schema = makeExecutableSchema({ typeDefs, resolvers });
 //console.log(schema)
 
-const cors = Cors({allowMethods: ['PUT', 'POST'] 
-});
-//Make sure u open Sanbox in INCOGNITO Adblock will fuck up the CORS
+const cors = Cors({ allowMethods: ["PUT", "POST"] });
+//Make sure u open Sandbox in INCOGNITO Adblock will fuck up the CORS
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context:createContext,
+  schema,
+  // typeDefs,
+  // resolvers,
+  context: createContext,
 });
 
-const startServer = server.start();
+const server_start = server.start();
 
-export default cors(async(req, res) => {
+export default cors(async (req, res) => {
+  const server_handler = server.createHandler({ path: "/api/graphql" })(
+    req,
+    res
+  );
   if (req.method === "OPTIONS") {
     res.end();
     return false;
   }
-  await startServer;
-  await server.createHandler({ path: "/api/graphql" })(req, res);
+  await Promise.all([server_start, server_handler]);
 });
-
-

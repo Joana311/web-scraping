@@ -22,7 +22,7 @@ import {
 import React, { Fragment } from "react";
 import workout from "../../../pages/[user]/workout/index";
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
-interface ExerciseSummaryProps {
+export interface SummaryCardProps {
   exercise: {
     name: string;
     variant: string;
@@ -35,7 +35,7 @@ interface ExerciseSummaryProps {
   };
   isActive: boolean;
 }
-export const SummaryCard = ({ exercise, isActive }: ExerciseSummaryProps) => {
+export const SummaryCard = ({ exercise, isActive }: SummaryCardProps) => {
   const [expanded, setExpanded] = React.useState(false);
   const handler = () => {
     setExpanded((prev) => !prev);

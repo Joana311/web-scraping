@@ -10,6 +10,6 @@ export default async function getAllExercises(
     res.status(500).json({ message: "Only Get Request Accepted" });
   }
 
-  const exercises = await prisma.exercise.findMany();
+  const exercises = await prisma.exercise.findMany({ take: 10 });
   res.status(200).json(exercises);
 }

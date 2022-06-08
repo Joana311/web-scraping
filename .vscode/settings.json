@@ -12,18 +12,22 @@
     "**/.factorypath": true,
     "node_modules": true,
     "src/pages/[user]/workout/_index.tsx": true,
-    "src/pages/[user]/_index.tsx": true
+    "src/pages/[user]/_index.tsx": true,
+    "src/pages/[user]/addWorkout": true
   },
   "hide-files.files": [
     "node_modules",
     "src/pages/[user]/workout/_index.tsx",
-    "src/pages/[user]/_index.tsx"
+    "src/pages/[user]/_index.tsx",
+    "src/pages/[user]/addWorkout"
   ],
   "cSpell.words": [
     "bodypart",
+    "cuids",
     "exrx",
     "prismix",
     "Sternocleidomastoid",
+    "superjson",
     "Supraspinatus"
   ]
 }

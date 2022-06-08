@@ -20,9 +20,14 @@ import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
 import { Context } from "../../../../graphql/context";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import addExerciseToWorkout from "../../../../lib/mutations/addExerciseToWorkout";
+import { NextRouter, useRouter, withRouter } from "next/router";
+import { WithRouterProps } from "next/dist/client/with-router";
+import { UrlWithParsedQuery } from "url";
 interface AddExerciseProps {
-  toggle?: () => void;
   exercises?: Exercise[];
+  toggle?: () => void;
+  fetch_callback?: (res_json: string) => void;
 }
 const infoIconCssProps: SxProps = {
   display: "flex",
@@ -53,38 +58,108 @@ const exerciseNameCss: SxProps = {
   fontSize: "1.3rem",
 };
 
-const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
+const AddNewExerciseModal = ({
+  exercises,
+  toggle,
+  fetch_callback,
+  router,
+}: AddExerciseProps & WithRouterProps) => {
   const toggleShowExercise = toggle;
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(
-    new Map<any, boolean>()
+    new Map<string, boolean>()
   );
+  const [filteredExercises, setFilteredExercises] = React.useState(exercises);
   const [isScrolledTop, setIsScrolledTop] = React.useState(true);
+  const [searchTerm, setSearchTerm] = React.useState(undefined);
+  const match_by_word = (search_term: string, exercise: Exercise): boolean => {
+    // split search term into words if there are spaces
+    const search_terms = search_term.split(" ");
+    // loop through each word in the search term
+    let is_match = false;
+    search_terms.forEach((search_term) => {
+      let search_term_lower = search_term.toLowerCase().trim();
+      switch (true) {
+        case exercise.name?.toLowerCase().includes(search_term_lower):
+          is_match = true;
+          break;
+        // case exercise.muscle_name
+        //   ?.toLowerCase()
+        //   .includes(search_term_lower):
+        //   is_match = true;
+        //   break;
+        case exercise.equipment_name?.toLowerCase().includes(search_term_lower):
+          is_match = true;
+          break;
+        // case exercise.force?.toLowerCase().includes(search_term_lower):
+        //   is_match = true;
+        //   break;
+      }
+    });
+
+    return is_match;
+  };
+  React.useEffect(() => {
+    if (!searchTerm) return;
+    setFilteredExercises(
+      exercises.filter((exercise) => {
+        return match_by_word(searchTerm, exercise);
+      })
+    );
+  }, [searchTerm]);
   const borders = false;
-  const addSelected = () => {
-    console.log("placeholder for add selected");
-    const selected = [...selectedExerciseMap.values()].filter(
-      (value) => value == true
+  const workout_id = router.query.id as string;
+  const addSelected = async () => {
+    console.group("Adding Selected Exercises");
+    const selected = [...selectedExerciseMap.entries()].filter(
+      ([_, included]) => included == true
     );
     if (selected.length > 0) {
-      
+      const selected_ids = [...selected.values()].map(([exercise_id, _]) => {
+        return exercise_id;
+      });
+      console.log("old query: ", router.query);
+      // debugger;
+
+      let query = { id: workout_id, new: selected_ids };
+
+      // ts-ignore
+      const req_url = `/api/exercise/add`;
+      console.log("req_url: ", req_url);
+      const body = JSON.stringify(query);
+      console.log("body: ", body);
+
+      // debugger;
+      console.groupEnd();
+      // router.
+      fetch_callback(
+        await (
+          await fetch(req_url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body,
+          })
+        ).json()
+      );
     }
-    return;
+    console.groupEnd();
+    toggleShowExercise();
   };
   const moreInfoHandler = (href: string) => {
-    //open exercise.href in a new tab
-    console.log(href);
     window.open(href, "_blank");
   };
 
-  const CAPACITY = 15;
+  const RESULT_RENDER_LIMIT = 25;
 
-  const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>, key) => {
-    // console.log("checkbox selected");
-
+  const handleCheckBox = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    exercise_id: string
+  ) => {
     setExerciseSelected((exerciseMap) => {
       // add element key to map with a value of true
-      exerciseMap.set(key, e.target.checked);
+      exerciseMap.set(exercise_id, e.target.checked);
       // count amount of selected exercises (value is true)
       const amount = [...exerciseMap.values()].filter(
         (value) => value == true
@@ -94,21 +169,15 @@ const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
     });
   };
 
-  const prevScrollPosition = React.useRef(0);
   const handleScroll = (event: SyntheticEvent) => {
-    // ts-ignore
     const scrollPosition = (event.target as HTMLDivElement).scrollTop;
-    console.log(scrollPosition);
-    // if (scrollPosition < 100 && prevScrollPosition.current >= 100) {
-    //   setIsScrolledTop(true);
-    // }
-    // prevScrollPosition.current = scrollPosition;
     setIsScrolledTop(scrollPosition < 10);
   };
-  const ExerciseDescriptionComponent = (exercise: Exercise, summaryCardKey) => {
+  const ExerciseDescriptionComponent = (exercise: Exercise, key) => {
     return (
       <>
         <Stack
+          key={key}
           direction="row"
           display="flex"
           className="exercise-container"
@@ -133,8 +202,8 @@ const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
             }}
           >
             <Checkbox
-              checked={selectedExerciseMap[summaryCardKey]}
-              onChange={(e) => handleCheckBox(e, summaryCardKey)}
+              checked={selectedExerciseMap[exercise.id]}
+              onChange={(e) => handleCheckBox(e, exercise.id)}
               sx={{ "&.Mui-checked": { color: "blue.main" } }}
             />
           </Box>
@@ -274,7 +343,10 @@ const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
           maxHeight: "min-content",
         }}
       >
-        <Input placeholder="Search..."></Input>
+        <Input
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search..."
+        ></Input>
       </Box>
       <Box
         className="exercises-title-bar"
@@ -288,6 +360,14 @@ const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
       >
         <Typography fontSize={`1rem`} fontWeight={"regular"}>
           Exercises:
+        </Typography>
+        <Typography
+          fontSize={`0.7rem`}
+          fontWeight={"bold"}
+          color="secondary"
+          alignSelf="end"
+        >
+          {`Only first ${RESULT_RENDER_LIMIT} results shown.`}
         </Typography>
         <Link href="#">
           <Typography
@@ -346,8 +426,8 @@ const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
             direction="column"
             sx={{ minHeight: "fill", pt: ".5rem", px: ".25rem" }}
           >
-            {exercises.map((exercise, key) => {
-              if (key < CAPACITY) {
+            {filteredExercises.map((exercise, key) => {
+              if (key < RESULT_RENDER_LIMIT) {
                 return ExerciseDescriptionComponent(exercise, key);
               }
             })}
@@ -406,4 +486,6 @@ const AddNewExerciseModal = ({ exercises, toggle }: AddExerciseProps) => {
     </Box>
   );
 };
-export default AddNewExerciseModal;
+export default withRouter<AddExerciseProps & WithRouterProps>(
+  AddNewExerciseModal
+);

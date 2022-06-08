@@ -1,30 +1,47 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   ButtonBase,
   colors,
+  Fade,
   Grid,
   Stack,
   SxProps,
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { SummaryCard } from "./components/SummaryCardComponent";
+import {
+  SummaryCard,
+  SummaryCardProps,
+} from "./components/SummaryCardComponent";
 import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
 import { UserWorkoutWithExercises } from "../../../lib/mutations/createWorkout";
+import superjson from "superjson";
+import superJsonWithNext from "babel-plugin-superjson-next";
 interface ExerciseSummaryProps {
   exrx_data: Exercise[];
-  exercises: UserWorkoutWithExercises["exercises"];
+  workout_exercises: UserWorkoutWithExercises["exercises"];
 }
 const ExerciseSummary = ({
   exrx_data,
-  exercises: ex,
+  workout_exercises,
 }: ExerciseSummaryProps) => {
   const [showMore, toggleShowMore] = React.useState(false);
-  const [showExercise, toggleShowExercise] = React.useState(false);
-  const _ =
-    ex?.map((exercise) => {
+  const [showExerciseModal, setShowExerciseModal] = React.useState(false);
+  const [workoutExercises, setWorkoutExercises] =
+    React.useState(workout_exercises);
+  console.log(workout_exercises);
+  const fetch_callback = (res_json: string) => {
+    // debugger;
+    const workout: UserWorkoutWithExercises = superjson.parse(res_json);
+    setWorkoutExercises((prev) => [...prev, ...workout.exercises]);
+
+    setShowExerciseModal(false);
+  };
+
+  const exercise_summaries: SummaryCardProps["exercise"][] =
+    workoutExercises?.map((exercise) => {
       return {
         name: exercise.exercise.name,
         muscle: exercise.exercise.muscle_name,
@@ -38,43 +55,25 @@ const ExerciseSummary = ({
         }),
       };
     }) || [];
-  const exercises = [
-    {
-      name: "Bench Press",
-      muscle: "Chest",
-      variant: "Barbell",
-      sets: [
-        { weight: 45, reps: 8, rpe: 8 },
-        { weight: 45, reps: 8, rpe: 8 },
-        { weight: 45, reps: 9, rpe: 9 },
-        { weight: 45, reps: 7, rpe: 10 },
-      ],
-    },
-    {
-      name: "Front Raise",
-      muscle: "Deltoid",
-      variant: "Dumbbell",
-      sets: [
-        { weight: 15, reps: 7, rpe: 8 },
-        { weight: 15, reps: 7, rpe: 8 },
-        { weight: 15, reps: 6, rpe: 9 },
-        { weight: 15, reps: 7, rpe: 9 },
-      ],
-    },
-  ];
-  exercises.length > 2 && toggleShowMore(true);
+  useEffect(() => {
+    exercise_summaries.length > 2
+      ? toggleShowMore(true)
+      : toggleShowMore(false);
+  }, [exercise_summaries.length]);
+
   const borders = false;
 
   const addExercise = () => {
-    toggleShowExercise(true);
+    setShowExerciseModal(true);
   };
-  if (showExercise) {
+  if (showExerciseModal) {
     return (
       <AddNewExerciseModal
-        toggle={() => {
-          toggleShowExercise(false);
-        }}
         exercises={exrx_data}
+        toggle={() => {
+          setShowExerciseModal(false);
+        }}
+        fetch_callback={fetch_callback}
       />
     );
   }
@@ -134,12 +133,12 @@ const ExerciseSummary = ({
             </Typography>
           </ButtonBase>
 
-          {_.map((exercise, index) => {
+          {exercise_summaries.map((exercise, index) => {
             return (
               <SummaryCard exercise={exercise} isActive={true} key={index} />
             );
           })}
-          {!_.length && (
+          {workoutExercises.length === 0 && (
             <Typography
               // component="body"
               sx={{

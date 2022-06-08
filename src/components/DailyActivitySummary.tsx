@@ -25,7 +25,7 @@ const DailyActivitySummary = () => {
             <Grid
               item
               xs={leftPanel}
-              spacing={20}
+              // spacing={20}
               sx={{
                 // border: "1px solid pink",
                 width: "100%",

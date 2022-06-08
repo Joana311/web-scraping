@@ -21,15 +21,24 @@ interface RecentWorkoutsProps {
 const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
   const [showMore, toggleShowMore] = React.useState(false);
   const [openWorkoutId, setOpenWorkoutId] = React.useState<string>(null);
-  const [todaysWorkouts, setTodaysWorkouts] =
-    React.useState<UserWorkoutWithExercises[]>();
+  const [todaysSessions, setTodaysSessions] = React.useState<
+    {
+      start: string;
+      end: string;
+      exercises: number;
+      sets: number;
+      estimated_cals: string | number;
+    }[]
+  >([]);
 
   // find todays workouts
   React.useEffect(() => {
+    // console.log(workouts);
     const predicate = (workout: UserWorkoutWithExercises) => {
       return dayjs().isSame(dayjs(workout.createdAt), "day");
     };
     // partition the workouts into those that are today and those that are not
+
     const [todays_sessions, previous_sessions] = recentWorkouts.reduce(
       (
         results: UserWorkoutWithExercises[][],
@@ -37,7 +46,7 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
       ) => (results[+!predicate(workout)].push(workout), results),
       [[], []]
     );
-
+    console.log(todays_sessions);
     // find the first open workout if exists
     todays_sessions.find((workout) => {
       if (workout.endedAt === null) {
@@ -46,39 +55,28 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
         return true;
       }
     });
+    const sessions = todays_sessions.map((workout) => {
+      console.group("Recent Workouts Props");
+      console.log(workout);
+      console.groupEnd();
+      return {
+        start: dayjs(workout.createdAt).format("h:mmA"),
+        end: workout.endedAt ? dayjs(workout.endedAt)?.format("h:mmA") : null,
+        exercises: workout.exercises.length,
+        sets: workout.exercises
+          .map((exercise) => {
+            return exercise.sets ? exercise.sets.length : 0;
+          })
+          .reduce((a, b) => a + b, 0),
+        estimated_cals: "N/A",
+      };
+    });
+    setTodaysSessions(sessions);
   }, [recentWorkouts]);
 
-  const w1 = {
-    start: "8:00AM",
-    end: "10:00AM",
-    exercises: 8,
-    sets: 36,
-    estimated_cals: 1000,
-  };
-  let w2 = null;
-  try {
-    w2 = {
-      start: dayjs(recentWorkouts[0].createdAt).format("h:mmA"),
-      end: recentWorkouts[0].endedAt
-        ? dayjs(recentWorkouts[0].endedAt)?.format("h:mmA")
-        : null,
-      exercises: recentWorkouts[0].exercises.length,
-      sets: (recentWorkouts[0].exercises as Array<any>).reduce(
-        (num_sets: number, exercise) => {
-          return num_sets + exercise.sets.length;
-        },
-        [, 0]
-      ),
-      estimated_cals: "N/A",
-    };
-  } catch (error) {
-    // console.log(error);
-  }
-
   const leftSize = 7.5;
-  const workouts = [w1];
-  w2 && workouts.push(w2);
-  workouts.length > 2 && toggleShowMore(true);
+
+  todaysSessions.length > 2 && toggleShowMore(true);
 
   const RecentWorkoutCard = (workout, index) => {
     return (
@@ -219,9 +217,25 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
           )}
         </Box>
         <Stack spacing={"0.5rem"}>
-          {workouts.map((workout, index) => {
-            return RecentWorkoutCard(workout, index);
-          })}
+          {todaysSessions.length ? (
+            todaysSessions.map((workout, index) => {
+              return RecentWorkoutCard(workout, index);
+            })
+          ) : (
+            <Typography
+              sx={{
+                fontSize: "1rem",
+                fontWeight: "light",
+                color: "text.secondary",
+                width: "100%",
+                display: "inline-block",
+              }}
+            >
+              <span>{"No Workouts Found"}</span>
+              <br />
+              <span>{"Start a new one!"}</span>
+            </Typography>
+          )}
           <Link
             href={`${useRouter().query.user}/workout?id=${
               openWorkoutId ? openWorkoutId : "new"

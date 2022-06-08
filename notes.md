@@ -23,30 +23,54 @@ im not sure if theres a way to make the client aware of the already defined quer
 
 To get a div to fill space with using height: 'fill-available'. Any siblings sharing the parent must have a height set (not sure if it needs to be a static height). The parent container must also be a flex.
 
+# Big Bugs
 
-### Todo
-```
-[x] create and 'add exercise' app component/modal using real exercise data
+    [ ] currently there after a new workout is created. the url is not updated to include the id of the added workout.
 
-    [-] add the actual 'add' functionality that should add the selected exercises to the "Workout Report" `/[user]/workout`
+    [ ] the json response needs to be encoded when being return via https
 
-[x] introduce functionality to add an empty Workout for a User.
+# Todo
 
-    [-] fetch actual workout information for a given user. 
+    [ ] swap from using a search query parameter for workout id to just using a page.
 
-[-] introduce functionality to add a new UserExercise in db for a Workout.
+    [x] create and 'add exercise' app component/modal using real exercise data
 
-    (should use real Exercises provided by AddExercises.)
+        [x] finish the actual 'add' functionality that should add the selected exercises as UserExercises to the "Workout Report" `/[user]/workout`
 
-    [-] ability to modify data.
 
-[ ] use a `<Layout>` component to hold Title/Nav Header of the app/site
+    [x] introduce functionality to add an empty Workout for a User.
 
-[ ] implement searching & filtering for AddExercies.
+        [x] fetch actual workout information for a given user. 
 
-[ ] implement user Authentication/login w/ discord.
+    [x] introduce functionality to add a new UserExercise in db for a Workout.
 
-[ ] setup middleware for mutations.
+        (should use real Exercises provided by AddExercises.)
 
-[ ] establish subscriptions to db for modifying UserExercises feilds (sets, reps, weight).
-```
+        [-] ability to modify data.
+
+    [ ] stop using babel compiler and swap back or SWC, by using a different superjson plugin 
+
+    [try this one](https://github.com/remorses/next-superjson)
+
+    [ ] use a `<Layout>` component to hold Title/Nav Header of the app/site
+
+    [ ] implement searching & filtering for AddExercies.
+
+        [ ] remove the ability to add exercises that are already in the workout.
+
+    [ ] implement user Authentication/login w/ discord.
+
+    [ ] setup middleware for mutations.
+
+    [ ] establish subscriptions to db for modifying UserExercises feilds (sets, reps, weight).
+
+    [ ] add graphql back in
+
+    [ ] set up subscriptions using graphql to mutate a workout session
+
+    [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
+
+
+    [ ] ability to delete/edit previous workouts
+
+    [ ] clean up the flow/directory structure for components 

@@ -173,9 +173,7 @@ export default function user({
             minHeight: "max-content",
           }}
         >
-          <RecentWorkouts
-            recentWorkouts={recent_workouts}
-          />
+          <RecentWorkouts recentWorkouts={recent_workouts} />
         </Box>
       </Stack>
     </>
@@ -206,7 +204,8 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   const recent_workouts: UserWorkoutWithExercises[] = await getWorkouts(
     user.id
   );
-  
+  console.log(recent_workouts);
+
   return {
     props: {
       user: user,
