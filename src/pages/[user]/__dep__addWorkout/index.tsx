@@ -5,11 +5,11 @@ import {
   Set,
   User,
   ExerciseResolvers,
-} from "../../../../graphql/generated/graphql";
+} from "../../../../__dep__graphql/generated/graphql";
 import {
   MutationAddWorkoutSetArgs,
   Workout,
-} from "../../../../graphql/generated/graphql";
+} from "../../../../__dep__graphql/generated/graphql";
 import { GetServerSideProps, GetStaticProps, NextPage } from "next";
 import myApolloClient from "../../../../lib/apollo";
 import { gql, OperationVariables, useMutation } from "@apollo/client";
@@ -80,7 +80,7 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
   const [addSet, { data }] = useMutation<any, MutationAddWorkoutSetArgs>(
     ADD_SET_TO_WORKOUT
   );
-
+  
   //Routing Handlers
   const overviewWorkoutHandler = (workoutId) => (
     <Link
@@ -121,6 +121,9 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
   const saveSets = async () => {
     for (const [index, set] of formData.entries()) {
       let { workoutID, exerciseID, reps, rpe, id: SetId } = set;
+      // console.log({ set });
+      //console.log(`${SetId} lives in state`);
+
       const { data } = await addSet({
         variables: {
           id: SetId,
@@ -132,12 +135,19 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
       });
       if (await data.addWorkoutSet) {
         let { id } = data.addWorkoutSet;
+        //console.log(id)
+
         if (id) {
+          console.log(
+            `updating id ${data.addWorkoutSet.id} to Set state on index: ${index}`
+          );
           handleSetId(id, index);
         }
       } else {
+        console.log("Previous Set Updated");
       }
     }
+    //console.log(formData);
   };
   const initializeSet = () => {
     let newSet: Set = {
@@ -203,6 +213,7 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
                       <button
                         onClick={() => {
                           saveSets();
+                          //console.log(formData)
                         }}
                       >
                         Save
@@ -249,6 +260,7 @@ function addWorkout({ Exercises, User }: addWorkoutProps) {
 export const getServerSideProps: GetServerSideProps<addWorkoutProps> = async (
   context
 ) => {
+  //console.log(context.query.user)
   const { data } = await myApolloClient.query({
     query: GET_ALL_EXERCISES,
   });
@@ -259,6 +271,7 @@ export const getServerSideProps: GetServerSideProps<addWorkoutProps> = async (
     },
   });
   const { user } = userData;
+  //console.log(data.allExercises);
   return {
     props: {
       User: user,

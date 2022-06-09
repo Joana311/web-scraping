@@ -1,9 +1,9 @@
 import { ApolloServer } from "apollo-server-micro";
 import Cors from "micro-cors";
 import { PageConfig } from "next";
-import { typeDefs } from "../../../graphql/schema";
-import { resolvers } from "../../../graphql/resolvers";
-import { createContext } from "../../../graphql/context";
+import { typeDefs } from "../../../__dep__graphql/schema";
+import { resolvers } from "../../../__dep__graphql/resolvers";
+import { createContext } from "../../../__dep__graphql/context";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
 import {

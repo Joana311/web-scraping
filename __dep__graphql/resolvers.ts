@@ -4,7 +4,7 @@
 @typedef { import("@prisma/client").UserCreateArgs } UserCreateArgs
  */
 import { ownerWindow } from "@mui/material";
-import type { Context } from "../graphql/context";
+import type { Context } from "./context";
 
 import { typeDefs } from "./schema";
 import { gql } from "@apollo/client";

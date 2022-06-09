@@ -8,7 +8,7 @@ import {
   User,
   UserResolvers,
   Workout,
-} from "../../../../graphql/generated/graphql";
+} from "../../../../__dep__graphql/generated/graphql";
 import { gql } from "apollo-server-micro";
 import { Box } from "@mui/material";
 const GET_EXERCISES_BY_WORKOUT = gql`

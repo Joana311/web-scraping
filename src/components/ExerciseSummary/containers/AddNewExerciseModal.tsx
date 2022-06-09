@@ -18,7 +18,7 @@ import { SummaryCard } from "../components/SummaryCardComponent";
 import exercises from "../../../pages/api/exercises";
 import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
-import { Context } from "../../../../graphql/context";
+import { Context } from "../../../../__dep__graphql/context";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import addExerciseToWorkout from "../../../../lib/mutations/addExerciseToWorkout";
 import { NextRouter, useRouter, withRouter } from "next/router";

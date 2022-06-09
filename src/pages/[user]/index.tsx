@@ -10,7 +10,7 @@ import myApolloClient from "../../../lib/apollo";
 import { GetServerSideProps, NextPageContext } from "next";
 import { UserWorkouts } from "../../containers/UserWorkouts";
 import { useEffect, useState } from "react";
-import { User } from "../../../graphql/generated/graphql";
+import { User } from "../../../__dep__graphql/generated/graphql";
 import Link from "next/link";
 import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
 import styled from "@mui/system/styled";

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { GetServerSideProps, NextPageContext } from "next";
 import { ownerWindow } from "@mui/material";
-import { User, Workout } from "../../graphql/generated/graphql";
+import { User, Workout } from "../../__dep__graphql/generated/graphql";
 import { Grid, Box } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
