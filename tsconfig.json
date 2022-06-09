@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -18,9 +22,9 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx",
-    "src/pages/api/__dep__graphql.ts",
-    "src/pages/api/graphql.js"
-  ],
-  "exclude": ["node_modules"]
+    "**/*.tsx"
+, "src/pages/api/graphql.ts", "src/pages/api/graphql.js"  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

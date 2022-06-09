@@ -1,14 +1,5 @@
-import {
-  gql,
-  useLazyQuery,
-  useQuery,
-  ApolloClient,
-  useMutation,
-} from "@apollo/client";
-import myApolloClient from "../../../lib/apollo";
-//import { initializeApollo } from "../../../lib/apollo";
 import { GetServerSideProps, NextPageContext } from "next";
-import { UserWorkouts } from "../../containers/UserWorkouts";
+import { UserWorkouts } from "../../containers/__dep__UserWorkouts";
 import { useEffect, useState } from "react";
 import { User } from "../../../__dep__graphql/generated/graphql";
 import Link from "next/link";
@@ -24,58 +15,13 @@ import createWorkout, {
 } from "../../../lib/mutations/createWorkout";
 import getWorkouts from "../../../lib/queries/getWorkouts";
 import { useRouter } from "next/router";
-const QUERY_USER = gql`
-  query User($name: String) {
-    user(name: $name) {
-      id
-      name
-      email
-      workouts {
-        id
-        ownerID
-        date
-        sets {
-          id
-          createdAt
-          exerciseID
-          workoutID
-          reps
-          rpe
-        }
-      }
-    }
-  }
-`;
-const ADD_EMPTY_WORKOUT = gql`
-  mutation AddEmptyWorkout($ownerId: ID!) {
-    addEmptyWorkout(ownerID: $ownerId) {
-      id
-      name
-      email
-      workouts {
-        id
-        ownerID
-        date
-        sets {
-          id
-          createdAt
-          exerciseID
-          workoutID
-          reps
-          rpe
-        }
-      }
-    }
-  }
-`;
+
 export interface UserPageProps {
   user: User;
   exercises: Exercise[];
   recent_workouts: UserWorkoutWithExercises[];
 }
 
-//TODO
-// Pull last 5 workouts from database
 //React Functional Component
 export default function user({
   user,
@@ -179,25 +125,9 @@ export default function user({
     </>
   );
 }
-export const Banner = styled("div")({
-  color: "aliceblue",
-  backgroundColor: "darkslategray",
-});
-export const buttonClass = {
-  color: "aliceblue",
-  backgroundColor: "darkslategray",
-  maxWidth: 110,
-  maxHeight: 110,
-  minWidth: 110,
-  minHeight: 110,
-  borderRadius: "50%",
-  //border: "2px solid",
-};
-
-//cannot use apollo's useQuery hook inside of another react hook must use the client
 export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   const prisma = new PrismaClient();
-  const exercises = await prisma.exercise.findMany();
+  // const exercises = await prisma.exercise.findMany();
   const user = await prisma.user.findFirst({
     where: { name: context.query.user as string },
   });
@@ -209,7 +139,7 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   return {
     props: {
       user: user,
-      exercises: exercises,
+      exercises: [],
       recent_workouts: recent_workouts,
     },
   };

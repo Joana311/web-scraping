@@ -1,4 +1,4 @@
-import prisma from "../prisma";
+import prisma from "../../src/server/prisma/prisma";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { UserWorkoutWithExercises } from "./createWorkout";
 // const prisma = new PrismaClient();

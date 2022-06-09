@@ -1,46 +1,12 @@
-import PropTypes from "prop-types";
+
 import { NextPage } from "next";
-import React, { useState, useEffect } from "react";
-import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
+import React from "react";
 import { GetServerSideProps, NextPageContext } from "next";
 import { ownerWindow } from "@mui/material";
 import { User, Workout } from "../../__dep__graphql/generated/graphql";
 import { Grid, Box } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
-//Not sure if this is even needed tbh
-const ADD_EMPTY_WORKOUT = gql`
-  mutation AddEmptyWorkout($ownerId: ID!) {
-    addEmptyWorkout(ownerID: $ownerId) {
-      id
-      ownerID
-      date
-      sets {
-        id
-        createdAt
-        exerciseID
-        reps
-        rpe
-      }
-    }
-  }
-`;
-
-const USER_WORKOUTS = gql`
-  query Workout($ownerId: ID) {
-    workout(ownerID: $ownerId) {
-      id
-      ownerID
-      date
-      sets {
-
-        reps
-        rpe
-        exerciseID
-      }
-    }
-  }
-`;
 
 // https://reactjs.org/docs/conditional-rendering.html
 
@@ -56,7 +22,7 @@ export const parseDate = (intString) => {
 
 export const UserWorkouts: NextPage<Props> = (props, NextPageContext) => {
   const { User, update, edit } = props;
-  const [addWorkout, setAddWorkout] = useState(false);
+  const [addWorkout, setAddWorkout] = React.useState(false);
   const router = useRouter();
   return (
     <>

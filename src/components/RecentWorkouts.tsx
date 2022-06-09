@@ -237,7 +237,7 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
             </Typography>
           )}
           <Link
-            href={`${useRouter().query.user}/workout?id=${
+            href={`${useRouter().query.user}/workout/${
               openWorkoutId ? openWorkoutId : "new"
             }`}
           >

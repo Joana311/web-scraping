@@ -1,3 +1,4 @@
+//ts-ignore
 import { Stack, Box, Grid, Typography, Input } from "@mui/material";
 import React from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -6,7 +7,7 @@ import ExerciseSummary from "../../../components/ExerciseSummary/ExerciseSummary
 import Link from "next/link";
 import { Set as Prisma_Set, Exercise, PrismaClient } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
-import prisma from "../../../../lib/prisma";
+import prisma from "../../../server/prisma/prisma";
 import createWorkout, {
   UserWorkoutWithExercises,
 } from "../../../../lib/mutations/createWorkout";
@@ -124,14 +125,15 @@ function workout({ exercise_directory, current_workout }: WorkoutPageProps) {
 
 export default workout;
 export const getServerSideProps: GetServerSideProps<any> = async (context) => {
+  const exrx_data = prisma.exercise.findMany();
   let workout: UserWorkoutWithExercises | undefined = null;
-  console.group("User Workout Page getServerSideProps");
-  const active_workout_id = context.query.id?.toString();
+  console.group("Workout Page getServerSideProps, id: ", context.params.slug);
+  const current_workout = context.query.workout_id?.toString();
   const user_name = context.query.user?.toString();
-  let new_exercise_ids = context.query.new;
   // const active_workout_id = "1";
-  console.log("workout id: ", active_workout_id);
+  console.log("workout id: ", current_workout);
   console.log("query params: ", context.query);
+  // remove this eventually
   const user_id = (
     await prisma.user.findFirst({
       where: {
@@ -142,19 +144,10 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
       },
     })
   )?.id;
-
-  new_exercise_ids =
-    typeof new_exercise_ids === "string"
-      ? [new_exercise_ids]
-      : new_exercise_ids;
-
-  new_exercise_ids?.filter((exercise_id) => {
-    /c(\S){24}/.test(exercise_id);
-  });
-  // console.log(new_exercise_ids);
-  if (active_workout_id) {
+  // move this log into trpc
+  if (current_workout) {
     switch (true) {
-      case /new/.test(active_workout_id): {
+      case /new/.test(current_workout): {
         try {
           console.log("creating workout");
           workout = await createWorkout(user_id);
@@ -164,9 +157,9 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
         }
         break;
       }
-      case /c(\S){24}/.test(active_workout_id): {
-        console.log(`finding workout -> ${active_workout_id}`);
-        workout = await getWorkoutById(active_workout_id);
+      case /c(\S){24}/.test(current_workout): {
+        console.log(`finding workout -> ${current_workout}`);
+        workout = await getWorkoutById(current_workout);
         break;
       }
       default: {
@@ -174,6 +167,7 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
       }
     }
   }
+
   if (!workout) {
     console.log("no workout found, error adding new workout");
     console.groupEnd();
@@ -186,13 +180,16 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   } else {
     console.log("workout found");
     console.log(workout);
-    console.groupEnd();
-    const exercise_directory = await prisma.exercise.findMany();
-    context.res.setHeader("location", `/${user_name}/workout?id=${workout.id}`);
 
+    let exercise_directory = await exrx_data;
+    console.log(
+      "exercise_directory (first 5): ",
+      exercise_directory.slice(0, 5)
+    );
+    console.groupEnd();
     return {
       props: {
-        exercise_directory: exercise_directory,
+        exercise_directory,
         current_workout: workout,
       },
     };

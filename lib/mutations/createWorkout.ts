@@ -1,4 +1,4 @@
-import prisma from "../prisma";
+import prisma from "../../src/server/prisma/prisma";
 import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 // const prisma = new PrismaClient();

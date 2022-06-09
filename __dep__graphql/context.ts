@@ -1,4 +1,4 @@
-import prisma from '../lib/prisma'
+import prisma from '../src/server/prisma/prisma'
 import { Prisma, PrismaClient } from "@prisma/client";
 
 export type Context = {

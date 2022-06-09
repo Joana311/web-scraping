@@ -20,7 +20,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import React, { Fragment } from "react";
-import workout from "../../../pages/[user]/workout/index";
+import workout from "../../../pages/[user]/workout/__dep__index";
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
 export interface SummaryCardProps {
   exercise: {

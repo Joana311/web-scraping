@@ -7,7 +7,7 @@ import ExerciseSummary from "../../../components/ExerciseSummary/ExerciseSummary
 import Link from "next/link";
 import { Set as Prisma_Set, Exercise, PrismaClient } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
-import prisma from "../../../../lib/prisma";
+import prisma from "../../../server/prisma/prisma";
 import createWorkout, {
   UserWorkoutWithExercises,
 } from "../../../../lib/mutations/createWorkout";
@@ -125,6 +125,7 @@ function workout({ exercise_directory, current_workout }: WorkoutPageProps) {
 
 export default workout;
 export const getServerSideProps: GetServerSideProps<any> = async (context) => {
+  const exrx_data = prisma.exercise.findMany();
   let workout: UserWorkoutWithExercises | undefined = null;
   console.group("User Workout Page getServerSideProps");
   const active_workout_id = context.query.id?.toString();
@@ -187,13 +188,14 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   } else {
     console.log("workout found");
     console.log(workout);
+
+    // console.log("exercise_directory: ", exercise_directory);
+    let exercise_directory = await exrx_data;
+    // console.log("exercise_directory: ", exercise_directory);
     console.groupEnd();
-    const exercise_directory = await prisma.exercise.findMany();
-    context.res.setHeader("location", `/${user_name}/workout?id=${workout.id}`);
-    console.log("exercise_directory: ", exercise_directory);
     return {
       props: {
-        exercise_directory: exercise_directory,
+        exercise_directory,
         current_workout: workout,
       },
     };

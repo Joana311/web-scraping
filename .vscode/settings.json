@@ -10,14 +10,12 @@
     "**/.project": true,
     "**/.settings": true,
     "**/.factorypath": true,
-    "node_modules": true,
     "src/pages/[user]/workout/_index.tsx": true,
     "src/pages/[user]/_index.tsx": true,
     "src/pages/[user]/addWorkout": true,
     "src/pages/ExercisesDirectory.tsx": true
   },
   "hide-files.files": [
-    "node_modules",
     "src/pages/[user]/workout/_index.tsx",
     "src/pages/[user]/_index.tsx",
     "src/pages/[user]/addWorkout",
@@ -27,9 +25,11 @@
     "bodypart",
     "cuids",
     "exrx",
+    "nextjs",
     "prismix",
     "Sternocleidomastoid",
     "superjson",
-    "Supraspinatus"
+    "Supraspinatus",
+    "trpc"
   ]
 }

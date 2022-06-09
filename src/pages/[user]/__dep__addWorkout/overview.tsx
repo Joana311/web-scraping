@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import HeaderBar from "../../../components/HeaderBar";
+import HeaderBar from "../../../components/__dep__HeaderBar";
 import myApolloClient from "../../../../lib/apollo";
 import { GetServerSideProps } from "next/types";
 import {

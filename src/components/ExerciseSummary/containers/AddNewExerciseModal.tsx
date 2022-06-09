@@ -103,7 +103,8 @@ const AddNewExerciseModal = ({
     if (!searchTerm) return;
     setFilteredExercises(
       exercises.filter((exercise) => {
-        return match_by_word(searchTerm, exercise);
+        return exercise.name?.toLowerCase().includes(searchTerm.toLowerCase());
+        // return match_by_word(searchTerm, exercise);
       })
     );
   }, [searchTerm]);
