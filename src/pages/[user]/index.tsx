@@ -1,6 +1,4 @@
-import { GetServerSideProps, NextPageContext } from "next";
-
-import { User } from "../../../misc/__dep__graphql/generated/graphql";
+import { GetServerSideProps, NextPage, NextPageContext } from "next";
 import Link from "next/link";
 import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
 import dayjs from "dayjs";
@@ -14,25 +12,37 @@ import createWorkout, {
 import getWorkouts from "../../../lib/queries/getWorkouts";
 import { useRouter } from "next/router";
 import React from "react";
+import trpc from "../../client/trpc";
 
-export interface UserPageProps {
-  user: User;
-  exercises: Exercise[];
+interface UserPageProps {
+  user: any;
   recent_workouts: UserWorkoutWithExercises[];
 }
 
 //React Functional Component
-export default function user({
-  user,
-  exercises,
-  recent_workouts,
-}: UserPageProps) {
-  const [User, setUser] = React.useState<User>(user);
+const UserPage = () => {
+  const { query: query_params } = useRouter();
+  const [recentWorkouts, setRecentWorkouts] = React.useState<
+    UserWorkoutWithExercises[]
+  >([]);
+  const { data: user_data } = trpc.useQuery([
+    "user.get_by_name",
+    { name: query_params.user?.toString() ?? "" },
+  ]);
+
+  React.useEffect(() => {
+    console.group("useEffect");
+    console.log(user_data?.workouts);
+    if (user_data) {
+      setRecentWorkouts(user_data.workouts);
+    }
+    console.groupEnd();
+  }, [user_data?.workouts]);
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
   );
   console.log(todaysDate);
-  const router = useRouter();
+
   return (
     <>
       <Stack
@@ -120,28 +130,30 @@ export default function user({
             minHeight: "max-content",
           }}
         >
-          <RecentWorkouts recentWorkouts={recent_workouts} />
+          <RecentWorkouts recentWorkouts={recentWorkouts} />
         </Box>
       </Stack>
     </>
   );
-}
-export const getServerSideProps: GetServerSideProps<any> = async (context) => {
-  const prisma = new PrismaClient();
-  // const exercises = await prisma.exercise.findMany();
-  const user = await prisma.user.findFirst({
-    where: { name: context.query.user as string },
-  });
-  const recent_workouts: UserWorkoutWithExercises[] = await getWorkouts(
-    user.id
-  );
-  console.log(recent_workouts);
-
-  return {
-    props: {
-      user: user,
-      exercises: [],
-      recent_workouts: recent_workouts,
-    },
-  };
 };
+// UserPage.getInitialProps = async ({ query }: NextPageContext) => {
+//   debugger;
+//   const user = trpc.useQuery([
+//     "user.get_by_name",
+//     { name: query?.user?.toString() ?? "" },
+//   ]);
+//   console.log(user);
+//   let recent_workouts: UserWorkoutWithExercises[] = [];
+//   if (user.data) {
+//     recent_workouts = user.data.workouts;
+//   }
+//   console.log(recent_workouts);
+
+//   return {
+//     props: {
+//       user: user.data,
+//       recent_workouts: [],
+//     },
+//   };
+// };
+export default UserPage;

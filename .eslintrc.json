@@ -1,13 +1,16 @@
 {
-  "extends": [
-    "next/babel",
-    "prettier"
-  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "tsconfig.json"
+  },
+  "extends": ["next/babel", "prettier"],
   "plugins": ["@emotion"],
   "rules": {
     "@emotion/jsx-import": "error",
     "@emotion/no-vanilla": "error",
     "@emotion/import-from-emotion": "error",
-    "@emotion/styled-import": "error"
-}
+    "@emotion/styled-import": "error",
+    "react/prop-types": "off",
+    "@typescript-eslint/explicit-function-return-type": "off"
+  }
 }

@@ -1,5 +1,5 @@
 import { Prisma, UserWorkout, PrismaClient } from "@prisma/client";
-import prisma from "../../src/server/prisma/prisma";
+import prisma from "../../src/server/prisma/client";
 
 export default async function getWorkouts(owner_id) {
   // console.log(owner_id);

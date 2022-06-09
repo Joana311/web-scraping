@@ -11,9 +11,14 @@
     "**/.settings": true,
     "**/.factorypath": true,
     "node_modules": true,
-    "__dep__graphql": true
+    "__dep__graphql": true,
+    "src/server/routers/user_set.ts": true
   },
-  "hide-files.files": ["node_modules", "__dep__graphql"],
+  "hide-files.files": [
+    "node_modules",
+    "__dep__graphql",
+    "src/server/routers/user_set.ts"
+  ],
   "cSpell.words": [
     "bodypart",
     "cuids",

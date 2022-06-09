@@ -1,27 +1,27 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "ES2020",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@server/*": ["./src/server/*"],
+      "@utils/*": ["src/client/*"]
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "src/pages/api/graphql.ts",
-    "src/pages/api/graphql.js",
-    "misc/example.tsx.test"
-  ],
+
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/client/*.ts"],
   "exclude": ["node_modules", "misc"]
 }

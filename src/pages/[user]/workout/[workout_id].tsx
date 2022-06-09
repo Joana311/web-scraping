@@ -6,8 +6,13 @@ import dayjs from "dayjs";
 import ExerciseSummary from "../../../components/ExerciseSummary/ExerciseSummary";
 import Link from "next/link";
 import { Set as Prisma_Set, Exercise, PrismaClient } from "@prisma/client";
-import { GetStaticProps, GetServerSideProps } from "next";
-import prisma from "../../../server/prisma/prisma";
+import {
+  GetStaticProps,
+  GetServerSideProps,
+  NextPageContext,
+  NextPage,
+} from "next";
+import prisma from "../../../server/prisma/client";
 import createWorkout, {
   UserWorkoutWithExercises,
 } from "../../../../lib/mutations/createWorkout";
@@ -15,12 +20,13 @@ import { getWorkoutById } from "../../../../lib/queries/getWorkouts";
 import { useRouter } from "next/router";
 interface WorkoutPageProps {
   exercise_directory: Exercise[];
-  current_workout: UserWorkoutWithExercises;
 }
 
 type Set = Omit<Prisma_Set, "id" | "updatedAt">;
 
-function workout({ exercise_directory, current_workout }: WorkoutPageProps) {
+const workout: NextPage<WorkoutPageProps> = ({
+  exercise_directory,
+}: WorkoutPageProps) => {
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
   );
@@ -121,13 +127,16 @@ function workout({ exercise_directory, current_workout }: WorkoutPageProps) {
       </Box>
     </>
   );
-}
+};
 
 export default workout;
-export const getServerSideProps: GetServerSideProps<any> = async (context) => {
-  const exrx_data = prisma.exercise.findMany();
-  let workout: UserWorkoutWithExercises | undefined = null;
-  console.group("Workout Page getServerSideProps, id: ", context.params.slug);
+export const getServerSideProps = async (context: NextPageContext) => {
+  const exrx_data = prisma?.exercise.findMany();
+  let workout: UserWorkoutWithExercises | undefined = undefined;
+  console.group(
+    "Workout Page getServerSideProps, id: ",
+    context?.query?.workout_id
+  );
   const current_workout = context.query.workout_id?.toString();
   const user_name = context.query.user?.toString();
 
@@ -135,9 +144,9 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   console.log("query params: ", context.query);
   // remove this eventually
   const user_id = (
-    await prisma.user.findFirst({
+    await prisma?.user.findFirst({
       where: {
-        name: context.query.user.toString(),
+        name: context.query.user?.toString(),
       },
       select: {
         id: true,
@@ -151,7 +160,7 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
         try {
           console.log("creating workout");
           workout = await createWorkout(user_id);
-        } catch (error) {
+        } catch (error: any) {
           console.log(error.message);
           workout = error.workout ?? null;
         }
@@ -159,11 +168,11 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
       }
       case /c(\S){24}/.test(current_workout): {
         console.log(`finding workout -> ${current_workout}`);
-        workout = await getWorkoutById(current_workout);
+        workout = (await getWorkoutById(current_workout)) || undefined;
         break;
       }
       default: {
-        workout = null;
+        workout = undefined;
       }
     }
   }
@@ -184,7 +193,7 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
     let exercise_directory = await exrx_data;
     console.log(
       "exercise_directory (first 5): ",
-      exercise_directory.slice(0, 5)
+      exercise_directory?.slice(0, 5)
     );
     console.groupEnd();
     return {

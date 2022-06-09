@@ -20,11 +20,11 @@ interface RecentWorkoutsProps {
 }
 const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
   const [showMore, toggleShowMore] = React.useState(false);
-  const [openWorkoutId, setOpenWorkoutId] = React.useState<string>(null);
+  const [openWorkoutId, setOpenWorkoutId] = React.useState<string>("");
   const [todaysSessions, setTodaysSessions] = React.useState<
     {
       start: string;
-      end: string;
+      end: string | null;
       exercises: number;
       sets: number;
       estimated_cals: string | number;
@@ -32,20 +32,21 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
   >([]);
 
   // find todays workouts
+  const filter_predicate = (workout: UserWorkoutWithExercises) => {
+    return dayjs().isSame(dayjs(workout.createdAt), "day");
+  };
   React.useEffect(() => {
     // console.log(workouts);
-    const predicate = (workout: UserWorkoutWithExercises) => {
-      return dayjs().isSame(dayjs(workout.createdAt), "day");
-    };
-    // partition the workouts into those that are today and those that are not
+    if (recentWorkouts.length === 0) return;
 
+    // partition the workouts into those that are today and those that are not
     const [todays_sessions, previous_sessions] = recentWorkouts.reduce(
       (
         results: UserWorkoutWithExercises[][],
         workout: UserWorkoutWithExercises
-      ) => (results[+!predicate(workout)].push(workout), results),
+      ) => (results[+!filter_predicate(workout)].push(workout), results),
       [[], []]
-    );
+    ) || [[], []];
     console.log(todays_sessions);
     // find the first open workout if exists
     todays_sessions.find((workout) => {
@@ -71,14 +72,22 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
         estimated_cals: "N/A",
       };
     });
+    sessions.length > 2 && toggleShowMore(true);
     setTodaysSessions(sessions);
   }, [recentWorkouts]);
 
   const leftSize = 7.5;
 
-  todaysSessions.length > 2 && toggleShowMore(true);
-
-  const RecentWorkoutCard = (workout, index) => {
+  const RecentWorkoutCard = (
+    workout: {
+      start: any;
+      end: any;
+      exercises: any;
+      sets: any;
+      estimated_cals: any;
+    },
+    index: React.Key | null | undefined
+  ) => {
     return (
       <>
         <Box

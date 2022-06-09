@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import superjson from "superjson";
 import { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
-import prisma from "../../../server/prisma/prisma";
+import prisma from "../../../server/prisma/client";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   console.group("addExerciseToWorkout API route handler");
   let exercises_cuid: Array<Prisma.UserExerciseCreateManyInput> = [];

@@ -2,10 +2,9 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Grid, Typography } from "@mui/material";
 import LandingPageMenu from "../components/LandingPageMenu";
-export function LandingPage({ UserInfo }) {
+export function LandingPage() {
   const [userName, setUserName] = useState(undefined);
   useEffect(() => {
-    setUserName(UserInfo.name);
   }, [userName]);
 
   return (
@@ -41,7 +40,3 @@ export function LandingPage({ UserInfo }) {
     </>
   );
 }
-LandingPage.getInitialProps = async () => {
-  const data = undefined;
-  return { UserInfo: { name: data } };
-};
