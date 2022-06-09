@@ -1,4 +1,3 @@
-//ts-ignore
 import { Stack, Box, Grid, Typography, Input } from "@mui/material";
 import React from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -190,7 +189,7 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
     console.groupEnd();
     const exercise_directory = await prisma.exercise.findMany();
     context.res.setHeader("location", `/${user_name}/workout?id=${workout.id}`);
-    console.log("exercise_directory: ", exercise_directory);
+
     return {
       props: {
         exercise_directory: exercise_directory,
