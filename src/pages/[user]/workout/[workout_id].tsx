@@ -130,7 +130,7 @@ export const getServerSideProps: GetServerSideProps<any> = async (context) => {
   console.group("Workout Page getServerSideProps, id: ", context.params.slug);
   const current_workout = context.query.workout_id?.toString();
   const user_name = context.query.user?.toString();
-  // const active_workout_id = "1";
+
   console.log("workout id: ", current_workout);
   console.log("query params: ", context.query);
   // remove this eventually
