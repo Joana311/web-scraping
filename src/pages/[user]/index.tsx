@@ -1,10 +1,8 @@
 import { GetServerSideProps, NextPageContext } from "next";
-import { UserWorkouts } from "../../containers/__dep__UserWorkouts";
-import { useEffect, useState } from "react";
-import { User } from "../../../__dep__graphql/generated/graphql";
+
+import { User } from "../../../misc/__dep__graphql/generated/graphql";
 import Link from "next/link";
 import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
-import styled from "@mui/system/styled";
 import dayjs from "dayjs";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DailyActivitySummary from "../../components/DailyActivitySummary";
@@ -15,6 +13,7 @@ import createWorkout, {
 } from "../../../lib/mutations/createWorkout";
 import getWorkouts from "../../../lib/queries/getWorkouts";
 import { useRouter } from "next/router";
+import React from "react";
 
 export interface UserPageProps {
   user: User;
@@ -28,8 +27,10 @@ export default function user({
   exercises,
   recent_workouts,
 }: UserPageProps) {
-  const [User, setUser] = useState<User>(user);
-  const [todaysDate, setTodaysDate] = useState(dayjs().format("dddd, MMM D"));
+  const [User, setUser] = React.useState<User>(user);
+  const [todaysDate, setTodaysDate] = React.useState(
+    dayjs().format("dddd, MMM D")
+  );
   console.log(todaysDate);
   const router = useRouter();
   return (

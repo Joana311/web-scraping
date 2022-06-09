@@ -10,17 +10,10 @@
     "**/.project": true,
     "**/.settings": true,
     "**/.factorypath": true,
-    "src/pages/[user]/workout/_index.tsx": true,
-    "src/pages/[user]/_index.tsx": true,
-    "src/pages/[user]/addWorkout": true,
-    "src/pages/ExercisesDirectory.tsx": true
+    "node_modules": true,
+    "__dep__graphql": true
   },
-  "hide-files.files": [
-    "src/pages/[user]/workout/_index.tsx",
-    "src/pages/[user]/_index.tsx",
-    "src/pages/[user]/addWorkout",
-    "src/pages/ExercisesDirectory.tsx"
-  ],
+  "hide-files.files": ["node_modules", "__dep__graphql"],
   "cSpell.words": [
     "bodypart",
     "cuids",

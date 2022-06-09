@@ -2,8 +2,8 @@ import { ApolloClient, InMemoryCache, NormalizedCacheObject } from "@apollo/clie
 import { useMemo } from "react";
 import { DateTimeResolver } from 'graphql-scalars'
 import getConfig from 'next/config';
-import { typeDefs } from "../__dep__graphql/schema";
-import { resolvers } from '../__dep__graphql/resolvers';
+import { typeDefs } from "../misc/__dep__graphql/schema";
+import { resolvers } from '../misc/__dep__graphql/resolvers';
 import { schema } from "../src/pages/api/graphql";
 
 //const { publicRuntimeConfig } = getConfig();
