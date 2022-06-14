@@ -9,8 +9,7 @@
     "**/.classpath": true,
     "**/.project": true,
     "**/.settings": true,
-    "**/.factorypath": true,
-    "src/pages/[user]/workout/old.[workout_id].tsx": true
+    "**/.factorypath": true
   },
   "hide-files.files": [
     "node_modules",

@@ -30,13 +30,12 @@
     }
   },
   "include": [
-    "next-env.d.ts",
-    "src",
-    "prisma",
+    "./next-env.d.ts",
+    "./src",
+    "./prisma",
   ],
   "exclude": [
-    "node_modules",
-    "misc",
-    "__dep__lib",
+    "./node_modules",
+    "./misc",
   ]
 }

@@ -20,7 +20,7 @@ import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
 import { Context } from "../../../../misc/__dep__graphql/context";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import addExerciseToWorkout from "../../../../__dep__lib/mutations/addExerciseToWorkout";
+
 import { NextRouter, useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import { UrlWithParsedQuery } from "url";
@@ -177,7 +177,7 @@ const AddNewExerciseModal = ({
     const scrollPosition = (event.target as HTMLDivElement).scrollTop;
     setIsScrolledTop(scrollPosition < 10);
   };
-  const ExerciseDescriptionComponent: JSX.Element = (exercise: Exercise, key: number) => {
+  const ExerciseDescriptionComponent = (exercise: Exercise, key: number): JSX.Element => {
     return (
       <>
         <Stack

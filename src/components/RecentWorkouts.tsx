@@ -1,7 +1,5 @@
-import {
-  getAppUser,
-  getTodaysCurrentWorkout,
-} from "@client/context/app_user.test";
+import { useAppUser } from "@client/context/app_user.test";
+import trpc from "@client/trpc";
 import {
   Box,
   colors,
@@ -18,15 +16,10 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
-import { UserWorkoutWithExercises } from "../../__dep__lib/mutations/createWorkout";
-interface RecentWorkoutsProps {
-  recentWorkouts: UserWorkoutWithExercises[];
-}
-const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
-  const [showMore, toggleShowMore] = React.useState(false);
-  const user = getAppUser();
-  const router = useRouter();
-  const { data: ge };
+interface RecentWorkoutsProps { }
+const RecentWorkouts = () => {
+  const { get_id, get_username } = useAppUser();
+
   const [todaysSessions, setTodaysSessions] = React.useState<
     {
       start: string;
@@ -36,51 +29,55 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
       estimated_cals: string | number;
     }[]
   >([]);
+  const [showMore, toggleShowMore] = React.useState(false);
+  const [openWorkoutId, setOpenWorkoutId] = React.useState<
+    String | undefined
+  >();
+  const router = useRouter();
+  const { data: open_workout } = trpc.useQuery(
+    ["workout.current_by_owner_id", { owner_id: get_id! }],
+    {
+      enabled: !!get_id,
+      refetchOnMount: false,
+      onSuccess(open_workout) {
+        if (open_workout) {
+          setOpenWorkoutId(open_workout.id);
+        }
+      },
+    }
+  );
 
-  // find todays workouts
-  const filter_predicate = (workout: UserWorkoutWithExercises) => {
-    return dayjs().isSame(dayjs(workout.createdAt), "day");
-  };
-  React.useEffect(() => {
-    // console.log(workouts);
-    if (recentWorkouts.length === 0) return;
-
-    // partition the workouts into those that are today and those that are not
-    const [todays_sessions, previous_sessions] = recentWorkouts.reduce(
-      (
-        results: UserWorkoutWithExercises[][],
-        workout: UserWorkoutWithExercises
-      ) => (results[+!filter_predicate(workout)].push(workout), results),
-      [[], []]
-    ) || [[], []];
-    console.log(todays_sessions);
-    // find the first open workout if exists
-    todays_sessions.find((workout) => {
-      if (workout.endedAt === null) {
-        setOpenWorkoutId(workout.id);
-        console.log("found open workout", workout);
-        return true;
-      }
-    });
-    const sessions = todays_sessions.map((workout) => {
-      console.group("Recent Workouts Props");
-      console.log(workout);
-      console.groupEnd();
-      return {
-        start: dayjs(workout.createdAt).format("h:mmA"),
-        end: workout.endedAt ? dayjs(workout.endedAt)?.format("h:mmA") : null,
-        exercises: workout.exercises.length,
-        sets: workout.exercises
-          .map((exercise) => {
-            return exercise.sets ? exercise.sets.length : 0;
-          })
-          .reduce((a, b) => a + b, 0),
-        estimated_cals: "N/A",
-      };
-    });
-    sessions.length > 2 && toggleShowMore(true);
-    setTodaysSessions(sessions);
-  }, [recentWorkouts]);
+  const { data: recent_workouts, isError } = trpc.useQuery(
+    ["workout.all_by_owner_id", { owner_id: get_id! }],
+    {
+      enabled: !!get_id,
+      refetchOnMount: false,
+      onSuccess(recent_workouts) {
+        if (recent_workouts.length > 0) {
+          const todays_workouts = recent_workouts.filter((w) =>
+            dayjs(w.createdAt).isSame(dayjs(), "day")
+          );
+          setTodaysSessions(todays_workouts.map(workoutToSession));
+          recent_workouts.length > 2 && toggleShowMore(true);
+        }
+      },
+    }
+  );
+  type UserWorkoutWithExercises = NonNullable<typeof open_workout>
+  const workoutToSession = React.useCallback(
+    (workout: UserWorkoutWithExercises) => ({
+      start: dayjs(workout.createdAt).format("h:mmA"),
+      end: workout.endedAt ? dayjs(workout.endedAt)?.format("h:mmA") : null,
+      exercises: workout.exercises.length,
+      sets: workout.exercises
+        .map((exercise) => {
+          return exercise.sets ? exercise.sets.length : 0;
+        })
+        .reduce((a, b) => a + b, 0),
+      estimated_cals: "N/A",
+    }),
+    [recent_workouts]
+  );
 
   const leftSize = 7.5;
 
@@ -106,7 +103,7 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
             width: "100%",
             pl: ".5rem",
             pr: ".5rem",
-            height: "max-content",
+            height: "min-content",
           }}
         >
           <Grid container>
@@ -201,7 +198,7 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
       </>
     );
   };
-  // console.log(useRouter());
+
   return (
     <>
       <Stack>
@@ -251,10 +248,10 @@ const RecentWorkouts = ({ recentWorkouts }: RecentWorkoutsProps) => {
               <span>{"Start a new one!"}</span>
             </Typography>
           )}
+
           <Link
-            href={`${useRouter().query.user}/workout/${
-              openWorkoutId ? openWorkoutId : "new"
-            }`}
+            href={`${get_username!}/workout/${openWorkoutId ? openWorkoutId : "new"
+              }`}
           >
             <ButtonBase
               sx={{

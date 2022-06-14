@@ -5,9 +5,7 @@
     }
   ],
   "settings": {
-    "hide-files.files": [
-      "src/pages/[user]/workout/old.[workout_id].tsx"
-    ],
+    "hide-files.files": [],
     "typescript.tsdk": "node_modules\\typescript\\lib"
   }
 }

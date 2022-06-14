@@ -2,7 +2,7 @@ import { Box, Grid, Stack, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DailyActivitySummary from "../../components/DailyActivitySummary";
-import RecentWorkouts from "../../components/RecentWorkouts.test";
+import RecentWorkouts from "../../components/RecentWorkouts";
 import React from "react";
 
 import { useAppUser } from "@client/context/app_user.test";

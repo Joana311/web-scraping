@@ -13,7 +13,6 @@ import Link from "next/link";
 import { SummaryCard, SummaryCardProps } from "./components/UserExerciseCard";
 import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
-import { UserWorkoutWithExercises } from "../../../__dep__lib/mutations/createWorkout";
 import superjson from "superjson";
 import trpc from "@client/trpc";
 interface ExerciseSummaryProps {
