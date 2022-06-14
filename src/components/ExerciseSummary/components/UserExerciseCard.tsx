@@ -1,3 +1,5 @@
+import { useAppUser } from "@client/context/app_user.test";
+import trpc from "@client/trpc";
 import { ExpandMoreRounded } from "@mui/icons-material";
 import {
   Box,
@@ -19,28 +21,49 @@ import {
   TextField,
   InputLabel,
 } from "@mui/material";
+import { useRouter } from "next/router";
 import React, { Fragment } from "react";
-import workout from "../../../pages/[user]/workout/__dep__index";
+import Trpc from "src/pages/api/trpc/[trpc]";
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
 export interface SummaryCardProps {
   exercise: {
+    user_exercise_id: string;
     name: string;
-    variant: string;
-    muscle: string;
+    variant: string | null;
+    muscle: string | null;
     sets: {
+      weight?: number | null;
       reps: number;
-      weight: number;
       rpe: number;
     }[];
   };
   isActive: boolean;
   key: number;
+  workout_id: string;
 }
-export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
+export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isActive, key, workout_id }) => {
   const [expanded, setExpanded] = React.useState(false);
   const handler = () => {
     setExpanded((prev) => !prev);
   };
+  const { get_id, get_username, set_id, set_username } = useAppUser();
+  const { data: current_user } = trpc.useQuery(
+    ["user.get_by_name", { name: get_username! }],
+    { enabled: !!get_username }
+  );
+  const router = useRouter();
+  if (!get_username) {
+    set_username(router.query.user?.toString());
+  }
+  const query_context = trpc.useContext();
+  const useAddSet = trpc.useMutation("exercise.add_set", {
+    onSuccess: (current_workout, _) => {
+      query_context.setQueryData(
+        ["workout.get_by_id", { workout_id: workout_id }],
+        current_workout
+      );
+    },
+  });
   const borders = false;
   const expandIcon: SxProps = {
     display: "flex",
@@ -51,6 +74,20 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
     transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
     transitionDelay: "0ms",
   };
+  const set = React.useRef({
+    weight: 0,
+    reps: 0,
+    rpe: 0,
+  });
+  const onAddSet = React.useCallback(() => {
+    console.log("add set");
+    useAddSet.mutate({
+      set: set.current,
+      user_exercise_id: exercise.user_exercise_id,
+      workout_id: workout_id,
+    });
+  }, [useAddSet, exercise.user_exercise_id, workout_id]);
+
   return (
     <>
       <Stack
@@ -77,7 +114,7 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
           <Grid
             item
             className="exercise-name"
-            sx={{ border: borders && "1px solid red" }}
+            sx={{ border: borders ? "1px solid red" : "" }}
           >
             <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Exercise</Typography>
@@ -89,7 +126,7 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
           <Grid
             item
             className="exercise-variant"
-            sx={{ border: borders && "1px solid yellow" }}
+            sx={{ border: borders ? "1px solid yellow" : "" }}
           >
             <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Variant</Typography>
@@ -107,7 +144,7 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
           <Grid
             item
             className="target-muscle"
-            sx={{ border: borders && "1px solid green" }}
+            sx={{ border: borders ? "1px solid green" : "" }}
           >
             <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Muscle</Typography>
@@ -125,7 +162,7 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
           <Grid
             item
             className="set-count"
-            sx={{ border: borders && "1px solid blue" }}
+            sx={{ border: borders ? "1px solid blue" : "" }}
           >
             <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
               <Typography sx={{ ...infoHeaders }}>Sets</Typography>
@@ -227,8 +264,11 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
                         <TextField
                           variant="outlined"
                           label="Weight"
-                          type="numeric"
+                          type="number"
                           color="info"
+                          onChange={(e) =>
+                            (set.current.weight = parseInt(e.target.value))
+                          }
                           InputLabelProps={{
                             shrink: true,
                             disableAnimation: true,
@@ -240,8 +280,11 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
                         <TextField
                           variant="outlined"
                           label="Reps"
-                          type="numeric"
+                          type="number"
                           color="info"
+                          onChange={(e) =>
+                            (set.current.reps = parseInt(e.target.value))
+                          }
                           InputLabelProps={{
                             shrink: true,
                             disableAnimation: true,
@@ -253,8 +296,11 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
                         <TextField
                           variant="outlined"
                           label="RPE"
-                          type="numeric"
+                          type="number"
                           color="info"
+                          onChange={(e) =>
+                            (set.current.rpe = parseInt(e.target.value))
+                          }
                           InputLabelProps={{
                             shrink: true,
                             disableAnimation: true,
@@ -276,7 +322,9 @@ export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
               borderRadius: "0 0 .5rem .5rem",
             }}
           >
-            <ButtonBase sx={{ width: "100%", py: ".2rem" }}>
+            <ButtonBase sx={{ width: "100%", py: ".2rem" }} onClick={() => {
+              onAddSet()
+            }}>
               <Typography fontWeight={"bold"} fontSize="1rem">
                 Add Set
               </Typography>

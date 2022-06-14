@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "path": ".."
+    }
+  ],
+  "settings": {
+    "hide-files.files": [
+      "node_modules",
+      "__dep__graphql",
+      "src/server/routers/user_set.ts",
+      "src/pages/[user]/workout/old.[workout_id].tsx"
+    ]
+  }
+}

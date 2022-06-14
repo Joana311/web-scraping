@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
-import { open_workout_if_exists } from "./workout";
+import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 
 export const exerciseRouter = createRouter()
   .query("directory", {
@@ -36,7 +36,9 @@ export const exerciseRouter = createRouter()
             },
           },
         },
+        include: defaultWorkoutSelect,
       });
+      return workout;
     },
   })
   .mutation("add_to_current_workout", {

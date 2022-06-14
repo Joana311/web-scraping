@@ -15,11 +15,11 @@ import {
 import { useAppUser } from "../../../client/context/app_user.test";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
-import createWorkout from "lib/mutations/createWorkout";
+import createWorkout from "__dep__lib/mutations/createWorkout";
 
 type Set = Omit<Prisma_Set, "id" | "updatedAt">;
 
-const workout: NextPage = () => {
+const Workout: NextPage = () => {
   const router = useRouter();
   const { get_username, get_id, exercise_directory } = useAppUser();
   let {
@@ -45,7 +45,9 @@ const workout: NextPage = () => {
     {
       enabled: workout_id !== "new",
     }
+
   );
+  React.useEffect(() => { }), [workout?.exercises];
 
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
@@ -139,7 +141,7 @@ const workout: NextPage = () => {
           {workout?.exercises != undefined ? (
             <ExerciseSummary
               exrx_data={exercise_directory}
-              workout_exercises={workout.exercises}
+              workout_id={workout.id! as string}
             />
           ) : (
             <>loading...</>
@@ -150,7 +152,7 @@ const workout: NextPage = () => {
   );
 };
 
-export default workout;
+export default Workout;
 // export const getServerSideProps = async (context: NextPageContext) => {
 //   const exrx_data = prisma?.exercise.findMany();
 //   let workout: UserWorkoutWithExercises | undefined = undefined;

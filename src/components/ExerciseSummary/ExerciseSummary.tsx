@@ -10,37 +10,29 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import {
-  SummaryCard,
-  SummaryCardProps,
-} from "./components/UserExerciseCard";
+import { SummaryCard, SummaryCardProps } from "./components/UserExerciseCard";
 import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
-import { UserWorkoutWithExercises } from "../../../lib/mutations/createWorkout";
+import { UserWorkoutWithExercises } from "../../../__dep__lib/mutations/createWorkout";
 import superjson from "superjson";
+import trpc from "@client/trpc";
 interface ExerciseSummaryProps {
   exrx_data: Exercise[];
-  workout_exercises: UserWorkoutWithExercises["exercises"];
+  workout_id: string;
 }
-const ExerciseSummary = ({
+const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
   exrx_data,
-  workout_exercises,
+  workout_id
 }: ExerciseSummaryProps) => {
+  const { data: workout } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }], { enabled: !!workout_id }
+  );
   const [showMore, toggleShowMore] = React.useState(false);
   const [showExerciseModal, setShowExerciseModal] = React.useState(false);
-  const [workoutExercises, setWorkoutExercises] =
-    React.useState(workout_exercises);
-  console.log(workout_exercises);
-  // const fetch_callback = React.useCallback((res_json: string) => {
-  //   // debugger;
-  //   const workout: UserWorkoutWithExercises = superjson.parse(res_json);
-  //   setWorkoutExercises((prev) => [...prev, ...workout.exercises]);
 
-  //   setShowExerciseModal(false);
-  // }, []);
   const exercise_summaries =
-    workoutExercises?.map((exercise) => {
+    workout?.exercises.map((exercise) => {
       return {
+        user_exercise_id: exercise.id,
         name: exercise.exercise.name,
         muscle: exercise.exercise.muscle_name,
         variant: exercise.exercise.equipment_name,
@@ -69,10 +61,10 @@ const ExerciseSummary = ({
     return (
       <AddNewExerciseModal
         exercises={exrx_data}
+        workout_id={workout_id}
         toggle={() => {
           setShowExerciseModal(false);
         }}
-        fetch_callback={fetch_callback}
       />
     );
   }
@@ -94,7 +86,7 @@ const ExerciseSummary = ({
           {showMore ? (
             <Link href="">
               <Typography
-                fontWeight={"semibold"}
+                fontWeight={"semi-bold"}
                 sx={{
                   pr: ".8em",
                   fontSize: ".9rem",
@@ -142,12 +134,12 @@ const ExerciseSummary = ({
           >
             {exercise_summaries.map((exercise, index) => {
               return (
-                <SummaryCard exercise={exercise} isActive={true} key={index} />
+                <SummaryCard workout_id={workout_id} exercise={exercise} isActive={true} key={index} />
               );
             })}
           </Stack>
 
-          {workoutExercises.length === 0 && (
+          {workout?.exercises.length === 0 && (
             <Typography
               // component="body"
               sx={{

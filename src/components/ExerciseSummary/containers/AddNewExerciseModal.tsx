@@ -20,7 +20,7 @@ import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
 import { Context } from "../../../../misc/__dep__graphql/context";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import addExerciseToWorkout from "../../../../lib/mutations/addExerciseToWorkout";
+import addExerciseToWorkout from "../../../../__dep__lib/mutations/addExerciseToWorkout";
 import { NextRouter, useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import { UrlWithParsedQuery } from "url";
@@ -28,8 +28,8 @@ import trpc from "@client/trpc";
 import { useAppUser } from "@client/context/app_user.test";
 interface AddExerciseProps {
   exercises?: Exercise[];
+  workout_id: string;
   toggle?: () => void;
-  fetch_callback?: (res_json: string) => void;
 }
 const infoIconCssProps: SxProps = {
   display: "flex",
@@ -115,7 +115,6 @@ const AddNewExerciseModal = ({
   }, [searchTerm]);
   const borders = false;
 
-  const workout_id = router.query.id as string;
 
   const useAddExercise = trpc.useMutation("exercise.add_to_current_workout", {
     onSuccess(updated_workout) {
@@ -150,6 +149,7 @@ const AddNewExerciseModal = ({
       console.log("No exercises selected");
       toggleShowExercise!();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExerciseMap]);
   const moreInfoHandler = (href: string) => {
     window.open(href, "_blank");
@@ -177,7 +177,7 @@ const AddNewExerciseModal = ({
     const scrollPosition = (event.target as HTMLDivElement).scrollTop;
     setIsScrolledTop(scrollPosition < 10);
   };
-  const ExerciseDescriptionComponent = (exercise: Exercise, key: number) => {
+  const ExerciseDescriptionComponent: JSX.Element = (exercise: Exercise, key: number) => {
     return (
       <>
         <Stack

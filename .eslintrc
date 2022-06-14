@@ -2,9 +2,10 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "tsconfig.json"
+  
   },
-  "extends": ["next/babel", "prettier"],
-  "plugins": ["@emotion", "react-hooks", "@typescript-eslint"],
+  "extends": ["prettier"],
+  "plugins": [ "@emotion","react-hooks", "@typescript-eslint"],
   "rules": {
     "@emotion/jsx-import": "error",
     "@emotion/no-vanilla": "error",

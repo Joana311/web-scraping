@@ -5,9 +5,10 @@ import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
 import dayjs from "dayjs";
 
-const defaultWorkoutSelect = _Prisma.validator<_Prisma.UserWorkoutInclude>()({
-  exercises: { include: { exercise: true, sets: true } },
-});
+export const defaultWorkoutSelect =
+  _Prisma.validator<_Prisma.UserWorkoutInclude>()({
+    exercises: { include: { exercise: true, sets: true } },
+  });
 
 const is_workout_empty = (workout: any) => {
   // console.log("exercises", workout?.exercises);

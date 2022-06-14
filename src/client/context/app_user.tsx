@@ -1,6 +1,6 @@
 import trpc from "../trpc";
 import Prisma, { Exercise } from "@prisma/client";
-import { UserWorkoutWithExercises } from "lib/mutations/createWorkout";
+import { UserWorkoutWithExercises } from "__dep__lib/mutations/createWorkout";
 import { useRouter } from "next/router";
 import React from "react";
 

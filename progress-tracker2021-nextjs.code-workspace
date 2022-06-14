@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "hide-files.files": [
+      "src/pages/[user]/workout/old.[workout_id].tsx"
+    ],
+    "typescript.tsdk": "node_modules\\typescript\\lib"
+  }
+}

@@ -16,8 +16,8 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
-import { UserWorkoutWithExercises } from "../../lib/mutations/createWorkout";
-interface RecentWorkoutsProps {}
+import { UserWorkoutWithExercises } from "../../__dep__lib/mutations/createWorkout";
+interface RecentWorkoutsProps { }
 const RecentWorkouts = () => {
   const { get_id, get_username } = useAppUser();
 
@@ -103,7 +103,7 @@ const RecentWorkouts = () => {
             width: "100%",
             pl: ".5rem",
             pr: ".5rem",
-            height: "max-content",
+            height: "min-content",
           }}
         >
           <Grid container>
@@ -250,9 +250,8 @@ const RecentWorkouts = () => {
           )}
 
           <Link
-            href={`${get_username!}/workout/${
-              openWorkoutId ? openWorkoutId : "new"
-            }`}
+            href={`${get_username!}/workout/${openWorkoutId ? openWorkoutId : "new"
+              }`}
           >
             <ButtonBase
               sx={{

@@ -10,9 +10,6 @@
     "**/.project": true,
     "**/.settings": true,
     "**/.factorypath": true,
-    "node_modules": true,
-    "__dep__graphql": true,
-    "src/server/routers/user_set.ts": true,
     "src/pages/[user]/workout/old.[workout_id].tsx": true
   },
   "hide-files.files": [
@@ -22,6 +19,7 @@
     "src/pages/[user]/workout/old.[workout_id].tsx"
   ],
   "cSpell.words": [
+    "bgcolor",
     "bodypart",
     "cuids",
     "exrx",
