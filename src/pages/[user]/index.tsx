@@ -1,48 +1,29 @@
-import { GetServerSideProps, NextPage, NextPageContext } from "next";
-import Link from "next/link";
-import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import DailyActivitySummary from "../../components/DailyActivitySummary";
-import RecentWorkouts from "../../components/RecentWorkouts";
-import { Exercise, PrismaClient } from "@prisma/client";
-import createWorkout, {
-  UserWorkoutWithExercises,
-} from "../../../lib/mutations/createWorkout";
-import getWorkouts from "../../../lib/queries/getWorkouts";
-import { useRouter } from "next/router";
+import RecentWorkouts from "../../components/RecentWorkouts.test";
 import React from "react";
-import trpc from "../../client/trpc";
 
-interface UserPageProps {
-  user: any;
-  recent_workouts: UserWorkoutWithExercises[];
-}
+import { useAppUser } from "@client/context/app_user.test";
+import trpc from "@client/trpc";
 
 //React Functional Component
+
 const UserPage = () => {
-  const { query: query_params } = useRouter();
-  const [recentWorkouts, setRecentWorkouts] = React.useState<
-    UserWorkoutWithExercises[]
-  >([]);
-  const { data: user_data } = trpc.useQuery([
-    "user.get_by_name",
-    { name: query_params.user?.toString() ?? "" },
-  ]);
-
-  React.useEffect(() => {
-    console.group("useEffect");
-    console.log(user_data?.workouts);
-    if (user_data) {
-      setRecentWorkouts(user_data.workouts);
-    }
-    console.groupEnd();
-  }, [user_data?.workouts]);
-  const [todaysDate, setTodaysDate] = React.useState(
-    dayjs().format("dddd, MMM D")
+  const todaysDate = React.useMemo(
+    () => dayjs().format("dddd, MMM D"),
+    [dayjs().toDate()]
   );
-  console.log(todaysDate);
 
+  const user = useAppUser();
+  // const { data: workouts } = trpc.useQuery(
+  //   ["workout.all_by_owner_id", { owner_id: user.get_id as string }],
+  //   {
+  //     enabled: !!user?.get_id,
+  //   }
+  // );
+  // console.log(user);
   return (
     <>
       <Stack
@@ -130,30 +111,10 @@ const UserPage = () => {
             minHeight: "max-content",
           }}
         >
-          <RecentWorkouts recentWorkouts={recentWorkouts} />
+          <RecentWorkouts />
         </Box>
       </Stack>
     </>
   );
 };
-// UserPage.getInitialProps = async ({ query }: NextPageContext) => {
-//   debugger;
-//   const user = trpc.useQuery([
-//     "user.get_by_name",
-//     { name: query?.user?.toString() ?? "" },
-//   ]);
-//   console.log(user);
-//   let recent_workouts: UserWorkoutWithExercises[] = [];
-//   if (user.data) {
-//     recent_workouts = user.data.workouts;
-//   }
-//   console.log(recent_workouts);
-
-//   return {
-//     props: {
-//       user: user.data,
-//       recent_workouts: [],
-//     },
-//   };
-// };
 export default UserPage;

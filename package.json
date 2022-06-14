@@ -11,9 +11,6 @@
         "seed_exrx": "ts-node -r esm ./prisma/scripts/seedExercisesData.ts",
         "prismix": "npx prismix && prisma format"
     },
-    "nohoist": [
-        "**"
-    ],
     "prisma": {
         "generate": "generate --watch",
         "seed": "ts-node -r esm ./prisma/seed.ts"
@@ -29,12 +26,10 @@
         "@trpc/next": "^9.24.0",
         "@trpc/react": "^9.24.0",
         "@trpc/server": "^9.24.0",
-        "babel-plugin-superjson-next": "^0.4.3",
         "dayjs": "^1.11.2",
         "micro": "^9.3.4",
         "micro-cors": "^0.1.1",
         "next": "^12.1.6",
-        "nodemon": "^2.0.15",
         "react": "*",
         "react-dom": "*",
         "react-query": "^3.39.1",
@@ -51,17 +46,18 @@
         "@types/node": "^16.11.10",
         "@types/react": "*",
         "@types/react-dom": "*",
-        "@typescript-eslint/parser": "^3.0.0",
+        "@typescript-eslint/eslint-plugin": "^5.27.1",
+        "@typescript-eslint/parser": "^5.27.1",
         "eslint": "7.32.0",
         "eslint-config-next": "^12.0.2",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-jsx-a11y": "^6.4.1",
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-react": "^7.26.1",
-        "eslint-plugin-react-hooks": "^4.2.0",
+        "eslint-plugin-react-hooks": "^4.5.0",
         "prettier": "2.4.1",
         "prettier-eslint": "^13.0.0",
         "prisma": "3.14",
-        "typescript": "^4.4.4"
+        "typescript": "^4.7.3"
     }
 }

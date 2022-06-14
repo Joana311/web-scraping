@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import React, { SyntheticEvent } from "react";
-import { SummaryCard } from "../components/SummaryCardComponent";
+import { SummaryCard } from "../components/UserExerciseCard";
 import exercises from "../../../pages/api/exercises";
 import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
@@ -24,6 +24,8 @@ import addExerciseToWorkout from "../../../../lib/mutations/addExerciseToWorkout
 import { NextRouter, useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import { UrlWithParsedQuery } from "url";
+import trpc from "@client/trpc";
+import { useAppUser } from "@client/context/app_user.test";
 interface AddExerciseProps {
   exercises?: Exercise[];
   toggle?: () => void;
@@ -61,17 +63,19 @@ const exerciseNameCss: SxProps = {
 const AddNewExerciseModal = ({
   exercises,
   toggle,
-  fetch_callback,
   router,
 }: AddExerciseProps & WithRouterProps) => {
   const toggleShowExercise = toggle;
+  const { get_id } = useAppUser();
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(
     new Map<string, boolean>()
   );
   const [filteredExercises, setFilteredExercises] = React.useState(exercises);
   const [isScrolledTop, setIsScrolledTop] = React.useState(true);
-  const [searchTerm, setSearchTerm] = React.useState(undefined);
+  const [searchTerm, setSearchTerm] = React.useState<String | undefined>(
+    undefined
+  );
   const match_by_word = (search_term: string, exercise: Exercise): boolean => {
     // split search term into words if there are spaces
     const search_terms = search_term.split(" ");
@@ -99,18 +103,33 @@ const AddNewExerciseModal = ({
 
     return is_match;
   };
+  const query_context = trpc.useContext();
   React.useEffect(() => {
     if (!searchTerm) return;
     setFilteredExercises(
-      exercises.filter((exercise) => {
+      exercises!.filter((exercise) => {
         return exercise.name?.toLowerCase().includes(searchTerm.toLowerCase());
         // return match_by_word(searchTerm, exercise);
       })
     );
   }, [searchTerm]);
   const borders = false;
+
   const workout_id = router.query.id as string;
-  const addSelected = async () => {
+
+  const useAddExercise = trpc.useMutation("exercise.add_to_current_workout", {
+    onSuccess(updated_workout) {
+      query_context.invalidateQueries("workout.current_by_owner_id");
+      if (get_id) {
+        query_context.setQueryData(
+          ["workout.current_by_owner_id", { owner_id: get_id! }],
+          updated_workout
+        );
+      }
+    },
+  });
+
+  const addSelected = React.useCallback(() => {
     console.group("Adding Selected Exercises");
     const selected = [...selectedExerciseMap.entries()].filter(
       ([_, included]) => included == true
@@ -119,35 +138,19 @@ const AddNewExerciseModal = ({
       const selected_ids = [...selected.values()].map(([exercise_id, _]) => {
         return exercise_id;
       });
-      console.log("old query: ", router.query);
-      // debugger;
 
-      let query = { id: workout_id, new: selected_ids };
-
-      // ts-ignore
-      const req_url = `/api/exercise/add`;
-      console.log("req_url: ", req_url);
-      const body = JSON.stringify(query);
-      console.log("body: ", body);
-
-      // debugger;
+      const _ = useAddExercise.mutateAsync({
+        owner_id: get_id!,
+        exercise_id: selected_ids,
+      });
       console.groupEnd();
       // router.
-      fetch_callback(
-        await (
-          await fetch(req_url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body,
-          })
-        ).json()
-      );
+      toggleShowExercise!();
+    } else {
+      console.log("No exercises selected");
+      toggleShowExercise!();
     }
-    console.groupEnd();
-    toggleShowExercise();
-  };
+  }, [selectedExerciseMap]);
   const moreInfoHandler = (href: string) => {
     window.open(href, "_blank");
   };
@@ -174,7 +177,7 @@ const AddNewExerciseModal = ({
     const scrollPosition = (event.target as HTMLDivElement).scrollTop;
     setIsScrolledTop(scrollPosition < 10);
   };
-  const ExerciseDescriptionComponent = (exercise: Exercise, key) => {
+  const ExerciseDescriptionComponent = (exercise: Exercise, key: number) => {
     return (
       <>
         <Stack
@@ -203,7 +206,7 @@ const AddNewExerciseModal = ({
             }}
           >
             <Checkbox
-              checked={selectedExerciseMap[exercise.id]}
+              checked={selectedExerciseMap.get(exercise.id) ?? false}
               onChange={(e) => handleCheckBox(e, exercise.id)}
               sx={{ "&.Mui-checked": { color: "blue.main" } }}
             />
@@ -301,7 +304,7 @@ const AddNewExerciseModal = ({
           >
             <ButtonBase
               disabled={!exercise.href}
-              onClick={() => moreInfoHandler(exercise.href)}
+              onClick={() => moreInfoHandler(exercise.href!)}
               sx={{
                 borderRadius: "100%",
                 ...infoIconCssProps,
@@ -345,7 +348,9 @@ const AddNewExerciseModal = ({
         }}
       >
         <Input
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
           placeholder="Search..."
         ></Input>
       </Box>
@@ -397,7 +402,7 @@ const AddNewExerciseModal = ({
         <Box
           className="fade-top"
           sx={{
-            opacity: isScrolledTop && "0.5",
+            opacity: "" || "0.5",
             transition: "opacity .3s",
             height: "2rem",
             position: "absolute",
@@ -427,11 +432,12 @@ const AddNewExerciseModal = ({
             direction="column"
             sx={{ minHeight: "fill", pt: ".5rem", px: ".25rem" }}
           >
-            {filteredExercises.map((exercise, key) => {
-              if (key < RESULT_RENDER_LIMIT) {
-                return ExerciseDescriptionComponent(exercise, key);
-              }
-            })}
+            {filteredExercises &&
+              filteredExercises?.map((exercise, key) => {
+                if (key < RESULT_RENDER_LIMIT) {
+                  return ExerciseDescriptionComponent(exercise, key);
+                }
+              })}
           </Stack>
         </Box>
         <Box

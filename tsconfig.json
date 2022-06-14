@@ -18,10 +18,10 @@
     "baseUrl": ".",
     "paths": {
       "@server/*": ["./src/server/*"],
-      "@utils/*": ["src/client/*"]
+      "@client/*": ["src/client/*"]
     }
   },
 
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/client/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/client/*.ts", "src/include.js"],
   "exclude": ["node_modules", "misc"]
 }

@@ -1,4 +1,8 @@
-import { createReactQueryHooks } from "@trpc/react";
+import {
+  createReactQueryHooks,
+  TRPCClientErrorLike,
+  UseTRPCQueryOptions,
+} from "@trpc/react";
 import type { inferProcedureInput, inferProcedureOutput } from "@trpc/server";
 import { NextPageContext } from "next";
 // ℹ️ Type-only import:
@@ -36,6 +40,10 @@ export type inferQueryOutput<
   TRouteKey extends keyof AppRouter["_def"]["queries"]
 > = inferProcedureOutput<AppRouter["_def"]["queries"][TRouteKey]>;
 
+// export type inferQueryOptions<
+//   TRouteKey extends keyof AppRouter["_def"]["queries"]
+// > = CreateProcedureOptions<AppRouter["_def"]["queries"][TRouteKey]>;
+
 export type inferQueryInput<
   TRouteKey extends keyof AppRouter["_def"]["queries"]
 > = inferProcedureInput<AppRouter["_def"]["queries"][TRouteKey]>;
@@ -47,3 +55,15 @@ export type inferMutationOutput<
 export type inferMutationInput<
   TRouteKey extends keyof AppRouter["_def"]["mutations"]
 > = inferProcedureInput<AppRouter["_def"]["mutations"][TRouteKey]>;
+
+type ClientError = TRPCClientErrorLike<AppRouter>;
+
+export type inferUseTRPCQueryOptions<
+  TRouteKey extends keyof AppRouter["_def"]["queries"]
+> = UseTRPCQueryOptions<
+  TRouteKey,
+  inferQueryInput<TRouteKey>,
+  inferQueryOutput<TRouteKey>,
+  inferQueryOutput<TRouteKey>,
+  ClientError
+>;

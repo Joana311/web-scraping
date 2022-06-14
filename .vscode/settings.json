@@ -12,12 +12,14 @@
     "**/.factorypath": true,
     "node_modules": true,
     "__dep__graphql": true,
-    "src/server/routers/user_set.ts": true
+    "src/server/routers/user_set.ts": true,
+    "src/pages/[user]/workout/old.[workout_id].tsx": true
   },
   "hide-files.files": [
     "node_modules",
     "__dep__graphql",
-    "src/server/routers/user_set.ts"
+    "src/server/routers/user_set.ts",
+    "src/pages/[user]/workout/old.[workout_id].tsx"
   ],
   "cSpell.words": [
     "bodypart",

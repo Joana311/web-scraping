@@ -34,8 +34,9 @@ export interface SummaryCardProps {
     }[];
   };
   isActive: boolean;
+  key: number;
 }
-export const SummaryCard = ({ exercise, isActive }: SummaryCardProps) => {
+export const SummaryCard = ({ exercise, isActive, key }: SummaryCardProps) => {
   const [expanded, setExpanded] = React.useState(false);
   const handler = () => {
     setExpanded((prev) => !prev);
@@ -53,6 +54,7 @@ export const SummaryCard = ({ exercise, isActive }: SummaryCardProps) => {
   return (
     <>
       <Stack
+        key={key}
         bgcolor="secondary.main"
         borderRadius={2}
         sx={{

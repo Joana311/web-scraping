@@ -13,12 +13,11 @@ import Link from "next/link";
 import {
   SummaryCard,
   SummaryCardProps,
-} from "./components/SummaryCardComponent";
+} from "./components/UserExerciseCard";
 import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
 import { UserWorkoutWithExercises } from "../../../lib/mutations/createWorkout";
 import superjson from "superjson";
-import superJsonWithNext from "babel-plugin-superjson-next";
 interface ExerciseSummaryProps {
   exrx_data: Exercise[];
   workout_exercises: UserWorkoutWithExercises["exercises"];
@@ -32,15 +31,14 @@ const ExerciseSummary = ({
   const [workoutExercises, setWorkoutExercises] =
     React.useState(workout_exercises);
   console.log(workout_exercises);
-  const fetch_callback = (res_json: string) => {
-    // debugger;
-    const workout: UserWorkoutWithExercises = superjson.parse(res_json);
-    setWorkoutExercises((prev) => [...prev, ...workout.exercises]);
+  // const fetch_callback = React.useCallback((res_json: string) => {
+  //   // debugger;
+  //   const workout: UserWorkoutWithExercises = superjson.parse(res_json);
+  //   setWorkoutExercises((prev) => [...prev, ...workout.exercises]);
 
-    setShowExerciseModal(false);
-  };
-
-  const exercise_summaries: SummaryCardProps["exercise"][] =
+  //   setShowExerciseModal(false);
+  // }, []);
+  const exercise_summaries =
     workoutExercises?.map((exercise) => {
       return {
         name: exercise.exercise.name,
@@ -55,6 +53,7 @@ const ExerciseSummary = ({
         }),
       };
     }) || [];
+
   useEffect(() => {
     exercise_summaries.length > 2
       ? toggleShowMore(true)
@@ -80,7 +79,7 @@ const ExerciseSummary = ({
 
   return (
     <>
-      <Stack sx={{ width: "100%" }}>
+      <Stack sx={{ width: "100%", height: "100%" }}>
         <Box
           className="exercises-title-bar"
           sx={{
@@ -88,6 +87,7 @@ const ExerciseSummary = ({
             // border: "1px dashed white",
             justifyContent: "space-between",
             width: "100%",
+            height: "max-content",
           }}
         >
           <Typography fontWeight={"light"}>Exercises</Typography>
@@ -109,7 +109,10 @@ const ExerciseSummary = ({
             <></>
           )}
         </Box>
-        <Stack spacing={"0.7rem"}>
+        <Stack
+          spacing={"0.7rem"}
+          sx={{ border: "2px solid white", height: "84vh" }}
+        >
           <ButtonBase
             onClick={addExercise}
             sx={{
@@ -133,11 +136,17 @@ const ExerciseSummary = ({
             </Typography>
           </ButtonBase>
 
-          {exercise_summaries.map((exercise, index) => {
-            return (
-              <SummaryCard exercise={exercise} isActive={true} key={index} />
-            );
-          })}
+          <Stack
+            spacing=".5rem"
+            sx={{ py: "1rem", border: "1px dashed pink", overflow: "scroll" }}
+          >
+            {exercise_summaries.map((exercise, index) => {
+              return (
+                <SummaryCard exercise={exercise} isActive={true} key={index} />
+              );
+            })}
+          </Stack>
+
           {workoutExercises.length === 0 && (
             <Typography
               // component="body"
@@ -147,6 +156,7 @@ const ExerciseSummary = ({
                 color: "text.secondary",
                 width: "100%",
                 display: "inline-block",
+                height: "max-content",
               }}
             >
               <span>{"No Exercises"}</span>

@@ -24,10 +24,9 @@ const isWorkoutEmpty = (workout: UserWorkoutWithExercises) => {
 };
 
 export default async function createWorkout(owner_id) {
-
   console.log(`owner id -> ${owner_id}`);
   const openWorkout = await prisma.userWorkout.findFirst({
-    where: { endedAt: null },
+    where: { AND: [{ owner_id }, { endedAt: null }] },
     include: {
       exercises: { include: { exercise: true, sets: true } },
     },

@@ -15,41 +15,36 @@ import {
 import { useAppUser } from "../../../client/context/app_user.test";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
-import createWorkout from "lib/mutations/createWorkout";
+
+interface WorkoutPageProps {
+  exercise_directory: Exercise[];
+}
 
 type Set = Omit<Prisma_Set, "id" | "updatedAt">;
 
-const workout: NextPage = () => {
-  const router = useRouter();
-  const { get_username, get_id, exercise_directory } = useAppUser();
+const workout: NextPage<WorkoutPageProps> = ({
+  exercise_directory,
+}: WorkoutPageProps) => {
   let {
     query: { workout_id },
-  } = router;
-  const createWorkout = trpc.useMutation("workout.create", {
-    onSuccess(new_workout) {
-      router.push(`/${get_username}/${new_workout.id}`);
-    },
-    onError(error, variables, context) {
-      console.error(error);
-      router.push("/${user}#bad");
-    },
-  });
-  React.useEffect(() => {
-    if (workout_id === "new") {
-      createWorkout.mutate({ owner_id: get_id! });
-    }
-  }, [workout_id]);
-
-  const { data: workout } = trpc.useQuery(
-    ["workout.get_by_id", { workout_id: workout_id as string }],
-    {
-      enabled: workout_id !== "new",
-    }
-  );
-
+  } = useRouter();
+  if (workout_id === "new") {
+    const { data } = trpc.useMutation("workout.create", {
+      onError(error, variables, context) {
+        console.error(error);
+        useRouter().push("/${user}#bad");
+      },
+    });
+    workout_id = data?.id;
+  }
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
   );
+
+  // const workout_exercises = getAppUser().workouts?.find((workout) => {
+  //   return workout.id === workout_id;
+  // });
+  let current_workout;
 
   return (
     <>
@@ -136,10 +131,10 @@ const workout: NextPage = () => {
             width: "100%",
           }}
         >
-          {workout?.exercises != undefined ? (
+          {workout_exercises != undefined ? (
             <ExerciseSummary
               exrx_data={exercise_directory}
-              workout_exercises={workout.exercises}
+              workout_exercises={workout_exercises}
             />
           ) : (
             <>loading...</>
@@ -148,6 +143,13 @@ const workout: NextPage = () => {
       </Box>
     </>
   );
+};
+workout.getInitialProps = async (ctx: NextPageContext) => {
+  const exercise_directory = getExerciseDirectory();
+
+  return {
+    exercise_directory,
+  };
 };
 
 export default workout;

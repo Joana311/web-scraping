@@ -16,6 +16,8 @@ import superjson from "superjson";
 // import { DefaultLayout } from '~/components/defaultLayout';
 import { AppRouter } from "@server/routers/_app";
 import { SSRContext } from "src/client/trpc";
+import AppUserProvider from "@client/context/app_user.test";
+import { ReactQueryDevtools } from "react-query/devtools";
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
@@ -34,11 +36,14 @@ const App = ((props: MyAppProps) => {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
-        {/* es-lint-disable-next-line */}
-        <Component {...pageProps} />
+        <AppUserProvider>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <CssBaseline />
+          {/* es-lint-disable-next-line */}
+          <Component {...pageProps} />
+        </AppUserProvider>
       </ThemeProvider>
+      <ReactQueryDevtools />
     </CacheProvider>
   );
 }) as AppType;

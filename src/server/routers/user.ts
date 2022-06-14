@@ -5,16 +5,13 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
+import { resolve } from "path";
 
-interface UserEvents {
-  get_by_id: (user_id: string) => User;
-  get_by_name: (username: string) => User;
-}
-const defaultUserSelect = Prisma.validator<Prisma.UserInclude>()({
+const defaultUserInclude = Prisma.validator<Prisma.UserInclude>()({
   workouts: false,
 });
 
-const authorizedUserSelect = Prisma.validator<Prisma.UserInclude>()({
+const authorizedUserInclude = Prisma.validator<Prisma.UserInclude>()({
   workouts: {
     include: {
       exercises: {
@@ -28,14 +25,42 @@ const authorizedUserSelect = Prisma.validator<Prisma.UserInclude>()({
   },
 });
 
-export const userRouter = createRouter().query("get_by_name", {
-  input: z.object({
-    name: z.string(),
-  }),
-  async resolve({ input: { name } }) {
-    return await prisma?.user.findFirst({
-      where: { name },
-      select: authorizedUserSelect,
-    });
-  },
-});
+export const userRouter = createRouter()
+  .mutation("login", {
+    input: z.object({
+      username: z.string(),
+      password: z.string(),
+    }),
+    async resolve({ input: { username, password } }) {
+      // throw new TRPCError({
+      //   code: "METHOD_NOT_SUPPORTED",
+      //   message: "not implemented ",
+      // });
+      const user = await prisma.user.findFirst({
+        where: {
+          name: username,
+        },
+        include: authorizedUserInclude,
+      });
+      return user;
+    },
+  })
+  .query("get_by_name", {
+    input: z.object({
+      name: z.string(),
+    }),
+    async resolve({ input: { name } }) {
+      const user = await prisma?.user.findFirst({
+        where: { name },
+        include: defaultUserInclude,
+      });
+      if (!user) {
+        throw new TRPCError({
+          message: "User not found.",
+          code: "NOT_FOUND",
+        });
+      } else {
+        return user;
+      }
+    },
+  });

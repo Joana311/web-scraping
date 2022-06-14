@@ -38,16 +38,13 @@ I decided to go with trpc instead of graphql and apollo because it does both job
 
 ## Todo
 
-    [ ] stop using babel compiler and swap back or SWC, by using a different superjson plugin 
-
-    [try this one](https://github.com/remorses/next-superjson)
 
     [ ] use a `<Layout>` component to hold Title/Nav Header of the app/site
 
 
     [ ] implement user Authentication/login w/ discord.
 
-    [ ] setup middleware for mutations.
+    [ ] setup middleware for pulling user data from the db to use id as a context for requests.
 
     [ ] establish subscriptions to db for modifying UserExercises fields (sets, reps, weight).
 
@@ -55,21 +52,27 @@ I decided to go with trpc instead of graphql and apollo because it does both job
 
     [ ] ability to delete/edit previous workouts
 
-## In Progress
+    
+    [ ] rework api so that only id's are served and then further info is fetched from the db when it is needed.
 
-    [x] introduce functionality to add a new UserExercise in db for a Workout.
+    [-] ability to modify data.
 
-        (should use real Exercises provided by AddExercises.)
-
-        [-] ability to modify data.
-
-    [-] implement searching & filtering for AddExercises.
+    [/] implement searching & filtering for AddExercises.
         
         * my current solution is slow af rn *  
 
         [ ] remove the ability to add exercises that are already in the workout.
+    [ ] create a UserExercise page with better details `../user/workout/exercise/:id`
+
+## In Progress
+
+    [-] use optimistic updates to update the set data
 
 ## Done Recently
+
+    [x] stop using babel compiler and swap back or SWC, by using a different superjson plugin 
+
+    [x] introduce functionality to add a new UserExercise in db for a Workout.
 
     [x] clean up the flow/directory structure for components.
 
