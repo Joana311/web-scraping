@@ -10,10 +10,11 @@ import {
 } from "@client/context/app_user.test";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
+import { useSession } from "next-auth/react";
 
 const LandingPageMenu: React.FC = () => {
   const { set_id, set_username, get_username, get_id } = useAppUser();
-  console.log("current name: ", get_username);
+  // console.log("current name: ", get_username);
   const router = useRouter();
 
   // const { data: user_data, isError } = useGetByUserName(
@@ -25,42 +26,47 @@ const LandingPageMenu: React.FC = () => {
   //   },
   //   !!get_username
   // );
+  // const { data: session, status } = useSession();
 
-  const { data: user_data, isError } = trpc.useQuery(
-    ["user.get_by_name", { name: get_username! }],
-    {
-      onSuccess: (user_data) => {
-        set_id(user_data!.id);
-        set_username(user_data!.name);
-        router.push(`/${user_data!.name}`);
-      },
-      enabled: !!get_username,
-      refetchOnMount: false,
-      retry: false,
-    }
-  );
-  React.useEffect(() => {
-    console.log(isError);
-    //listen for click anywhere on page
-    if (isError) {
-      document.addEventListener("click", (e) => {
-        set_username(undefined);
-      });
-    }
-    //clean up event listener
-    return () => {
-      document.removeEventListener("click", (e) => {
-        set_username(undefined);
-      });
-    };
-  }, [isError === true]);
-  if (isError) {
-    // set_username(undefined);
-    return <Typography color="#000">"There was an error"</Typography>;
+  // const { data: user_data, isError } = trpc.useQuery(
+  //   ["user.get_by_name", { name: get_username! }],
+  //   {
+  //     onSuccess: (user_data) => {
+  //       set_id(user_data!.id);
+  //       set_username(user_data!.name);
+  //       router.push(`/${user_data!.name}`);
+  //     },
+  //     enabled: !!get_username,
+  //     refetchOnMount: false,
+  //     retry: false,
+  //   }
+  // );
+  // React.useEffect(() => {
+  //   console.log(isError);
+  //   //listen for click anywhere on page
+  //   if (isError) {
+  //     document.addEventListener("click", (e) => {
+  //       set_username(undefined);
+  //     });
+  //   }
+  //   //clean up event listener
+  //   return () => {
+  //     document.removeEventListener("click", (e) => {
+  //       set_username(undefined);
+  //     });
+  //   };
+  // }, [isError === true]);
+  // if (isError) {
+  //   // set_username(undefined);
+  //   return <Typography color="#000">"There was an error"</Typography>;
+  // }
+  const onClickContinue = () => {
+    router.push(`/api/auth/signin`);
   }
+  // console.log("session info : ", session?.user)
   return (
     <>
-      <Stack
+      {<Stack
         spacing={3}
         // component={Card}
         sx={{
@@ -84,7 +90,7 @@ const LandingPageMenu: React.FC = () => {
         <Button
           variant="contained"
           // eslint-disable-next-line
-          onClick={() => set_username("guest")}
+          onClick={() => onClickContinue()}
           sx={{
             height: "45px",
             fontSize: "1rem",
@@ -92,9 +98,10 @@ const LandingPageMenu: React.FC = () => {
         >
           Continue As Guest
         </Button>
-      </Stack>
+      </Stack>}
     </>
   );
 };
+
 
 export default LandingPageMenu;

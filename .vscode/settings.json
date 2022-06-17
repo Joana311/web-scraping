@@ -9,7 +9,8 @@
     "**/.classpath": true,
     "**/.project": true,
     "**/.settings": true,
-    "**/.factorypath": true
+    "**/.factorypath": true,
+    "node_modules": true
   },
   "hide-files.files": [
     "node_modules",

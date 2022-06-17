@@ -2,10 +2,19 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Grid, Typography } from "@mui/material";
 import LandingPageMenu from "../components/LandingPageMenu";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 export function LandingPage() {
   const [userName, setUserName] = useState(undefined);
+  const router = useRouter();
   useEffect(() => {
   }, [userName]);
+  const { data: session, status } = useSession();
+  // console.log("session info : ", session?.user)
+
+  if (status !== "loading" && session?.user && typeof window !== "undefined") {
+    router.push(`/${session?.user?.name}`);
+  }
 
   return (
     <>
@@ -27,7 +36,7 @@ export function LandingPage() {
             <Typography variant="h3"> Hello Stranger!</Typography>
           )}
         </Grid>
-        <Grid
+        {session == null ? <Grid
           item
           container
           justifyContent="center"
@@ -35,7 +44,7 @@ export function LandingPage() {
           sx={{ border: "1px solid black", height: "max-content" }}
         >
           <LandingPageMenu />
-        </Grid>
+        </Grid> : <></>}
       </Grid>
     </>
   );

@@ -15,12 +15,12 @@ import {
 import { useAppUser } from "../../../client/context/app_user.test";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
-import createWorkout from "__dep__lib/mutations/createWorkout";
 
 type Set = Omit<Prisma_Set, "id" | "updatedAt">;
 
 const Workout: NextPage = () => {
   const router = useRouter();
+  
   const { get_username, get_id, exercise_directory } = useAppUser();
   let {
     query: { workout_id },
@@ -52,6 +52,8 @@ const Workout: NextPage = () => {
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
   );
+
+
 
   return (
     <>

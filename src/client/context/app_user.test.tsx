@@ -32,10 +32,10 @@ export const useCreateNewWorkout = () =>
   });
 export const useLogin = () => trpc.useMutation(["user.login"]);
 export const AppUserContext = React.createContext({
-  set_id: (() => {}) as React.Dispatch<
+  set_id: (() => { }) as React.Dispatch<
     React.SetStateAction<string | undefined>
   >,
-  set_username: (() => {}) as React.Dispatch<
+  set_username: (() => { }) as React.Dispatch<
     React.SetStateAction<string | undefined>
   >,
   get_id: undefined as string | undefined,
@@ -50,11 +50,12 @@ const AppUserProvider = ({ children }: { children: React.ReactNode }) => {
   const [userID, setUserID] = React.useState<string>();
   const [userName, setUserName] = React.useState<string>();
 
-  const { data: exrx_data } = trpc.useQuery(["exercise.directory"], {
-    refetchOnMount: false,
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-  });
+  // const { data: exrx_data } = trpc.useQuery(["exercise.directory"], {
+  //   refetchOnMount: false,
+  //   staleTime: Infinity,
+  //   refetchOnWindowFocus: false,
+  // });
+  let exrx_data = []
   const ex_data = React.useRef(exrx_data || []);
   if (exrx_data) {
     ex_data.current = exrx_data;

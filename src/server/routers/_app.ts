@@ -6,6 +6,7 @@ import { userRouter } from "./user";
 import superjson from "superjson";
 import { workoutRouter } from "./workout";
 import { exerciseRouter } from "./exercise";
+import { authRouter } from "./next-auth";
 
 /**
  * Create your application's root router
@@ -14,10 +15,6 @@ import { exerciseRouter } from "./exercise";
  * @link https://trpc.io/docs/router
  */
 export const appRouter = createRouter()
-  /**
-   * Add data transformers
-   * @link https://trpc.io/docs/data-transformers
-   */
   .transformer(superjson)
   /**
    * Optionally do custom error (type safe!) formatting
@@ -25,17 +22,12 @@ export const appRouter = createRouter()
    */
   // .formatError(({ shape, error }) => { })
   /**
-   * Add a health check endpoint to be called with `/api/trpc/healthz`
-   */
-  .query("healthz", {
-    async resolve() {
-      return "yay!";
-    },
-  })
+   * 
   /**
    * Merge `postRouter` under `post.`
    */
   .merge("user.", userRouter)
   .merge("workout.", workoutRouter)
-  .merge("exercise.", exerciseRouter);
+  .merge("exercise.", exerciseRouter)
+  .merge("next-auth.", authRouter)
 export type AppRouter = typeof appRouter;

@@ -5,7 +5,9 @@
     }
   ],
   "settings": {
-    "hide-files.files": [],
+    "hide-files.files": [
+      "node_modules"
+    ],
     "typescript.tsdk": "node_modules\\typescript\\lib"
   }
 }

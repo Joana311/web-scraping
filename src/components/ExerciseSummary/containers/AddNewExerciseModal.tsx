@@ -15,7 +15,6 @@ import {
 import Link from "next/link";
 import React, { SyntheticEvent } from "react";
 import { SummaryCard } from "../components/UserExerciseCard";
-import exercises from "../../../pages/api/exercises";
 import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
 import { Context } from "../../../../misc/__dep__graphql/context";

@@ -49,11 +49,12 @@ export const userRouter = createRouter()
     input: z.object({
       name: z.string(),
     }),
-    async resolve({ input: { name } }) {
+    async resolve({ ctx, input: { name } }) {
       const user = await prisma?.user.findFirst({
         where: { name },
         include: defaultUserInclude,
       });
+      console.log(ctx.session?.user)
       if (!user) {
         throw new TRPCError({
           message: "User not found.",

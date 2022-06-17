@@ -8,41 +8,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id       String        @id @default(uuid())
-  name     String
-  email    String        @unique
-  workouts UserWorkout[] @relation(name: "UserToUserWorkout")
-}
-
-model UserWorkout {
-  createdAt DateTime       @default(now())
-  endedAt   DateTime?
-  id        String         @id @default(cuid())
-  owner     User?          @relation(name: "UserToUserWorkout", fields: [owner_id], references: [id])
-  owner_id  String
-  exercises UserExercise[] @relation(name: "UserExerciseToUserWorkout")
-}
-
-model UserExercise {
-  exercise    Exercise     @relation(name: "ExerciseToUserExercise", fields: [exercise_id], references: [id])
-  exercise_id String
-  id          String       @id @default(cuid())
-  sets        Set[]        @relation(name: "SetToUserExercise")
-  Workout     UserWorkout? @relation(name: "UserExerciseToUserWorkout", fields: [workout_id], references: [id])
-  workout_id  String?
-}
-
-model Set {
-  updatedAt        DateTime      @updatedAt
-  id               String        @id @default(cuid())
-  weight           Int?
-  reps             Int           @default(0)
-  rpe              Int           @default(0)
-  UserExercise     UserExercise? @relation(name: "SetToUserExercise", fields: [user_exercise_id], references: [id])
-  user_exercise_id String?
-}
-
 model Exercise {
   id             String         @id @default(uuid())
   UserExercise   UserExercise[] @relation(name: "ExerciseToUserExercise")
@@ -56,6 +21,89 @@ model Exercise {
   video_url      String?
 
   @@unique([href, name, equipment_name, muscle_name])
+}
+
+model User {
+  id            String        @id @default(uuid())
+  workouts      UserWorkout[] @relation(name: "UserToUserWorkout")
+  name          String?
+  username      String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]     @relation(name: "AccountToUser")
+  sessions      Session[]     @relation(name: "SessionToUser")
+  created_at    DateTime      @default(now())
+}
+
+model UserSecrets {
+  user_id String @unique
+  secret  String
+}
+
+model UserWorkout {
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+  ended_at   DateTime?
+  id         String         @id @default(cuid())
+  owner      User?          @relation(name: "UserToUserWorkout", fields: [owner_id], references: [id])
+  owner_id   String
+  exercises  UserExercise[] @relation(name: "UserExerciseToUserWorkout")
+  closed     Boolean        @default(false)
+}
+
+model UserExercise {
+  exercise    Exercise     @relation(name: "ExerciseToUserExercise", fields: [exercise_id], references: [id])
+  exercise_id String
+  id          String       @id @default(cuid())
+  sets        Set[]        @relation(name: "SetToUserExercise")
+  Workout     UserWorkout? @relation(name: "UserExerciseToUserWorkout", fields: [workout_id], references: [id])
+  workout_id  String?
+
+  @@unique([exercise_id, workout_id, id])
+}
+
+model Set {
+  id               Int          @id @default(autoincrement())
+  weight           Int?
+  reps             Int          @default(0)
+  rpe              Int          @default(0)
+  UserExercise     UserExercise @relation(name: "SetToUserExercise", fields: [user_exercise_id], references: [id])
+  user_exercise_id String
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(name: "AccountToUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(name: "SessionToUser", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Equipment {
