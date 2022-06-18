@@ -7,22 +7,31 @@ import React from "react";
 
 import { useAppUser } from "@client/context/app_user.test";
 import trpc from "@client/trpc";
+import type { NextPage } from "next";
+import { useSession } from "next-auth/react";
 
 //React Functional Component
 
-const UserPage = () => {
+const UserPage: NextPage = () => {
   const todaysDate = React.useMemo(
     () => dayjs().format("dddd, MMM D"),
     [dayjs().toDate()]
   );
 
-  const user = useAppUser();
+  // const { data: session, isLoading } = trpc.useQuery(["next-auth.get_session"], {
+  //   onSuccess(data) {
+  //   },
+  // });
+
   // const { data: workouts } = trpc.useQuery(
-  //   ["workout.all_by_owner_id", { owner_id: user.get_id as string }],
+  //   ["workout.all_by_owner_id", { owner_id: session?.user.id! as string }],
   //   {
   //     enabled: !!user?.get_id,
   //   }
   // );
+  const { data: workouts } = trpc.useQuery(["workout.get_recent", { amount: 5 }], {
+    enabled: typeof window !== "undefined",
+  })
   // console.log(user);
   return (
     <>
@@ -118,3 +127,6 @@ const UserPage = () => {
   );
 };
 export default UserPage;
+
+
+

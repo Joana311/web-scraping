@@ -10,8 +10,7 @@ export function LandingPage() {
   useEffect(() => {
   }, [userName]);
   const { data: session, status } = useSession();
-  // console.log("session info : ", session?.user)
-
+  console.log("session from client : ", session?.user)
   if (status !== "loading" && session?.user && typeof window !== "undefined") {
     router.push(`/${session?.user?.name}`);
   }

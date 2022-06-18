@@ -35,16 +35,19 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
   let emotionCache = clientSideEmotionCache
   const { data: session } = trpc.useQuery(["next-auth.get_session"], {
     context: {
-      customHeaders: true,
       skipBatch:
         true
-    }
+    },
+    refetchInterval: 0,
+    retry: false,
+    enabled: typeof window === "undefined",
+
   });
-  // console.log("fetching session: ", session?.user);
+  // console.log("fetched session: ", session?.user);
 
 
   return (
-    <SessionProvider session={session}>
+    <SessionProvider refetchOnWindowFocus={false} session={session}>
       <CacheProvider value={emotionCache}>
         <Head>
           <title>My page</title>
@@ -113,7 +116,6 @@ export default withTRPC<AppRouter>({
             return operation.context.skipBatch === true
           },
           false: httpBatchLink({
-
             url: `${getBaseUrl()}/api/trpc`,
           }),
           true: httpLink({
@@ -121,14 +123,11 @@ export default withTRPC<AppRouter>({
           }),
         })
       ],
-      /**
-       * @link https://trpc.io/docs/data-transformers
-       */
       transformer: superjson,
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient
        */
-
+      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
       headers: () => {
         //on ssr forward cookies to the server to check for auth sessions
         const client_headers = ctx?.req?.headers
@@ -142,7 +141,6 @@ export default withTRPC<AppRouter>({
           }
         } else return {}
       },
-      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
     };
   },
   /**
@@ -160,16 +158,24 @@ export default withTRPC<AppRouter>({
         status: ctx.status,
       };
     }
-
     const error = opts.clientErrors[0];
     if (error) {
+      if (error.message.includes("NO_SESSION")
+        && opts.ctx.asPath !== '/') {
+        console.log("should reroute")
+        return {
+          status: 303, //"SEE_OTHER"
+          headers: {
+            location: getBaseUrl() + "/api/auth/signin",
+          }
+        }
+      }
       // Propagate http first error from API calls
       return {
         status: error.data?.httpStatus ?? 500,
       };
     }
     // For app caching with SSR see https://trpc.io/docs/caching
-    // console.log("shouldnt be here",);
     return {};
   },
 })(App);

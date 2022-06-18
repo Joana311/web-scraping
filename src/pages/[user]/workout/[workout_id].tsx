@@ -20,34 +20,41 @@ type Set = Omit<Prisma_Set, "id" | "updatedAt">;
 
 const Workout: NextPage = () => {
   const router = useRouter();
-  
-  const { get_username, get_id, exercise_directory } = useAppUser();
   let {
     query: { workout_id },
   } = router;
-  const createWorkout = trpc.useMutation("workout.create", {
+  const createWorkout = trpc.useMutation("workout.create_new", {
+    ssr: false,
     onSuccess(new_workout) {
-      router.push(`/${get_username}/${new_workout.id}`);
+      router.replace({
+        query: {
+          ...router.query,
+          workout_id: new_workout.id
+        }
+      });
     },
     onError(error, variables, context) {
       console.error(error);
-      router.push("/${user}#bad");
+      // router.push("/${user}#bad");
     },
   });
-  React.useEffect(() => {
-    if (workout_id === "new") {
-      createWorkout.mutate({ owner_id: get_id! });
+  // createworkout client side
+  React.useLayoutEffect(() => {
+    console.log("rendering")
+    if (workout_id === 'new' && typeof window !== "undefined") {
+      createWorkout.mutate();
     }
-  }, [workout_id]);
+  }), [workout_id as string];
 
   const { data: workout } = trpc.useQuery(
     ["workout.get_by_id", { workout_id: workout_id as string }],
     {
+
       enabled: workout_id !== "new",
     }
 
   );
-  React.useEffect(() => { }), [workout?.exercises];
+  // React.useEffect(() => { }), [workout?.exercises];
 
   const [todaysDate, setTodaysDate] = React.useState(
     dayjs().format("dddd, MMM D")
@@ -142,7 +149,6 @@ const Workout: NextPage = () => {
         >
           {workout?.exercises != undefined ? (
             <ExerciseSummary
-              exrx_data={exercise_directory}
               workout_id={workout.id! as string}
             />
           ) : (

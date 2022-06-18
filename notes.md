@@ -32,19 +32,12 @@ I decided to go with trpc instead of graphql and apollo because it does both job
 
 ## Big Bugs
 
-    [ ] currently there after a new workout is created. the url is not updated to include the id of the added workout.
-
-    [ ] the json response needs to be encoded when being return via https
+    [ ] creating new workout sends 2 requests to the server.
 
 ## Todo
 
-
     [ ] use a `<Layout>` component to hold Title/Nav Header of the app/site
 
-
-    [ ] implement user Authentication/login w/ discord.
-
-    [ ] setup middleware for pulling user data from the db to use id as a context for requests.
 
     [ ] establish subscriptions to db for modifying UserExercises fields (sets, reps, weight).
 
@@ -62,13 +55,20 @@ I decided to go with trpc instead of graphql and apollo because it does both job
         * my current solution is slow af rn *  
 
         [ ] remove the ability to add exercises that are already in the workout.
+
     [ ] create a UserExercise page with better details `../user/workout/exercise/:id`
 
 ## In Progress
 
     [-] use optimistic updates to update the set data
 
+    [ ] setup middleware for pulling user data from the db to use id as a context for requests.
+
 ## Done Recently
+
+    [x] implement user Authentication/login w/ discord.
+
+    [x] currently there after a new workout is created. the url is not updated to include the id of the added workout.
 
     [x] stop using babel compiler and swap back or SWC, by using a different superjson plugin 
 

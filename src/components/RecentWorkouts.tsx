@@ -18,7 +18,7 @@ import { useRouter } from "next/router";
 import React from "react";
 interface RecentWorkoutsProps { }
 const RecentWorkouts = () => {
-  const { get_id, get_username } = useAppUser();
+  // const { get_id, get_username } = useAppUser();
 
   const [todaysSessions, setTodaysSessions] = React.useState<
     {
@@ -35,9 +35,9 @@ const RecentWorkouts = () => {
   >();
   const router = useRouter();
   const { data: open_workout } = trpc.useQuery(
-    ["workout.current_by_owner_id", { owner_id: get_id! }],
+    ["workout.get_current"],
     {
-      enabled: !!get_id,
+      enabled: typeof window !== "undefined",
       refetchOnMount: false,
       onSuccess(open_workout) {
         if (open_workout) {
@@ -46,28 +46,25 @@ const RecentWorkouts = () => {
       },
     }
   );
-
-  const { data: recent_workouts, isError } = trpc.useQuery(
-    ["workout.all_by_owner_id", { owner_id: get_id! }],
-    {
-      enabled: !!get_id,
-      refetchOnMount: false,
-      onSuccess(recent_workouts) {
-        if (recent_workouts.length > 0) {
-          const todays_workouts = recent_workouts.filter((w) =>
-            dayjs(w.createdAt).isSame(dayjs(), "day")
-          );
-          setTodaysSessions(todays_workouts.map(workoutToSession));
-          recent_workouts.length > 2 && toggleShowMore(true);
-        }
-      },
-    }
+  const { data: recent_workouts, isError } = trpc.useQuery(["workout.get_recent", { amount: 5 }], {
+    enabled: typeof window !== "undefined",
+    refetchOnMount: false,
+    onSuccess(recent_workouts) {
+      if (recent_workouts.length > 0) {
+        const todays_workouts = recent_workouts.filter((w) =>
+          dayjs(w.created_at).isSame(dayjs(), "day")
+        );
+        setTodaysSessions(todays_workouts.map(workoutToSession));
+        recent_workouts.length > 2 && toggleShowMore(true);
+      }
+    },
+  }
   );
   type UserWorkoutWithExercises = NonNullable<typeof open_workout>
   const workoutToSession = React.useCallback(
     (workout: UserWorkoutWithExercises) => ({
-      start: dayjs(workout.createdAt).format("h:mmA"),
-      end: workout.endedAt ? dayjs(workout.endedAt)?.format("h:mmA") : null,
+      start: dayjs(workout.created_at).format("h:mmA"),
+      end: workout.ended_at ? dayjs(workout.ended_at)?.format("h:mmA") : null,
       exercises: workout.exercises.length,
       sets: workout.exercises
         .map((exercise) => {
@@ -249,29 +246,28 @@ const RecentWorkouts = () => {
             </Typography>
           )}
 
-          <Link
-            href={`${get_username!}/workout/${openWorkoutId ? openWorkoutId : "new"
-              }`}
+          <ButtonBase
+            onClick={() => {
+              router.push(`${router.query?.user as string}/workout/${openWorkoutId ? openWorkoutId : "new"}`);
+            }}
+            sx={{
+              borderRadius: 2,
+              backgroundColor: "secondary.main",
+              display: "flex",
+              border: "1px solid white",
+              width: "100%",
+              px: ".5rem",
+              py: ".2rem",
+              height: "max-content",
+              justifyContent: "center",
+              alignItems: "center",
+
+            }}
           >
-            <ButtonBase
-              sx={{
-                borderRadius: 2,
-                backgroundColor: "secondary.main",
-                display: "flex",
-                border: "1px solid white",
-                width: "100%",
-                px: ".5rem",
-                py: ".2rem",
-                height: "max-content",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Typography fontWeight={"semi-bold"} fontSize=".9rem">
-                {openWorkoutId ? "Continue Workout" : "New Workout"}
-              </Typography>
-            </ButtonBase>
-          </Link>
+            <Typography fontWeight={"semi-bold"} fontSize=".9rem">
+              {openWorkoutId ? "Continue Workout" : "New Workout"}
+            </Typography>
+          </ButtonBase>
         </Stack>
       </Stack>
     </>

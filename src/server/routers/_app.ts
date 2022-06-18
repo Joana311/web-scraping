@@ -20,7 +20,19 @@ export const appRouter = createRouter()
    * Optionally do custom error (type safe!) formatting
    * @link https://trpc.io/docs/error-formatting
    */
-  // .formatError(({ shape, error }) => { })
+  .formatError(({ shape, error, ctx }) => {
+    return {
+      code: shape.code,
+      message: shape.message,
+      data: {
+        httpStatus: shape.data.httpStatus,
+        code: shape.data.code,
+        path: shape.data.path,
+        req_source: ctx?.req.url
+      }
+    }
+  }
+  )
   /**
    * 
   /**

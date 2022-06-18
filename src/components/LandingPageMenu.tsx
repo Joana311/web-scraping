@@ -10,7 +10,8 @@ import {
 } from "@client/context/app_user.test";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
-import { useSession } from "next-auth/react";
+
+import { signIn, signOut } from "next-auth/react";
 
 const LandingPageMenu: React.FC = () => {
   const { set_id, set_username, get_username, get_id } = useAppUser();
@@ -60,9 +61,9 @@ const LandingPageMenu: React.FC = () => {
   //   // set_username(undefined);
   //   return <Typography color="#000">"There was an error"</Typography>;
   // }
-  const onClickContinue = () => {
-    router.push(`/api/auth/signin`);
-  }
+  // const onClickContinue = () => {
+  //   router.push(`/api/auth/signin`);
+  // }
   // console.log("session info : ", session?.user)
   return (
     <>
@@ -90,13 +91,13 @@ const LandingPageMenu: React.FC = () => {
         <Button
           variant="contained"
           // eslint-disable-next-line
-          onClick={() => onClickContinue()}
+          onClick={() => signIn("discord")}
           sx={{
             height: "45px",
             fontSize: "1rem",
           }}
         >
-          Continue As Guest
+          Continue w/ Discord
         </Button>
       </Stack>}
     </>

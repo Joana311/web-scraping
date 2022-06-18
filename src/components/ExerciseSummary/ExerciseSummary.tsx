@@ -16,17 +16,17 @@ import { Exercise } from "@prisma/client";
 import superjson from "superjson";
 import trpc from "@client/trpc";
 interface ExerciseSummaryProps {
-  exrx_data: Exercise[];
+
   workout_id: string;
 }
 const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
-  exrx_data,
   workout_id
 }: ExerciseSummaryProps) => {
   const { data: workout } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }], { enabled: !!workout_id }
   );
   const [showMore, toggleShowMore] = React.useState(false);
   const [showExerciseModal, setShowExerciseModal] = React.useState(false);
+  const { data: exrx_data } = trpc.useQuery(["exercise.directory"])
 
   const exercise_summaries =
     workout?.exercises.map((exercise) => {

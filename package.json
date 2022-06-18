@@ -2,6 +2,9 @@
     "name": "progress-tracker2021-nextjs",
     "proxy": "http://localhost:3000",
     "private": true,
+    "config": {
+        "loglevel": "silent"
+    },
     "scripts": {
         "dev": "next dev",
         "build": "next build",

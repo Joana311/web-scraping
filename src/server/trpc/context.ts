@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as trpc from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
-import { getServerSession, Session } from "next-auth";
+import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+
+import { getServerSession, type Session } from "next-auth";
 // import { PrismaClient } from "@prisma/client";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { getCookieParser } from "next/dist/server/api-utils";
 import { nextAuthOptions } from "src/pages/api/auth/[...nextauth]";
 import prisma from "../prisma/client";
+import { TRPCError } from "@trpc/server";
+import { Prisma, User } from "@prisma/client";
 
 //using getSession is slower than getServerSession 
 
@@ -18,29 +22,38 @@ import prisma from "../prisma/client";
  */
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-
-interface CreateContextOptions {
+// type a = ReturnType<typeof useSession>;
+// type b = Pick<a, "data">;
+// type session = NonNullable<b["data"]>;
+interface CreateContextOptions extends CreateNextContextOptions {
   session: Session | null
   cookies: string | null
 }
 
+// let session = _opts.session;
 /**
  * Inner function for `createContext` where we create the context.
  * This is useful for testing when we don't want to mock Next.js' request/response
  */
 export async function createContextInner(_opts: CreateContextOptions) {
-  console.log("passing user into server context:", _opts.session?.user?.name ?? "unknown user");
-  let session = _opts.session;
-  let parsed_cookies = getCookieParser({ "cookie": _opts.cookies || undefined })()
-  // console.log("cookies", parsed_cookies)
+  const session = (await getServerSession(_opts, nextAuthOptions));
+  if (!session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "NO_SESSION. No auth session found for incoming request.",
+    });
+  } else {
+    console.log("Session from getServerSession: ", session)
+  }
 
-  console.log("passing cookie into server context:", parsed_cookies ?? "no cookie");
-  // here create some user context based on the session
-  // const user = await prisma.user.findOne({{ where: { id: session?.user?.. } }});
+  // next-auth didn't have a way to make user_id 
+  // inferrable from the actual `session` return type. 
+  const user = session.user as any as User;
+  
   return {
-    // user,
-    auth: parsed_cookies["next-auth.session-token"] ?? null,
-    session
+    ..._opts,
+    user,
+    session,
   };
 }
 
@@ -54,9 +67,9 @@ export async function createContext(
   opts: trpcNext.CreateNextContextOptions
 ): Promise<Context> {
   // for API-response caching see https://trpc.io/docs/caching
-  const session = opts && (await getServerSession(opts, nextAuthOptions));
+  const session = (await getServerSession(opts, nextAuthOptions));
   const cookies = opts.req.headers.cookie ? opts.req.headers.cookie : null;
-  const ctx = await createContextInner({ session, cookies });
+  const ctx = await createContextInner({ session, cookies, req: opts.req, res: opts.res });
   return ctx
 }
 

@@ -33,6 +33,7 @@
     "./next-env.d.ts",
     "./src",
     "./prisma",
+    "./types/**/*.ts"
   ],
   "exclude": [
     "./node_modules",
