@@ -6,7 +6,7 @@ import prisma from "@server/prisma/client";
 import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 
 export const exerciseRouter = createRouter()
-  .query("directory", {
+  .query("public.directory", {
     async resolve() {
       return await prisma.exercise.findMany();
     },

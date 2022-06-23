@@ -24,7 +24,7 @@ import { NextRouter, useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import { UrlWithParsedQuery } from "url";
 import trpc from "@client/trpc";
-import { useAppUser } from "@client/context/app_user.test";
+import { useAppUser } from "@client/providers/app_user.test";
 interface AddExerciseProps {
   exercises?: Exercise[];
   workout_id: string;

@@ -9,6 +9,7 @@ import { NextApiRequest, NextApiResponse } from "next/types";
 
 type TRPCHandlerOptions = NodeHTTPHandlerOptions<typeof appRouter, NextApiRequest, NextApiResponse>
 function getBaseUrl() {
+
   if (typeof window !== "undefined") {
     return "";
   }
@@ -20,20 +21,19 @@ function getBaseUrl() {
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 export default trpcNext.createNextApiHandler({
-  responseMeta: (opts) => {
-    const error = opts.errors[0];
-    if (error) {
-      if (error.message.includes("NO_SESSION")
-        && opts.ctx?.req.url !== '/') {
-        console.log("base url: ", getBaseUrl());
-        console.log("should reroute. broken atm")
-        opts.ctx?.res.setHeader("Location", getBaseUrl() + "/api/auth/signin")
-        return {
-          status: 303,
-        }
-      }
-    }
-    return {}
+
+  responseMeta: ({ paths, errors, }) => {
+
+    const safe_to_cache = paths && paths.every(path => path.includes(".public")) && errors.length === 0;
+    const ONE_HOUR_IN_SECONDS = 60 * 60;
+    const ONE_DAY_IN_SECONDS = ONE_HOUR_IN_SECONDS * 24;
+    const ONE_WEEK_IN_SECONDS = ONE_DAY_IN_SECONDS * 7;
+    if (safe_to_cache) {
+      console.log("inserting cache headers");
+      return {
+        headers: { "cache-control": `s-maxage=1 , stale-while-revalidate=${ONE_HOUR_IN_SECONDS}`, }
+      };
+    } else return {}
   },
   router: appRouter,
   /**
@@ -44,7 +44,7 @@ export default trpcNext.createNextApiHandler({
    * @link https://trpc.io/docs/error-handling
    */
 
-  onError({ error }) {
+  onError({ error, }) {
     if (error.code === "INTERNAL_SERVER_ERROR") {
       // send to bug reporting
       // console.error("Something went wrong", error);

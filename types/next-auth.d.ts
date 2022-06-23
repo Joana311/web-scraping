@@ -1,11 +1,8 @@
 import NextAuth from "next-auth"
-
+import { User as PrismaUser } from "@prisma/client"
 declare module "next-auth" {
 
     export interface Session {
-        user: {
-            /** The user's name. */
-            id: string
-        }
+        user: Omit<PrismaUser, "email" | "emailVerified" | "created_at">
     }
 }

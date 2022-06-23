@@ -1,4 +1,4 @@
-import { useAppUser } from "@client/context/app_user.test";
+import { useAppUser } from "@client/providers/app_user.test";
 import trpc from "@client/trpc";
 import {
   Box,
@@ -13,42 +13,47 @@ import {
 } from "@mui/material";
 import { Exercise, UserExercise } from "@prisma/client";
 import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 interface RecentWorkoutsProps { }
 const RecentWorkouts = () => {
-  // const { get_id, get_username } = useAppUser();
-
-  const [todaysSessions, setTodaysSessions] = React.useState<
-    {
-      start: string;
-      end: string | null;
-      exercises: number;
-      sets: number;
-      estimated_cals: string | number;
-    }[]
+  const isWorkoutOpen = React.useRef(false);
+  const [todaysSessions, setTodaysSessions] = React.useState<{
+    start: string;
+    end: string | null;
+    closed: boolean;
+    exercises: number;
+    sets: number;
+    estimated_cals: string | number;
+  }[]
   >([]);
   const [showMore, toggleShowMore] = React.useState(false);
   const [openWorkoutId, setOpenWorkoutId] = React.useState<
     String | undefined
   >();
+  const session = useSession()
   const router = useRouter();
   const { data: open_workout } = trpc.useQuery(
     ["workout.get_current"],
     {
-      enabled: typeof window !== "undefined",
+      // enabled: typeof window !== "undefined",
       refetchOnMount: false,
       onSuccess(open_workout) {
-        if (open_workout) {
+        if (!!open_workout) {
+          isWorkoutOpen.current = true;
           setOpenWorkoutId(open_workout.id);
         }
       },
+      ssr: false,
     }
   );
-  const { data: recent_workouts, isError } = trpc.useQuery(["workout.get_recent", { amount: 5 }], {
-    enabled: typeof window !== "undefined",
-    refetchOnMount: false,
+  const { data: recent_workouts, isError } = trpc.useQuery(["workout.get_recent", { amount: 3 }], {
+    // enabled: typeof window == "undefined",
+    ssr: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
     onSuccess(recent_workouts) {
       if (recent_workouts.length > 0) {
         const todays_workouts = recent_workouts.filter((w) =>
@@ -56,15 +61,15 @@ const RecentWorkouts = () => {
         );
         setTodaysSessions(todays_workouts.map(workoutToSession));
         recent_workouts.length > 2 && toggleShowMore(true);
-      }
+      } else { isWorkoutOpen.current = false }
     },
-  }
-  );
+  });
   type UserWorkoutWithExercises = NonNullable<typeof open_workout>
   const workoutToSession = React.useCallback(
     (workout: UserWorkoutWithExercises) => ({
       start: dayjs(workout.created_at).format("h:mmA"),
       end: workout.ended_at ? dayjs(workout.ended_at)?.format("h:mmA") : null,
+      closed: workout.closed,
       exercises: workout.exercises.length,
       sets: workout.exercises
         .map((exercise) => {
@@ -77,7 +82,13 @@ const RecentWorkouts = () => {
   );
 
   const leftSize = 7.5;
-
+  const onClickNewOrCreate = () => {
+    if (isWorkoutOpen.current) {
+      router.push(router.asPath + `/workout/current`, router.asPath + `/workout/${openWorkoutId}`);
+    } else {
+      router.push(router.asPath + "/workout/new");
+    }
+  }
   const RecentWorkoutCard = (
     workout: {
       start: any;
@@ -247,9 +258,7 @@ const RecentWorkouts = () => {
           )}
 
           <ButtonBase
-            onClick={() => {
-              router.push(`${router.query?.user as string}/workout/${openWorkoutId ? openWorkoutId : "new"}`);
-            }}
+            onClick={onClickNewOrCreate}
             sx={{
               borderRadius: 2,
               backgroundColor: "secondary.main",
@@ -265,7 +274,7 @@ const RecentWorkouts = () => {
             }}
           >
             <Typography fontWeight={"semi-bold"} fontSize=".9rem">
-              {openWorkoutId ? "Continue Workout" : "New Workout"}
+              {isWorkoutOpen.current ? "Continue Workout" : "New Workout"}
             </Typography>
           </ButtonBase>
         </Stack>

@@ -1,28 +1,20 @@
-//ts-ignore
 import { Stack, Box, Grid, Typography, Input } from "@mui/material";
-import React, { useEffect } from "react";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import dayjs from "dayjs";
-import ExerciseSummary from "../../../components/ExerciseSummary/ExerciseSummary";
-import Link from "next/link";
+import React from "react";
 import { Set as Prisma_Set, Exercise, PrismaClient } from "@prisma/client";
-import {
-  GetStaticProps,
-  GetServerSideProps,
-  NextPageContext,
-  NextPage,
-} from "next";
-import { useAppUser } from "../../../client/context/app_user.test";
+import { NextPage } from "next";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
+import ExerciseSummary from "src/components/ExerciseSummary/ExerciseSummary";
+import { useSession } from "next-auth/react";
 
 type Set = Omit<Prisma_Set, "id" | "updatedAt">;
 
 const Workout: NextPage = () => {
   const router = useRouter();
-  let {
-    query: { workout_id },
-  } = router;
+  let { query: { workout_id } } = router;
+  const session = useSession();
+
+  const mutationRef = React.useRef(false);
   const createWorkout = trpc.useMutation("workout.create_new", {
     ssr: false,
     onSuccess(new_workout) {
@@ -34,108 +26,42 @@ const Workout: NextPage = () => {
       });
     },
     onError(error, variables, context) {
-      console.error(error);
-      // router.push("/${user}#bad");
+      // console.log(context)
+      // console.error(error);
+      if (error.message.includes("already exists")) {
+        router.push(`/${session?.data?.user.name}`);
+      }
     },
   });
-  // createworkout client side
-  React.useLayoutEffect(() => {
+  // createWorkout client side
+  React.useEffect(() => {
+    if (mutationRef.current) { return }
+
     console.log("rendering")
     if (workout_id === 'new' && typeof window !== "undefined") {
       createWorkout.mutate();
+      mutationRef.current = true;
     }
   }), [workout_id as string];
 
-  const { data: workout } = trpc.useQuery(
-    ["workout.get_by_id", { workout_id: workout_id as string }],
-    {
-
-      enabled: workout_id !== "new",
-    }
-
-  );
-  // React.useEffect(() => { }), [workout?.exercises];
-
-  const [todaysDate, setTodaysDate] = React.useState(
-    dayjs().format("dddd, MMM D")
-  );
-
-
+  const { data: workout } = trpc.useQuery(["workout.get_by_id",
+    { workout_id: workout_id as string }],
+    { enabled: workout_id !== "new" });
 
   return (
     <>
       <Box
+        className=""
         sx={{
           backgroundColor: "#000",
           height: "100vh",
           maxHeight: "100vh",
-          pl: "1em",
-          pr: "1em",
           display: "flex",
           flexDirection: "column",
           overflowY: "hidden",
+          border: "1px solid orange",
         }}
       >
-        <Box
-          className="nav-bar"
-          sx={{
-            marginTop: "1em",
-            height: "5vh",
-            backgroundColor: "#000",
-          }}
-        >
-          <Grid
-            container
-            sx={{
-              // border: "0.5px blue solid",
-              justifyContent: "space-between",
-            }}
-          >
-            <Grid
-              item
-              sx={{
-                width: "max-content",
-                // border: ".5px solid pink"
-              }}
-            >
-              <span>
-                <Typography
-                  className="date"
-                  color="text.secondary"
-                  fontSize={".85rem"}
-                  sx={{ pl: "0.2rem" }}
-                >
-                  {todaysDate}
-                </Typography>
-              </span>
-
-              <Typography
-                variant={"h4"}
-                sx={{
-                  mt: "-.55rem",
-                  fontWeight: "light",
-                  minHeight: "max-content",
-                }}
-              >
-                Workout Report
-              </Typography>
-            </Grid>
-            <Grid
-              item
-              container
-              sx={{
-                width: "max-content",
-                // border: ".5px solid pink",
-                alignItems: "center",
-                mr: ".6em",
-              }}
-            >
-              <Link as="/guest" href="/[user]">
-                <AccountCircleIcon fontSize="large"></AccountCircleIcon>
-              </Link>
-            </Grid>
-          </Grid>
-        </Box>
         <Box
           sx={{
             // border: "1px dashed orange",
@@ -152,86 +78,11 @@ const Workout: NextPage = () => {
               workout_id={workout.id! as string}
             />
           ) : (
-            <>loading...</>
+            <>There was an error</>
           )}
         </Box>
       </Box>
     </>
   );
 };
-
 export default Workout;
-// export const getServerSideProps = async (context: NextPageContext) => {
-//   const exrx_data = prisma?.exercise.findMany();
-//   let workout: UserWorkoutWithExercises | undefined = undefined;
-//   console.group(
-//     "Workout Page getServerSideProps, id: ",
-//     context?.query?.workout_id
-//   );
-//   const current_workout = context.query.workout_id?.toString();
-//   const user_name = context.query.user?.toString();
-
-//   console.log("workout id: ", current_workout);
-//   console.log("query params: ", context.query);
-//   // remove this eventually
-//   const user_id = (
-//     await prisma?.user.findFirst({
-//       where: {
-//         name: context.query.user?.toString(),
-//       },
-//       select: {
-//         id: true,
-//       },
-//     })
-//   )?.id;
-//   // move this log into trpc
-//   if (current_workout) {
-//     switch (true) {
-//       case /new/.test(current_workout): {
-//         try {
-//           console.log("creating workout");
-//           workout = await createWorkout(user_id);
-//         } catch (error: any) {
-//           console.log(error.message);
-//           workout = error.workout ?? null;
-//         }
-//         break;
-//       }
-//       case /c(\S){24}/.test(current_workout): {
-//         console.log(`finding workout -> ${current_workout}`);
-//         workout = (await getWorkoutById(current_workout)) || undefined;
-//         break;
-//       }
-//       default: {
-//         workout = undefined;
-//       }
-//     }
-//   }
-
-//   if (!workout) {
-//     console.log("no workout found, error adding new workout");
-//     console.groupEnd();
-//     return {
-//       redirect: {
-//         permanent: false,
-//         destination: `/${user_name}#bad-request`,
-//       },
-//     };
-//   } else {
-//     console.log("workout found");
-//     console.log(workout);
-
-//     let exercise_directory = await exrx_data;
-//     console.log(
-//       "exercise_directory (first 5): ",
-//       exercise_directory?.slice(0, 5)
-//     );
-//     console.groupEnd();
-//     return {
-//       props: {
-//         exercise_directory,
-//         current_workout: workout,
-//       },
-//     };
-//   }
-// };

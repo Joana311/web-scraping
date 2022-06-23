@@ -26,15 +26,19 @@ const is_workout_empty = (workout: any) => {
 export const open_workout_if_exists = async (owner_id: string) => {
   const todays_date = dayjs();
   let open_workout = await prisma.userWorkout.findFirst({
+    orderBy: { created_at: "desc" },
     where: {
       AND: [{ owner_id }, { closed: false }],
     },
     include: defaultWorkoutSelect,
   });
-
   if (!open_workout) return null;
 
   let is_same_day = todays_date.isSame(dayjs(open_workout?.created_at), "day");
+  // console.log("open_workout created at", open_workout?.created_at);
+  // console.log("todays date: ", todays_date.toISOString());
+  // console.log("is_same_day", is_same_day);
+  // console.log(todays_date.format("MMDDZ"), dayjs(open_workout?.created_at).format("MMDDZ"));
   if (!is_same_day) return null;
   return open_workout;
 
@@ -81,6 +85,7 @@ export const workoutRouter = createRouter()
     async resolve({ input: { amount }, ctx }) {
       const owner_id = ctx?.user.id;
       return await prisma.userWorkout.findMany({
+        orderBy: { created_at: "desc" },
         where: { owner_id },
         include: { exercises: { include: { exercise: true, sets: true } } },
         take: amount || 1,
@@ -95,9 +100,9 @@ export const workoutRouter = createRouter()
   }).mutation("create_new", {
     async resolve({ ctx }) {
       const owner_id = ctx?.user.id;
-
+      // console.log("owner_id", owner_id);
       let open_workout = await open_workout_if_exists(owner_id);
-
+      // console.log("open_workout", open_workout);
       if (open_workout) {
         throw new TRPCError({
           message: "open workout already exists",

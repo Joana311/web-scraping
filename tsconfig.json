@@ -33,7 +33,9 @@
     "./next-env.d.ts",
     "./src",
     "./prisma",
-    "./types/**/*.ts"
+    "./types/**/*.ts",
+    "tailwind.config.js",
+    "postcss.config.js"
   ],
   "exclude": [
     "./node_modules",

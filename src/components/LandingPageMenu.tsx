@@ -7,7 +7,7 @@ import {
   useAppUser,
   useGetByUserName,
   useLogin,
-} from "@client/context/app_user.test";
+} from "@client/providers/app_user.test";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
 

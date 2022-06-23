@@ -1,6 +1,5 @@
-import * as React from "react";
+import React from "react";
 import Head from "next/head";
-import { AppProps } from "next/app";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { CacheProvider, EmotionCache } from "@emotion/react";
@@ -13,16 +12,17 @@ import { NextPage } from "next";
 import { AppType } from "next/dist/shared/lib/utils";
 import { ReactElement, ReactNode } from "react";
 import superjson from "superjson";
-// import { DefaultLayout } from '~/components/defaultLayout';
+import { MainLayout } from '../layouts/mainLayout';
 import { AppRouter } from "@server/routers/_app";
 import trpc, { SSRContext } from "src/client/trpc";
-import AppUserProvider from "@client/context/app_user.test";
+import AppUserProvider from "@client/providers/app_user.test";
 import { ReactQueryDevtools } from "react-query/devtools";
-import { getSession, SessionProvider } from "next-auth/react"
+import { SessionProvider } from "next-auth/react"
 import { splitLink } from "@trpc/client/links/splitLink";
 import { httpLink } from "@trpc/client/links/httpLink";
-import { getCookieParser, } from "next/dist/server/api-utils";
-import { defaultCookies, } from "next-auth/core/lib/cookie";
+import "../../styles/globals.css";
+import { useRouter } from "next/router";
+import { TRPCClientError } from "@trpc/client";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -31,39 +31,70 @@ const clientSideEmotionCache = createEmotionCache();
 //   emotionCache?: EmotionCache;
 //   pageProps: any;
 // }
+
 const App: AppType = ({ pageProps, Component }): JSX.Element => {
   let emotionCache = clientSideEmotionCache
-  const { data: session } = trpc.useQuery(["next-auth.get_session"], {
-    context: {
-      skipBatch:
-        true
-    },
+  const { data: session, error, isError, isLoading } = trpc.useQuery(["next-auth.get_session"], {
+    context: { skipBatch: true },
+    refetchOnWindowFocus: true,
+    refetchOnMount: false,
+    staleTime: Infinity,
     refetchInterval: 0,
-    retry: false,
-    enabled: typeof window === "undefined",
-
+    retryOnMount: false,
   });
-  // console.log("fetched session: ", session?.user);
-
-
+  // trpc.useQuery(["exercise.public.directory"], {
+  //   context: { skipBatch: true },
+  //   refetchOnWindowFocus: false,
+  //   refetchOnMount: false,
+  //   refetchOnReconnect: false,
+  //   retry: false,
+  // });
+  const utils = trpc.useContext()
+  React.useMemo(() => {
+    if (utils && typeof window !== "undefined") {
+      console.log("setting react-query defaults")
+      utils.queryClient.setDefaultOptions({
+        queries: {
+          retry(failureCount, error: any) {
+            if ((error.data?.code === "UNAUTHORIZED"
+              && error.message.includes("NO_SESSION")) || failureCount > 1) {
+              utils.queryClient.invalidateQueries(["next-auth.get_session"], { refetchInactive: true })
+              return false
+            }
+            return true
+          },
+        }
+      })
+    }
+  }, [])
+  const router = useRouter();
+  React.useEffect(() => {
+    if (error?.data?.code === "UNAUTHORIZED" && isError && router.pathname !== "/") {
+      router.reload()
+    }
+  }, [error, isError, router])
   return (
-    <SessionProvider refetchOnWindowFocus={false} session={session}>
+    <SessionProvider refetchOnWindowFocus={false} session={session} >
       <CacheProvider value={emotionCache}>
         <Head>
           <title>My page</title>
           <meta name="viewport" content="initial-scale=1, width=device-width" />
         </Head>
         <ThemeProvider theme={theme}>
+          {/* <AuthProvider /> */}
           <AppUserProvider>
-            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-            <CssBaseline />
-            {/* es-lint-disable-next-line */}
-            <Component {...pageProps} />
+            <MainLayout session={session!}>
+              {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+              <CssBaseline />
+              {/* es-lint-disable-next-line */}
+              <Component {...pageProps} />
+
+            </MainLayout>
           </AppUserProvider>
         </ThemeProvider>
         <ReactQueryDevtools />
       </CacheProvider>
-    </SessionProvider>
+    </SessionProvider >
   );
 }
 // App.getInitialProps = async ({ ctx }) => {
@@ -91,7 +122,6 @@ function getBaseUrl() {
   // assume localhost
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
-
 export default withTRPC<AppRouter>({
   config({ ctx }) {
     /**
@@ -127,7 +157,11 @@ export default withTRPC<AppRouter>({
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient
        */
-      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
+
+      queryClientConfig: {
+
+
+      },
       headers: () => {
         //on ssr forward cookies to the server to check for auth sessions
         const client_headers = ctx?.req?.headers
@@ -176,6 +210,7 @@ export default withTRPC<AppRouter>({
       };
     }
     // For app caching with SSR see https://trpc.io/docs/caching
+    // if (opts.)
     return {};
   },
 })(App);
