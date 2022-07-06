@@ -46,15 +46,8 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isActive, ke
   const handler = () => {
     setExpanded((prev) => !prev);
   };
-  const { get_id, get_username, set_id, set_username } = useAppUser();
-  const { data: current_user } = trpc.useQuery(
-    ["user.get_by_name", { name: get_username! }],
-    { enabled: !!get_username }
-  );
   const router = useRouter();
-  if (!get_username) {
-    set_username(router.query.user?.toString());
-  }
+
   const query_context = trpc.useContext();
   const useAddSet = trpc.useMutation("exercise.add_set", {
     onSuccess: (current_workout, _) => {
@@ -64,6 +57,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isActive, ke
       );
     },
   });
+
   const borders = false;
   const expandIcon: SxProps = {
     display: "flex",

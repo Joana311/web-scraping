@@ -9,15 +9,9 @@
     "**/.classpath": true,
     "**/.project": true,
     "**/.settings": true,
-    "**/.factorypath": true,
-    "node_modules": true
+    "**/.factorypath": true
   },
-  "hide-files.files": [
-    "node_modules",
-    "__dep__graphql",
-    "src/server/routers/user_set.ts",
-    "src/pages/[user]/workout/old.[workout_id].tsx"
-  ],
+  "hide-files.files": [],
   "cSpell.words": [
     "bgcolor",
     "bodypart",

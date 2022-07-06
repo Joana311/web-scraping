@@ -28,7 +28,7 @@ const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
   const [showExerciseModal, setShowExerciseModal] = React.useState(false);
   const { data: exrx_data } = trpc.useQuery(["exercise.public.directory"],
     { ssr: false, suspense: true, refetchOnMount: false, refetchOnWindowFocus: false });
-
+  
   const exercise_summaries =
     workout?.exercises.map((exercise) => {
       return {

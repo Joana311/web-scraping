@@ -13,15 +13,22 @@ export const exerciseRouter = createRouter()
   })
   .mutation("add_set", {
     input: z.object({
-      workout_id: z.string().cuid(),
       user_exercise_id: z.string().cuid(),
+      workout_id: z.string().cuid(),
       set: z.object({
         reps: z.number().lt(700).gt(0),
         weight: z.number().gt(0).optional(),
         rpe: z.number().lt(15).gt(0).optional(),
       }),
     }),
-    async resolve({ input: { workout_id, user_exercise_id, set } }) {
+    async resolve({ input: { user_exercise_id, set, workout_id }, ctx }) {
+      const current_workout = await open_workout_if_exists(ctx.session?.user.id!);
+      if (current_workout?.id !== workout_id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Workout is not open or does not exist",
+        });
+      }
       let workout = await prisma.userWorkout.update({
         where: { id: workout_id },
         data: {
@@ -44,10 +51,10 @@ export const exerciseRouter = createRouter()
   .mutation("add_to_current_workout", {
     input: z.object({
       exercise_id: z.string().uuid().array(),
-      owner_id: z.string().uuid(),
     }),
-    async resolve({ input: { exercise_id, owner_id } }) {
-      let open_workout = await open_workout_if_exists(owner_id);
+    async resolve({ input: { exercise_id }, ctx }) {
+      const owner_id = ctx?.session?.user.id;
+      let open_workout = await open_workout_if_exists(owner_id!);
       if (!open_workout) {
         throw new TRPCError({
           code: "NOT_FOUND",

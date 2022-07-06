@@ -1,9 +1,7 @@
-import Box from "@mui/material/Box";
-import { } from "@mui/base";
+
 import dayjs from "dayjs";
 import { type Session } from "next-auth";
 import React from "react";
-import Next from "next";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -20,40 +18,55 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
         [dayjs().toDate()]
     );
     const router = useRouter();
+    const appLocation = React.useMemo(() => {
+        switch (router.pathname) {
+            case "/":
+                return "Welcome!";
+            case "/[user]":
+                return "Daily Summary";
+            case "/[user]/workout/[workout_id]":
+                return "Workout Report";
+        }
+        return router.pathname
+    }, [router.pathname]);
     const onHomeClick = () => {
-        router.push(`/${session?.user.name}`);// should be /[user]
+        router.push(`/${session?.user.name || ""}`);
     }
 
 
     return (
         <div
-            className="flex 
+            id="app-container"
+            className="m-0
+            flex
+            h-[100vh]
+            max-h-[100vh]
             flex-col
-            m-0
-            h-[100vh] max-h-[100vh]
-            border-[2rem] border-t-0 border-blue-700 border-solid">
+            border-2 border-t-0
+            border-solid border-blue-700 bg-black px-[1rem]">
             <header id="nav-header"
                 className={
                     `m-0
-                text-black
+                flex
                 max-h-max
-                flex flex-row justify-between
-                border-2 border-black border-solid`
+                flex-row
+                justify-between bg-black
+                pt-2 text-white`
                 }>
-                <div id="date-location" className="border-[2px] border-pink-600 border-solid">
+                <div id="date-location" className="">
                     <span id="current date" className="text-[.9rem]">
                         {todaysDate}
                     </span>
                     <h1 id="app-location"
                         className="mt-[-.5rem] text-[2rem]">
-                        Application Location
+                        {appLocation}
                     </h1>
                 </div>
                 <div id="icon-container"
                     onClick={onHomeClick}
-                    className="flex justify-center items-center mr-4 max-w-[64px] border border-green-700">
+                    className="my-1 mr-4 flex max-w-[64px] items-center justify-center">
                     {!session?.user.image ? <AccountCircleIcon fontSize="large"></AccountCircleIcon>
-                        : <Image src={session.user.image} width="100%" height="100%" className="rounded-full" />}
+                        : <Image src={session.user.image} width="90%" height="90%" className="rounded-full" />}
                 </div>
             </header>
             {children}

@@ -32,27 +32,38 @@ I decided to go with trpc instead of graphql and apollo because it does both job
 
 ## Big Bugs
 
-    [ ] creating new workout sends 2 requests to the server.
+    [ ] new workout is super slow to route to
+
+## Minor Bugs
+
+    [ ] workout report exercises cards are not displaying correctly. Minor visual bug.
 
 ## Todo
 
-    [ ] use a `<Layout>` component to hold Title/Nav Header of the app/site
+    [ ] find a better way to organize react components for better prop drilling (in particular AddNewExerciseModal)
 
-
-    [ ] establish subscriptions to db for modifying UserExercises fields (sets, reps, weight).
+    [ ] finish the moving off of Mui to Tailwind
+    
+    [ ] create a route specifically for current workout.
 
     [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
 
     [ ] ability to delete/edit previous workouts
 
-    
-    [ ] rework api so that only id's are served and then further info is fetched from the db when it is needed.
+    [ ] ability to delete an exercise from current workout 
 
-    [-] ability to modify data.
+    [ ] allow for only 1 Exercise card to be expanded at a time.
+
+    [ ] rework api so that only id's are served and then further info is fetched from the db when it is needed (aka optimize api calls to reduce response times from server).
+
+    [ ] optimize api functions to not make so many prisma calls. 
+
 
     [/] implement searching & filtering for AddExercises.
         
         * my current solution is slow af rn *  
+
+        [ ] filter on server side. 
 
         [ ] remove the ability to add exercises that are already in the workout.
 
@@ -60,11 +71,22 @@ I decided to go with trpc instead of graphql and apollo because it does both job
 
 ## In Progress
 
-    [-] use optimistic updates to update the set data
-
-    [ ] setup middleware for pulling user data from the db to use id as a context for requests.
+    [-] setup middleware for pulling user data from the db to use id as a context for requests.
+        * currently doing it inside trpc's createContext instead of using the middleware option *
 
 ## Done Recently
+
+    [x] ability to modify current UserExercises fields (sets, reps, weight).
+    
+        [x] use optimistic updates to update the set data whenever a set or new exercise is added
+
+    [x] display the correct app-location in the header  
+
+    [x] trying to add exercises crashes app
+
+    [x] use a `<Layout>` component to hold Title/Nav Header of the app/site
+
+    [x] creating new workout sends 2 requests to the server.
 
     [x] implement user Authentication/login w/ discord.
 

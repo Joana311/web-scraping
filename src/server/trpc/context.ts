@@ -27,15 +27,14 @@ import { Prisma, User } from "@prisma/client";
 // type session = NonNullable<b["data"]>;
 interface CreateContextOptions extends CreateNextContextOptions {
   session: Session | null
-  cookies: string | null
 }
 
-// let session = _opts.session;
 /**
  * Inner function for `createContext` where we create the context.
  * This is useful for testing when we don't want to mock Next.js' request/response
  */
 export async function createContextInner(_opts: CreateContextOptions) {
+  let session = _opts.session;
 
   if (typeof _opts.req.query.trpc === "string" && _opts.req.query.trpc.includes(".public")) {
     return {
@@ -43,22 +42,18 @@ export async function createContextInner(_opts: CreateContextOptions) {
     }
   }
 
-  const session = (await getServerSession(_opts, nextAuthOptions));
+  // const session = (await getServerSession(_opts, nextAuthOptions));
   if (!session) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "NO_SESSION. No auth session found for incoming request.",
     });
-  } else {
-    // console.log("Session from getServerSession: ", session)
   }
-
   // next-auth didn't have a way to make user_id 
   // inferrable from the actual `session` return type. 
-  const user = session.user as any as User;
+  // const user = session.user as any as User;
   return {
     ..._opts,
-    user,
     session,
   };
 }
@@ -75,8 +70,8 @@ export async function createContext(
   // for API-response caching see https://trpc.io/docs/caching
   console.log(opts.req.query.trpc)
   const session = (await getServerSession(opts, nextAuthOptions));
-  const cookies = opts.req.headers.cookie ? opts.req.headers.cookie : null;
-  const ctx = await createContextInner({ session, cookies, req: opts.req, res: opts.res });
+  // const cookies = opts.req.headers.cookie ? opts.req.headers.cookie : null;
+  const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
   return ctx
 }
 

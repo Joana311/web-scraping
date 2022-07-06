@@ -65,7 +65,7 @@ const AddNewExerciseModal = ({
   router,
 }: AddExerciseProps & WithRouterProps) => {
   const toggleShowExercise = toggle;
-  const { get_id } = useAppUser();
+  const workout_id = router.query.workout_id! as string;
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(
     new Map<string, boolean>()
@@ -117,10 +117,10 @@ const AddNewExerciseModal = ({
 
   const useAddExercise = trpc.useMutation("exercise.add_to_current_workout", {
     onSuccess(updated_workout) {
-      query_context.invalidateQueries("workout.current_by_owner_id");
-      if (get_id) {
+      query_context.invalidateQueries("workout.get_by_id");
+      if (workout_id) {
         query_context.setQueryData(
-          ["workout.current_by_owner_id", { owner_id: get_id! }],
+          ["workout.get_by_id", { workout_id }],
           updated_workout
         );
       }
@@ -138,8 +138,11 @@ const AddNewExerciseModal = ({
       });
 
       const _ = useAddExercise.mutateAsync({
-        owner_id: get_id!,
         exercise_id: selected_ids,
+      }, {
+        onSuccess(data, variables, context) {
+
+        },
       });
       console.groupEnd();
       // router.

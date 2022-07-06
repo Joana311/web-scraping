@@ -83,7 +83,7 @@ export const workoutRouter = createRouter()
       amount: z.number().optional(),
     }),
     async resolve({ input: { amount }, ctx }) {
-      const owner_id = ctx?.user.id;
+      const owner_id = ctx?.session?.user.id;
       return await prisma.userWorkout.findMany({
         orderBy: { created_at: "desc" },
         where: { owner_id },
@@ -93,15 +93,15 @@ export const workoutRouter = createRouter()
     },
   }).query("get_current", {
     async resolve({ ctx }) {
-      const owner_id = ctx?.user.id;
-      return await open_workout_if_exists(owner_id);
+      const owner_id = ctx?.session?.user.id;
+      return await open_workout_if_exists(owner_id!);
     }
 
   }).mutation("create_new", {
     async resolve({ ctx }) {
-      const owner_id = ctx?.user.id;
+      const owner_id = ctx?.session?.user.id;
       // console.log("owner_id", owner_id);
-      let open_workout = await open_workout_if_exists(owner_id);
+      let open_workout = await open_workout_if_exists(owner_id!);
       // console.log("open_workout", open_workout);
       if (open_workout) {
         throw new TRPCError({
