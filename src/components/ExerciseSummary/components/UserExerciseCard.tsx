@@ -42,7 +42,7 @@ export interface SummaryCardProps {
   workout_id: string;
   setCurrentFocus: React.Dispatch<React.SetStateAction<number>>;
 }
-export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
+export const CurrentExerciseForm: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
   const [expanded, setExpanded] = React.useState(false);
   const onExpand = () => {
     if (expanded) {

@@ -4,11 +4,13 @@ import { Set as Prisma_Set, Exercise, PrismaClient } from "@prisma/client";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
-import ExerciseSummary from "src/components/ExerciseSummary/ExerciseSummary";
+import CurrentWorkoutExercises from "src/components/ExerciseSummary/ExerciseSummary";
 import { useSession } from "next-auth/react";
+import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
 
 const Workout = () => {
   const router = useRouter();
+  const query_context = trpc.useContext()
   let { query: { workout_id } } = router;
   const mutationRef = React.useRef(false);
   const createWorkout = trpc.useMutation("workout.create_new", {
@@ -23,7 +25,10 @@ const Workout = () => {
     },
     onError(error, variables, context) {
       if (error.message.includes("already exists")) {
+        query_context.invalidateQueries("workout.get_current");
+        query_context.invalidateQueries("workout.get_recent");
         router.push(`/${router.query.user}`);
+
       }
     },
   });
@@ -38,25 +43,48 @@ const Workout = () => {
     }
   }), [workout_id as string];
 
-  const { data: workout } = trpc.useQuery(["workout.get_by_id",
+  const { data: workout, isFetching } = trpc.useQuery(["workout.get_by_id",
     { workout_id: workout_id as string }],
-    { enabled: workout_id !== "new" });
+    {
+      onError() {
+        query_context.invalidateQueries("workout.get_current");
+        query_context.invalidateQueries("workout.get_recent");
+        router.push(`/${router.query.user}`);
+      },
+      enabled: workout_id !== "new",
 
+    });
+
+  const { data: exrx_data } = trpc.useQuery(["exercise.public.directory"],
+    { ssr: false, suspense: true, refetchOnMount: false, refetchOnWindowFocus: false });
+  const [showModal, setShowModal] = React.useState(false);
+  const onNewExercise = React.useCallback(() => {
+    setShowModal(true);
+  }, [])
+  if (showModal) {
+    return (
+      <AddNewExerciseModal
+        exercises={exrx_data}
+        workout_id={workout_id as string}
+        toggle={() => {
+          setShowModal(false);
+        }}
+      />
+    );
+  }
   return (
     <>
       <section
         id="workout-exercises"
         className="mb-[2rem] mt-[2em]"
       >
-        {!!workout? (
-          <ExerciseSummary
-            workout_id={workout.id! as string}
+        {!!workout &&
+          <CurrentWorkoutExercises
+            onNewExerciseClick={onNewExercise}
+            workout_id={workout?.id! as string}
           />
-        ) : (
-          <>There was an error</>
-        )}
+        }
       </section>
-      <span>bottom</span>
 
     </>
   );

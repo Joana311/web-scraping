@@ -16,7 +16,7 @@ export function LandingPage() {
   // }
 
   return (
-    <div className='h-fill self my-auto flex flex-col items-center'>
+    <div className='my-auto flex flex-col items-center'>
       <h1 className="text-4xl">Hello {session?.user.name || "Stranger"}!</h1>
       <LandingPageMenu session={session} />
     </div>

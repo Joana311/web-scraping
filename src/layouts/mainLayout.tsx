@@ -34,7 +34,8 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
         return router.pathname
     }, [router.pathname]);
     const onHomeClick = () => {
-        router.push(`/${session?.user.name || ""}`);
+        // router.push(`/${session?.user.name || ""}`);
+        router.push('/');
     }
 
 

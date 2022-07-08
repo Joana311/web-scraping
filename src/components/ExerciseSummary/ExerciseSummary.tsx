@@ -10,26 +10,24 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { SummaryCard, SummaryCardProps } from "./components/UserExerciseCard";
+import { CurrentExerciseForm, SummaryCardProps } from "./components/UserExerciseCard";
 import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
 import superjson from "superjson";
 import trpc from "@client/trpc";
 interface ExerciseSummaryProps {
-
+  onNewExerciseClick: () => void;
   workout_id: string;
 }
-const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
-  workout_id
+const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
+  workout_id,
+  onNewExerciseClick,
 }: ExerciseSummaryProps) => {
   const { data: workout } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }], { enabled: !!workout_id }
   );
-  const [showMore, toggleShowMore] = React.useState(false);
-  const [showExerciseModal, setShowExerciseModal] = React.useState(false);
-  const { data: exrx_data } = trpc.useQuery(["exercise.public.directory"],
-    { ssr: false, suspense: true, refetchOnMount: false, refetchOnWindowFocus: false });
+  const [showMore, toggleShowMore] = React.useState(false)
   const [currentFocus, setCurrentFocus] = React.useState(-1)
-  const exercise_summaries =
+  const formatted_exercises =
     workout?.exercises.map((exercise) => {
       return {
         user_exercise_id: exercise.id,
@@ -45,128 +43,77 @@ const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
         }),
       };
     }) || [];
-  console.log(currentFocus)
+  // console.log(currentFocus)
   useEffect(() => {
-    exercise_summaries.length > 2
+    formatted_exercises.length > 2
       ? toggleShowMore(true)
       : toggleShowMore(false);
-  }, [exercise_summaries.length]);
+  }, [formatted_exercises.length]);
 
   const borders = false;
 
-  const addExercise = () => {
-    setShowExerciseModal(true);
-  };
-  if (showExerciseModal) {
-    return (
-      <AddNewExerciseModal
-        exercises={exrx_data}
-        workout_id={workout_id}
-        toggle={() => {
-          setShowExerciseModal(false);
-        }}
-      />
-    );
-  }
-
   return (
     <>
-      <Stack sx={{ width: "100%", height: "100%" }}>
-        <Box
-          className="exercises-title-bar"
-          sx={{
-            display: "flex",
-            // border: "1px dashed white",
-            justifyContent: "space-between",
-            width: "100%",
-            height: "max-content",
-          }}
+      <div id="title-bar" className="mb-1 flex flex-row justify-between" >
+        <h1 className='font-light'>Exercises</h1>
+        {showMore &&
+          <Link href="">
+            <span
+              className="pr-[.8em] text-[.9rem] font-semibold text-blue underline">
+              view all
+            </span>
+          </Link>
+        }
+      </div>
+      <ButtonBase
+        onClick={onNewExerciseClick}
+        sx={{
+          borderRadius: 2,
+          backgroundColor: "secondary.main",
+          display: "flex",
+          border: "1px solid white",
+          width: "100%",
+          px: ".5rem",
+          py: ".2rem",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <span
+          className="text-[.9rem] font-bold"
         >
-          <Typography fontWeight={"light"}>Exercises</Typography>
-          {showMore ? (
-            <Link href="">
-              <Typography
-                fontWeight={"semi-bold"}
-                sx={{
-                  pr: ".8em",
-                  fontSize: ".9rem",
-                  textDecoration: "underline",
-                  color: colors.blue[600],
-                }}
-              >
-                view all
-              </Typography>
-            </Link>
-          ) : (
-            <></>
-          )}
-        </Box>
-        <Stack
-          spacing={"0.7rem"}
-          sx={{ border: "2px solid white", height: "84vh" }}
+          New Exercise
+        </span>
+      </ButtonBase>
+
+      <section id="exercise-forms"
+        className="space-y-2 overflow-y-scroll border-dashed py-4"
+      >
+        {formatted_exercises.map((exercise, index) => {
+          return (
+            <CurrentExerciseForm
+              index={index}
+              key={index}
+              workout_id={workout_id}
+              exercise={exercise}
+              isFocused={index === currentFocus}
+              setCurrentFocus={setCurrentFocus}
+            />
+          );
+        })}
+      </section>
+
+      {workout?.exercises.length === 0 && (
+        <div
+          className="text-[1rem] font-light text-text.secondary "
         >
-          <ButtonBase
-            onClick={addExercise}
-            sx={{
-              borderRadius: 2,
-              backgroundColor: "secondary.main",
-              display: "flex",
-              border: "1px solid white",
-              width: "100%",
-              px: ".5rem",
-              py: ".2rem",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              fontWeight={"bold"}
-              fontSize=".9rem"
-              sx={{ height: "max-content" }}
-            >
-              New Exercise
-            </Typography>
-          </ButtonBase>
-
-          <Stack
-            spacing=".5rem"
-            sx={{ py: "1rem", border: "1px dashed pink", overflow: "scroll" }}
-          >
-            {exercise_summaries.map((exercise, index) => {
-              return (
-                <SummaryCard
-                  index={index}
-                  key={index}
-                  workout_id={workout_id}
-                  exercise={exercise}
-                  isFocused={index === currentFocus}
-                  setCurrentFocus={setCurrentFocus}
-                />
-              );
-            })}
-          </Stack>
-
-          {workout?.exercises.length === 0 && (
-            <Typography
-              // component="body"
-              sx={{
-                fontSize: "1rem",
-                fontWeight: "light",
-                color: "text.secondary",
-                width: "100%",
-                display: "inline-block",
-                height: "max-content",
-              }}
-            >
-              <span>{"No Exercises"}</span>
-              <br />
-              <span>{'Click "New Exercise" to get started.'}</span>
-            </Typography>
-          )}
-        </Stack>
-      </Stack>
+          <span>{"No Exercises"}</span>
+          <br />
+          <span>{'Click "New Exercise" to get started.'}</span>
+        </div>
+      )}
     </>
   );
 };
 
-export default ExerciseSummary;
+export default CurrentWorkoutExercises;
