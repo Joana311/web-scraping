@@ -26,6 +26,10 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 return "Daily Summary";
             case "/[user]/workout/[workout_id]":
                 return "Workout Report";
+            case "/[user]/workout/history":
+                return "Workout History";
+            default:
+                return "Home";
         }
         return router.pathname
     }, [router.pathname]);
@@ -37,38 +41,47 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
     return (
         <div
             id="app-container"
-            className="m-0
-            flex
-            h-[100vh]
-            max-h-[100vh]
-            flex-col
-            border-2 border-t-0
-            border-solid border-blue-700 bg-black px-[1rem]">
+            className="m-0 flex
+                flex-col 
+                overflow-y-visible
+                border-[3px]
+                border-t-0 border-green-500 bg-primary px-[1rem]">
             <header id="nav-header"
-                className={
-                    `m-0
-                flex
-                max-h-max
-                flex-row
-                justify-between bg-black
-                pt-2 text-white`
-                }>
-                <div id="date-location" className="">
+                className="m-0
+                    flex
+                    h-[5rem]
+                    flex-row
+                    items-center justify-between
+                    pt-2 font-light
+                    text-white
+                    ">
+                <div id="date-and-app-location" className="">
                     <span id="current date" className="text-[.9rem]">
                         {todaysDate}
                     </span>
                     <h1 id="app-location"
-                        className="mt-[-.5rem] text-[2rem]">
+                        className="text-[2rem]">
                         {appLocation}
                     </h1>
                 </div>
-                <div id="icon-container"
+                <div id="avatar-container"
                     onClick={onHomeClick}
                     className="my-1 mr-4 flex max-w-[64px] items-center justify-center">
-                    {!session?.user.image ? <AccountCircleIcon fontSize="large"></AccountCircleIcon>
-                        : <Image src={session.user.image} width="90%" height="90%" className="rounded-full" />}
+                    {!session?.user.image ?
+                        <AccountCircleIcon
+                            fontSize="large" /> :
+                        <Image
+                            src={session.user.image}
+                            width="90%" height="90%"
+                            className="rounded-full" />
+                    }
                 </div>
             </header>
-            {children}
+            <div
+                id="page-container"
+                className="flex grow flex-col border-4 border-orange-500">
+                {children}
+            </div>
+
         </div >)
 }

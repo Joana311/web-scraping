@@ -28,7 +28,7 @@ const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
   const [showExerciseModal, setShowExerciseModal] = React.useState(false);
   const { data: exrx_data } = trpc.useQuery(["exercise.public.directory"],
     { ssr: false, suspense: true, refetchOnMount: false, refetchOnWindowFocus: false });
-  
+  const [currentFocus, setCurrentFocus] = React.useState(-1)
   const exercise_summaries =
     workout?.exercises.map((exercise) => {
       return {
@@ -45,7 +45,7 @@ const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
         }),
       };
     }) || [];
-
+  console.log(currentFocus)
   useEffect(() => {
     exercise_summaries.length > 2
       ? toggleShowMore(true)
@@ -134,7 +134,14 @@ const ExerciseSummary: React.FC<ExerciseSummaryProps> = ({
           >
             {exercise_summaries.map((exercise, index) => {
               return (
-                <SummaryCard workout_id={workout_id} exercise={exercise} isActive={true} key={index} />
+                <SummaryCard
+                  index={index}
+                  key={index}
+                  workout_id={workout_id}
+                  exercise={exercise}
+                  isFocused={index === currentFocus}
+                  setCurrentFocus={setCurrentFocus}
+                />
               );
             })}
           </Stack>

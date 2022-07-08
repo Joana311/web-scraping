@@ -7,13 +7,9 @@ import trpc from "@client/trpc";
 import ExerciseSummary from "src/components/ExerciseSummary/ExerciseSummary";
 import { useSession } from "next-auth/react";
 
-type Set = Omit<Prisma_Set, "id" | "updatedAt">;
-
-const Workout: NextPage = () => {
+const Workout = () => {
   const router = useRouter();
   let { query: { workout_id } } = router;
-  const session = useSession();
-
   const mutationRef = React.useRef(false);
   const createWorkout = trpc.useMutation("workout.create_new", {
     ssr: false,
@@ -26,19 +22,17 @@ const Workout: NextPage = () => {
       });
     },
     onError(error, variables, context) {
-      // console.log(context)
-      // console.error(error);
       if (error.message.includes("already exists")) {
-        router.push(`/${session?.data?.user.name}`);
+        router.push(`/${router.query.user}`);
       }
     },
   });
+
   // createWorkout client side
   React.useEffect(() => {
     if (mutationRef.current) { return }
-
-    console.log("rendering")
     if (workout_id === 'new' && typeof window !== "undefined") {
+      console.log("creating workout")
       createWorkout.mutate();
       mutationRef.current = true;
     }
@@ -50,38 +44,20 @@ const Workout: NextPage = () => {
 
   return (
     <>
-      <Box
-        className=""
-        sx={{
-          backgroundColor: "#000",
-          height: "100vh",
-          maxHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          overflowY: "hidden",
-          border: "1px solid orange",
-        }}
+      <section
+        id="workout-exercises"
+        className="mb-[2rem] mt-[2em]"
       >
-        <Box
-          sx={{
-            // border: "1px dashed orange",
-            mt: "2em",
-            mb: ".25em",
-            backgroundColor: "inherit",
-            height: "100%",
-            maxHeight: "100%",
-            width: "100%",
-          }}
-        >
-          {workout?.exercises != undefined ? (
-            <ExerciseSummary
-              workout_id={workout.id! as string}
-            />
-          ) : (
-            <>There was an error</>
-          )}
-        </Box>
-      </Box>
+        {!!workout? (
+          <ExerciseSummary
+            workout_id={workout.id! as string}
+          />
+        ) : (
+          <>There was an error</>
+        )}
+      </section>
+      <span>bottom</span>
+
     </>
   );
 };

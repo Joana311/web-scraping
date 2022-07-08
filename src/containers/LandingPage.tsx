@@ -1,7 +1,7 @@
 import Link from "next/link";
+import { signIn, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { Grid, Typography } from "@mui/material";
-import LandingPageMenu from "../components/LandingPageMenu";
+import { ButtonBase, Grid, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 export function LandingPage() {
@@ -10,41 +10,65 @@ export function LandingPage() {
   useEffect(() => {
   }, [userName]);
   const { data: session, status } = useSession();
-  console.log("session from client : ", session?.user)
-  if (status !== "loading" && session?.user && typeof window !== "undefined") {
-    router.push(`/${session?.user?.name}`);
-  }
+  // console.log("session from client : ", session?.user)
+  // if (status !== "loading" && session?.user && typeof window !== "undefined") {
+  //   router.push(`/${session?.user?.name}`);
+  // }
 
   return (
-    <>
-      <Grid container sx={{ height: "100vh", border: "1px solid black" }}>
-        <Grid
-          item
-          container
-          justifyContent="center"
-          xs={12}
-          sx={{
-            mt: "2rem",
-            // border: "1px solid black",
-            height: "min-content",
-          }}
-        >
-          {userName ? (
-            <h1>Welcome {userName}</h1>
-          ) : (
-            <Typography variant="h3"> Hello Stranger!</Typography>
-          )}
-        </Grid>
-        {session == null ? <Grid
-          item
-          container
-          justifyContent="center"
-          xs={12}
-          sx={{ border: "1px solid black", height: "max-content" }}
-        >
-          <LandingPageMenu />
-        </Grid> : <></>}
-      </Grid>
-    </>
+    <div className='h-fill self my-auto flex flex-col items-center'>
+      <h1 className="text-4xl">Hello {session?.user.name || "Stranger"}!</h1>
+      <LandingPageMenu session={session} />
+    </div>
   );
 }
+
+const LandingPageMenu = (props: { session: any }) => {
+  const { session } = props;
+  return (
+    <>
+      <div
+        className="mt-20 flex w-[80%] flex-col justify-evenly space-y-[3rem]"
+      >
+        {!!session &&
+          <Link href={`/${session?.user?.name}`}>
+            <ButtonBase
+              sx={{
+                borderRadius: 2,
+                backgroundColor: "secondary.main",
+                display: "flex",
+                border: "1px solid white",
+                px: ".5rem",
+                py: ".2rem",
+                height: "45px",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: "1rem"
+              }}
+            >
+              Continue
+            </ButtonBase>
+          </Link>
+        }
+        <ButtonBase
+          // eslint-disable-next-line
+          onClick={() => { !!session ? signOut() : signIn("discord") }}
+          sx={{
+            borderRadius: 2,
+            backgroundColor: "secondary.main",
+            display: "flex",
+            border: "1px solid white",
+            px: ".5rem",
+            py: ".2rem",
+            height: "45px",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "1rem"
+          }}
+        >
+          {!!session ? "Sign Out" : "Sign In w/ Discord"}
+        </ButtonBase>
+      </div>
+    </>
+  );
+};

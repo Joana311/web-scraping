@@ -1,70 +1,46 @@
 import React from "react";
 import { Box, Grid, Stack, Typography } from "@mui/material";
-import { palette } from "@mui/system";
+import MuscleHeatMap from "./MuscleHeatMap";
 
 const DailyActivitySummary = () => {
-  const leftPanel = 7;
-
+  const summary_info = {
+    "Weight Moved": undefined,
+    "Calories Burned": undefined,
+    "Personal Bests": undefined,
+  }
+  Object.entries
   return (
     <>
-      <Stack>
-        <Box sx={{ width: "100%" }}>
-          <Typography fontWeight={"light"}>Today's Activity</Typography>
-        </Box>
-        <Box
-          bgcolor="secondary.main"
-          borderRadius={2}
-          sx={{
-            display: "flex",
-            // border: "1px dashed white",
-            width: "100%",
-            height: "min-content",
-          }}
-        >
-          <Grid container>
-            <Grid
-              item
-              xs={leftPanel}
-              // spacing={20}
-              sx={{
-                // border: "1px solid pink",
-                width: "100%",
-                // alignItems: "center",
-                pt: "1.2rem",
-                pb: "1rem",
-                pr: "5rem",
-              }}
-            >
-              <Stack spacing={2}>
-                <Stack sx={{ alignItems: "center" }}>
-                  <Typography fontSize={".9rem"} fontWeight="light">
-                    Weight Moved
-                  </Typography>
-                  <Typography width={"max-content"}> - </Typography>
-                </Stack>
-                <Stack sx={{ alignItems: "center" }}>
-                  <Typography fontSize={".9rem"} fontWeight="light">
-                    Sets Completed
-                  </Typography>
-                  <Typography width={"max-content"}> - </Typography>
-                </Stack>
-                <Stack sx={{ alignItems: "center" }}>
-                  <Typography fontSize={".9rem"} fontWeight="light">
-                    Personal Bests
-                  </Typography>
-                  <Typography width={"max-content"}> - </Typography>
-                </Stack>
-              </Stack>
-            </Grid>
-            <Grid
-              item
-              component={Box}
-              xs={12 - leftPanel}
-              //   sx={{ border: "1px solid green" }}
-            ></Grid>
-          </Grid>
-        </Box>
-      </Stack>
+      <header className="font-light">Today's Activity</header>
+      <div
+        id="summary-container"
+        className='flex flex-row rounded-md bg-secondary'
+      >
+        <div id='summary-info'
+          className="flex w-[62%] flex-col 
+              items-start space-y-[1.5rem]
+              pt-[1.2rem] pb-[1rem] pl-[1.5rem]" >
+          {Object.entries(summary_info).map(([info_key, amount], index) => {
+            return (
+              <article id="summary-item"
+                key={index}
+                className="flex w-[15ch] flex-col 
+                  items-center 
+                  border-b-[1px] border-white/25 
+                  pb-[.2rem] ">
+                <header id="info-name" className='text-[.9rem] font-light'>
+                  {info_key}
+                </header>
+                <span id="info-value"> {amount ?? '-'} </span>
+              </article>
+            )
+          })}
+
+        </div>
+        <div id='heatmap' className="w-[38%] p-[.5rem]">
+          <MuscleHeatMap />
+        </div>
+      </div>
     </>
   );
 };

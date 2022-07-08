@@ -77,7 +77,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     <SessionProvider refetchOnWindowFocus={false} session={session} >
       <CacheProvider value={emotionCache}>
         <Head>
-          <title>My page</title>
+          <title>ExBuddy</title>
           <meta name="viewport" content="initial-scale=1, width=device-width" />
         </Head>
         <ThemeProvider theme={theme}>
@@ -196,7 +196,8 @@ export default withTRPC<AppRouter>({
     if (error) {
       if (error.message.includes("NO_SESSION")
         && opts.ctx.asPath !== '/') {
-        console.log("should reroute")
+
+        console.log("should reroute to: ", getBaseUrl())
         return {
           status: 303, //"SEE_OTHER"
           headers: {

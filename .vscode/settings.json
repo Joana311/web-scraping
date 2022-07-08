@@ -23,5 +23,6 @@
     "superjson",
     "Supraspinatus",
     "trpc"
-  ]
+  ],
+  "prettier.trailingComma": "none"
 }

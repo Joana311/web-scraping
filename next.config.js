@@ -24,10 +24,11 @@ module.exports = getConfig({
    * @link https://nextjs.org/docs/api-reference/next.config.js/runtime-configuration
    */
   images: {
-    domains: ["cdn.discordapp.com"],
+    domains: ["cdn.discordapp.com"]
   },
   publicRuntimeConfig: {
-    NODE_ENV: env.NODE_ENV,
+    NODE_ENV: env.NODE_ENV
   },
-  reactStrictMode: true,
+  use: ["@svgr/webpack"],
+  reactStrictMode: true
 });

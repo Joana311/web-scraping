@@ -1,6 +1,6 @@
 import { useAppUser } from "@client/providers/app_user.test";
 import trpc from "@client/trpc";
-import { ExpandMoreRounded } from "@mui/icons-material";
+import { ExpandMoreRounded, IndeterminateCheckBoxRounded } from "@mui/icons-material";
 import {
   Box,
   Grid,
@@ -22,7 +22,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import React, { Fragment } from "react";
+import React from "react";
 import Trpc from "src/pages/api/trpc/[trpc]";
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
 export interface SummaryCardProps {
@@ -37,15 +37,27 @@ export interface SummaryCardProps {
       rpe: number;
     }[];
   };
-  isActive: boolean;
-  key: number;
+  isFocused: boolean;
+  index: number;
   workout_id: string;
+  setCurrentFocus: React.Dispatch<React.SetStateAction<number>>;
 }
-export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isActive, key, workout_id }) => {
+export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
   const [expanded, setExpanded] = React.useState(false);
-  const handler = () => {
-    setExpanded((prev) => !prev);
+  const onExpand = () => {
+    if (expanded) {
+      setCurrentFocus(-1)
+      setExpanded(false);
+    } else {
+      setCurrentFocus(index)
+      setExpanded(true);
+    }
   };
+
+  React.useMemo(() => {
+    setExpanded(isFocused);
+  }, [isFocused]);
+
   const router = useRouter();
 
   const query_context = trpc.useContext();
@@ -85,7 +97,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isActive, ke
   return (
     <>
       <Stack
-        key={key}
+        key={index}
         bgcolor="secondary.main"
         borderRadius={2}
         sx={{
@@ -179,7 +191,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isActive, ke
             }}
           >
             <ButtonBase
-              onClick={handler}
+              onClick={onExpand}
               sx={{ borderRadius: "100%", ...expandIcon }}
             >
               <ExpandMoreRounded />
@@ -235,7 +247,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ exercise, isActive, ke
                     height: ".2rem",
                   }}
                 ></TableRow>
-                {isActive && (
+                {(
                   <>
                     <TableRow
                       sx={{

@@ -30,12 +30,16 @@ To get a div to fill space with using height: 'fill-available'. Any siblings sha
 
 I decided to go with trpc instead of graphql and apollo because it does both jobs pretty much and i don't really need a public api atm. Whenever i need it i can probably easily implement it using trpc and nextjs api routes.
 
+mobile has a hard time displaying negative margins
+
 ## Big Bugs
 
     [ ] new workout is super slow to route to
 
 ## Minor Bugs
 
+    [ ] iOS display is super wonky. need too look up better ways to display vh
+    
     [ ] workout report exercises cards are not displaying correctly. Minor visual bug.
 
 ## Todo
@@ -43,7 +47,7 @@ I decided to go with trpc instead of graphql and apollo because it does both job
     [ ] find a better way to organize react components for better prop drilling (in particular AddNewExerciseModal)
 
     [ ] finish the moving off of Mui to Tailwind
-    
+
     [ ] create a route specifically for current workout.
 
     [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
@@ -70,6 +74,10 @@ I decided to go with trpc instead of graphql and apollo because it does both job
     [ ] create a UserExercise page with better details `../user/workout/exercise/:id`
 
 ## In Progress
+
+    [x] add muscle heat map inside of daily summary
+
+        [ ] make it dynamic based on the muscles of selected exercises using RPE to determine the color of differnet muscles on the heatmap.
 
     [-] setup middleware for pulling user data from the db to use id as a context for requests.
         * currently doing it inside trpc's createContext instead of using the middleware option *
