@@ -8,16 +8,13 @@ import createEmotionCache from "../emotion/createEmotionCache";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
 import { withTRPC } from "@trpc/next";
-import { NextPage } from "next";
 import { AppType } from "next/dist/shared/lib/utils";
-import { ReactElement, ReactNode } from "react";
 import superjson from "superjson";
-import { MainLayout } from '../layouts/mainLayout';
+import { MainLayout } from "../layouts/mainLayout";
 import { AppRouter } from "@server/routers/_app";
 import trpc, { SSRContext } from "src/client/trpc";
-import AppUserProvider from "@client/providers/app_user.test";
 import { ReactQueryDevtools } from "react-query/devtools";
-import { SessionProvider } from "next-auth/react"
+import { SessionProvider } from "next-auth/react";
 import { splitLink } from "@trpc/client/links/splitLink";
 import { httpLink } from "@trpc/client/links/httpLink";
 import "../../styles/globals.css";
@@ -26,21 +23,25 @@ import { TRPCClientError } from "@trpc/client";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
-
 // interface MyAppProps extends AppProps {
 //   emotionCache?: EmotionCache;
 //   pageProps: any;
 // }
 
 const App: AppType = ({ pageProps, Component }): JSX.Element => {
-  let emotionCache = clientSideEmotionCache
-  const { data: session, error, isError, isLoading } = trpc.useQuery(["next-auth.get_session"], {
+  let emotionCache = clientSideEmotionCache;
+  const {
+    data: session,
+    error,
+    isError,
+    isLoading
+  } = trpc.useQuery(["next-auth.get_session"], {
     context: { skipBatch: true },
     refetchOnWindowFocus: true,
     refetchOnMount: false,
     staleTime: Infinity,
     refetchInterval: 0,
-    retryOnMount: false,
+    retryOnMount: false
   });
   // trpc.useQuery(["exercise.public.directory"], {
   //   context: { skipBatch: true },
@@ -49,54 +50,59 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
   //   refetchOnReconnect: false,
   //   retry: false,
   // });
-  const utils = trpc.useContext()
+  const utils = trpc.useContext();
   React.useMemo(() => {
     if (utils && typeof window !== "undefined") {
-      console.log("setting react-query defaults")
+      console.log("setting react-query defaults");
       utils.queryClient.setDefaultOptions({
         queries: {
           retry(failureCount, error: any) {
-            if ((error.data?.code === "UNAUTHORIZED"
-              && error.message.includes("NO_SESSION")) || failureCount > 1) {
-              utils.queryClient.invalidateQueries(["next-auth.get_session"], { refetchInactive: true })
-              return false
+            if (
+              (error.data?.code === "UNAUTHORIZED" &&
+                error.message.includes("NO_SESSION")) ||
+              failureCount > 1
+            ) {
+              utils.queryClient.invalidateQueries(["next-auth.get_session"], {
+                refetchInactive: true
+              });
+              return false;
             }
-            return true
-          },
+            return true;
+          }
         }
-      })
+      });
     }
-  }, [])
+  }, []);
   const router = useRouter();
-  React.useEffect(() => {
-    if (error?.data?.code === "UNAUTHORIZED" && isError && router.pathname !== "/") {
-      router.reload()
-    }
-  }, [error, isError, router])
+  // React.useEffect(() => {
+  //   if (
+  //     error?.data?.code === "UNAUTHORIZED" &&
+  //     isError &&
+  //     router.pathname !== "/"
+  //   ) {
+  //     router.reload();
+  //   }
+  // }, [error, isError, router]);
   return (
-    <SessionProvider refetchOnWindowFocus={false} session={session} >
-      <CacheProvider value={emotionCache}>
-        <Head>
-          <title>ExBuddy</title>
-          <meta name="viewport" content="initial-scale=1, width=device-width" />
-        </Head>
-        <ThemeProvider theme={theme}>
-          {/* <AuthProvider /> */}
-          <AppUserProvider>
-            <MainLayout session={session!}>
-              {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-              <CssBaseline />
-              {/* es-lint-disable-next-line */}
-              <Component {...pageProps} />
-
-            </MainLayout>
-          </AppUserProvider>
-        </ThemeProvider>
-        <ReactQueryDevtools />
-      </CacheProvider>
-    </SessionProvider >
+    <SessionProvider refetchOnWindowFocus={false} session={session}>
+      {/* <CacheProvider value={emotionCache}> */}
+      <Head>
+        <title>ExBuddy</title>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </Head>
+      <ThemeProvider theme={theme}>
+        {/* <AuthProvider /> */}
+        <MainLayout session={session!}>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <CssBaseline />
+          <Component {...pageProps} />
+        </MainLayout>
+      </ThemeProvider>
+      <ReactQueryDevtools />
+      {/* </CacheProvider> */}
+    </SessionProvider>
   );
-}
+};
 // App.getInitialProps = async ({ ctx }) => {
 //   return {
 //     emotionCache: clientSideEmotionCache,
@@ -137,20 +143,20 @@ export default withTRPC<AppRouter>({
         loggerLink({
           enabled: (opts) =>
             process.env.NODE_ENV === "development" ||
-            (opts.direction === "down" && opts.result instanceof Error),
+            (opts.direction === "down" && opts.result instanceof Error)
         }),
 
         // adds opt-out support for batching
         splitLink({
           condition(operation) {
-            return operation.context.skipBatch === true
+            return operation.context.skipBatch === true;
           },
           false: httpBatchLink({
-            url: `${getBaseUrl()}/api/trpc`,
+            url: `${getBaseUrl()}/api/trpc`
           }),
           true: httpLink({
-            url: `${getBaseUrl()}/api/trpc`,
-          }),
+            url: `${getBaseUrl()}/api/trpc`
+          })
         })
       ],
       transformer: superjson,
@@ -158,23 +164,20 @@ export default withTRPC<AppRouter>({
        * @link https://react-query.tanstack.com/reference/QueryClient
        */
 
-      queryClientConfig: {
-
-
-      },
+      queryClientConfig: {},
       headers: () => {
         //on ssr forward cookies to the server to check for auth sessions
-        const client_headers = ctx?.req?.headers
+        const client_headers = ctx?.req?.headers;
 
-        console.log("auth: ", client_headers?.authorization)
+        console.log("auth: ", client_headers?.authorization);
 
         if (client_headers) {
           return {
             cookie: client_headers.cookie,
-            "x-ssr": "1",
-          }
-        } else return {}
-      },
+            "x-ssr": "1"
+          };
+        } else return {};
+      }
     };
   },
   /**
@@ -189,29 +192,30 @@ export default withTRPC<AppRouter>({
     if (ctx.status) {
       // If HTTP status set, propagate that
       return {
-        status: ctx.status,
+        status: ctx.status
       };
     }
+    // console.log("THSKDHASDKJAHSDKJASGDJAHGD", ctx.req.headers.host);
     const error = opts.clientErrors[0];
     if (error) {
-      if (error.message.includes("NO_SESSION")
-        && opts.ctx.asPath !== '/') {
-
-        console.log("should reroute to: ", getBaseUrl())
+      const host_url = ctx.req?.headers?.host ?? getBaseUrl();
+      // console.log("context path", ctx.asPath)
+      if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
+        console.log("No sessions found should reroute to: ", host_url);
         return {
           status: 303, //"SEE_OTHER"
           headers: {
-            location: getBaseUrl() + "/api/auth/signin",
+            location: '/api/auth/signin'
           }
-        }
+        };
       }
       // Propagate http first error from API calls
       return {
-        status: error.data?.httpStatus ?? 500,
+        status: error.data?.httpStatus ?? 500
       };
     }
     // For app caching with SSR see https://trpc.io/docs/caching
     // if (opts.)
     return {};
-  },
+  }
 })(App);

@@ -128,9 +128,9 @@ const RecentWorkouts = () => {
           display: "flex",
           border: "1px solid white",
           width: "100%",
+          height: "max-content",
           px: ".5rem",
           py: ".2rem",
-          height: "max-content",
           justifyContent: "center",
           alignItems: "center"
         }}

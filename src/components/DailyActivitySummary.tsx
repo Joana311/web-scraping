@@ -11,7 +11,7 @@ const DailyActivitySummary = () => {
   Object.entries
   return (
     <>
-      <header className="font-light">Today's Activity</header>
+      <h1 className="font-light">Today's Activity</h1>
       <div
         id="summary-container"
         className='flex flex-row rounded-md bg-secondary'
@@ -28,9 +28,9 @@ const DailyActivitySummary = () => {
                   items-center 
                   border-b-[1px] border-white/25 
                   pb-[.2rem] ">
-                <header id="info-name" className='text-[.9rem] font-light'>
+                <h1 id="info-name" className='text-[.9rem] font-light'>
                   {info_key}
-                </header>
+                </h1>
                 <span id="info-value"> {amount ?? '-'} </span>
               </article>
             )

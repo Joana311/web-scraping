@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { CurrentExerciseForm, SummaryCardProps } from "./components/UserExerciseCard";
+import { UserExercsieCard, SummaryCardProps } from "./components/UserExerciseCard";
 import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
 import superjson from "superjson";
@@ -54,6 +54,7 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
 
   return (
     <>
+      {/* <div className="h-max"> */}
       <div id="title-bar" className="mb-1 flex flex-row justify-between" >
         <h1 className='font-light'>Exercises</h1>
         {showMore &&
@@ -73,25 +74,25 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
           display: "flex",
           border: "1px solid white",
           width: "100%",
-          px: ".5rem",
+          minHeight: "max-content",
+          // px: "1rem",
           py: ".2rem",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
-        <span
-          className="text-[.9rem] font-bold"
-        >
-          New Exercise
-        </span>
+        <a className="text-[.9rem] font-semibold">
+          {"New Exercise"}
+        </a>
       </ButtonBase>
+      {/* </div> */}
 
       <section id="exercise-forms"
-        className="space-y-2 overflow-y-scroll border-dashed py-4"
+        className="flex flex-col space-y-2 overflow-scroll border-2 border-dashed border-pink-600 py-4"
       >
         {formatted_exercises.map((exercise, index) => {
           return (
-            <CurrentExerciseForm
+            <UserExercsieCard
               index={index}
               key={index}
               workout_id={workout_id}

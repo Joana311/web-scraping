@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "./src/layouts/**/*.{ts,tsx}",
     "./src/components/**/*.{ts,tsx}",
+    "./src/components/ExerciseSummary/**/*.{ts,tsx}",
     "./src/containers/*.{ts,tsx}",
     "./src/pages/**/*.{ts,tsx}"
   ],

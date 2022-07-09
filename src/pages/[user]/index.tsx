@@ -9,14 +9,14 @@ import { useRouter } from "next/router";
 // React Functional Component
 const UserPage: NextPage = () => {
   return (
-    <>
+    <div id="daily-summary" className="space-y-[2em] border-4 border-blue">
       <section id="activity-summary-and-heatmap"
-        className={`mt-[2em] min-h-max`}
+        className={`min-h-max`}
       >
         <DailyActivitySummary />
       </section>
       <section id="recent-workouts"
-        className={`mt-[2em] min-h-max`}
+        className={`min-h-max`}
       >
         <RecentWorkouts />
       </section>
@@ -28,7 +28,7 @@ const UserPage: NextPage = () => {
         }} >
           <a className="hidden" />
         </Link>} */}
-    </>
+    </div>
   );
 };
 export default UserPage;

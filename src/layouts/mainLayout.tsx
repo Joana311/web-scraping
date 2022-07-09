@@ -40,37 +40,45 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
 
 
     return (
-        <div
-            id="app-container"
-            className="m-0 flex
-                flex-col 
-                overflow-y-visible
-                border-[3px]
-                border-t-0 border-green-500 bg-primary px-[1rem]">
+        <div id="app-container"
+            className="flex
+                grow
+                flex-col
+                overflow-y-clip
+                bg-primary px-[1rem]"
+            style={{
+                height: "100vh",
+                // maxHeight: "fill-available",
+            }}>
             <header id="nav-header"
-                className="m-0
+                className="
                     flex
-                    h-[5rem]
+                    max-h-[5.5rem]
+                    min-h-[5.5rem]
                     flex-row
-                    items-center justify-between
+                    items-center
+                    justify-between
                     pt-2 font-light
                     text-white
                     ">
-                <div id="date-and-app-location" className="">
+                <div id="date-and-app-location" className="h-min">
                     <span id="current date" className="text-[.9rem]">
                         {todaysDate}
                     </span>
                     <h1 id="app-location"
-                        className="text-[2rem]">
+                        className="text-[2rem] leading-tight">
                         {appLocation}
                     </h1>
                 </div>
                 <div id="avatar-container"
                     onClick={onHomeClick}
-                    className="my-1 mr-4 flex max-w-[64px] items-center justify-center">
+                    className="my-1 mr-4 
+                    flex 
+                    h-[4rem] w-[4rem] 
+                    items-center justify-center 
+                    text-[4rem]">
                     {!session?.user.image ?
-                        <AccountCircleIcon
-                            fontSize="large" /> :
+                        <AccountCircleIcon fontSize='inherit' /> :
                         <Image
                             src={session.user.image}
                             width="90%" height="90%"
@@ -80,7 +88,9 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             </header>
             <div
                 id="page-container"
-                className="flex grow flex-col border-4 border-orange-500">
+                className="flex grow flex-col  
+                border-4 border-orange-500 
+                pt-[2rem]">
                 {children}
             </div>
 

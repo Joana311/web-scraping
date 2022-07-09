@@ -2,22 +2,18 @@
 @tailwind utilities;
 @tailwind components;
 
-body {
-  /* height: 100vh; */
-  /* mobile viewport bug fix */
-  max-height: " -webkit-fill-available";
-}
-
-html {
-  max-height: "-webkit-fill-available";
-}
-
-#app-container {
-  /* height: 100vh; */
-  /* min-height: 100vh; */
-  height: 100vh;
-  height: "-webkit-fill-available";
-}
-#page-container {
-  max-height: "-webkit-fill-available";
+@layer base {
+  html {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  #app-container {
+    height: 100vh;
+    max-height: -webkit-fill-available;
+    max-height: -moz-available;
+  }
+  #page-container {
+    max-height: -webkit-fill-available;
+    max-height: -moz-available;
+  }
 }

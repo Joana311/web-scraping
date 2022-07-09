@@ -1,2 +1,2 @@
--- AlterTable
+for-- AlterTable
 ALTER TABLE "Set" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

@@ -76,7 +76,7 @@ const Workout = () => {
     <>
       <section
         id="workout-exercises"
-        className="mb-[2rem] mt-[2em]"
+        className="flex flex-col space-y-[.6rem] border-4 border-blue"
       >
         {!!workout &&
           <CurrentWorkoutExercises
