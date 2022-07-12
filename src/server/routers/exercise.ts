@@ -48,6 +48,42 @@ export const exerciseRouter = createRouter()
       return workout;
     },
   })
+
+  .mutation("remove_set", {
+    input: z.object({
+      user_exercise_id: z.string().cuid(),
+      workout_id: z.string().cuid(),
+      set_id: z.number().gt(0)
+    }),
+    async resolve({ input: { user_exercise_id, set_id, workout_id }, ctx }) {
+      const current_workout = await open_workout_if_exists(ctx.session?.user.id!);
+      if (current_workout?.id !== workout_id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Workout is not open or does not exist",
+        });
+      }
+      let workout = await prisma.userWorkout.update({
+        where: { id: workout_id },
+        data: {
+          exercises: {
+            update: {
+              where: { id: user_exercise_id },
+              data: {
+                sets: {
+                  delete: {
+                    id: set_id,
+                  },
+                },
+              },
+            },
+          },
+        },
+        include: defaultWorkoutSelect,
+      });
+      return workout;
+    }
+  })
   .mutation("add_to_current_workout", {
     input: z.object({
       exercise_id: z.string().uuid().array(),
@@ -77,7 +113,40 @@ export const exerciseRouter = createRouter()
             exercises: { include: { exercise: true, sets: true } },
           },
         });
-        console.log("workout updated");
+        console.log("workout updated: Exercise(s) added");
+        return workout;
+      }
+    },
+  })
+  .mutation("remove_from_current_workout", {
+    input: z.object({
+      exercise_id: z.string().cuid(),
+    }),
+    async resolve({ input: { exercise_id }, ctx }) {
+      const owner_id = ctx?.session?.user.id;
+      let open_workout = await open_workout_if_exists(owner_id!);
+      if (!open_workout) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "open workout does not exist",
+        });
+      } else {
+        console.log("removing exercise", exercise_id);
+        // console.log("from workout", open_workout);
+        const workout = await prisma.userWorkout.update({
+          where: { id: open_workout.id },
+          data: {
+            exercises: {
+              delete: {
+                id: exercise_id,
+              }
+            },
+          },
+          include: {
+            exercises: { include: { exercise: true, sets: true } },
+          },
+        });
+        console.log("workout updated: Exercise removed");
         return workout;
       }
     },

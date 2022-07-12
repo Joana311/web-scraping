@@ -39,9 +39,19 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     context: { skipBatch: true },
     refetchOnWindowFocus: true,
     refetchOnMount: false,
-    staleTime: Infinity,
+    // 5 minutes in milliseconds 
+    staleTime: 5 * 60 * 1000,
     refetchInterval: 0,
-    retryOnMount: false
+    retryOnMount: false,
+    onError(error) {
+      if (
+        error?.data?.code === "UNAUTHORIZED" &&
+        isError &&
+        router.pathname !== "/"
+      ) {
+        router.reload();
+      }
+    },
   });
   // trpc.useQuery(["exercise.public.directory"], {
   //   context: { skipBatch: true },
@@ -75,13 +85,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
   }, []);
   const router = useRouter();
   // React.useEffect(() => {
-  //   if (
-  //     error?.data?.code === "UNAUTHORIZED" &&
-  //     isError &&
-  //     router.pathname !== "/"
-  //   ) {
-  //     router.reload();
-  //   }
+  //   
   // }, [error, isError, router]);
   return (
     <SessionProvider refetchOnWindowFocus={false} session={session}>

@@ -35,28 +35,20 @@ mobile has a hard time displaying negative margins
 ## Big Bugs
 
     [ ] new workout is super slow to route to
-
+    
 ## Minor Bugs
 
     [ ] iOS display is super wonky. need too look up better ways to display vh
-    
-    [ ] workout report exercises cards are not displaying correctly. Minor visual bug.
 
 ## Todo
 
     [ ] find a better way to organize react components for better prop drilling (in particular AddNewExerciseModal)
-
-    [ ] finish the moving off of Mui to Tailwind
 
     [ ] create a route specifically for current workout.
 
     [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
 
     [ ] ability to delete/edit previous workouts
-
-    [ ] ability to delete an exercise from current workout 
-
-    [ ] allow for only 1 Exercise card to be expanded at a time.
 
     [ ] rework api so that only id's are served and then further info is fetched from the db when it is needed (aka optimize api calls to reduce response times from server).
 
@@ -75,15 +67,26 @@ mobile has a hard time displaying negative margins
 
 ## In Progress
 
+    [-] finish the moving off of Mui to Tailwind
+
     [x] add muscle heat map inside of daily summary
 
         [ ] make it dynamic based on the muscles of selected exercises using RPE to determine the color of differnet muscles on the heatmap.
 
     [-] setup middleware for pulling user data from the db to use id as a context for requests.
-        * currently doing it inside trpc's createContext instead of using the middleware option *
+        * currently doing it inside trpc's createContext instead of using the middleware option, might wait for trpc v10 to do any big trpc refactors *
 
 ## Done Recently
+    
+    [x] ability to delete an exercise from current workout 
+    
+    [x] allow for only 1 Exercise card to be expanded at a time.
 
+    [x] workout report exercises cards are not displaying correctly. Minor visual bug.
+    
+    [x] hydration problems (server not matching client) when rendering userexercisecard
+        - just had to wrap the icon in a table cell <td> to fix it
+    
     [x] ability to modify current UserExercises fields (sets, reps, weight).
     
         [x] use optimistic updates to update the set data whenever a set or new exercise is added

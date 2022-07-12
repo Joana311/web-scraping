@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import React, { SyntheticEvent } from "react";
-import { UserExercsieCard } from "../components/UserExerciseCard";
 import { PrismaClient, Exercise } from "@prisma/client";
 import { GetStaticProps, GetServerSideProps } from "next";
 import { Context } from "../../../../misc/__dep__graphql/context";
@@ -182,11 +181,10 @@ const AddNewExerciseModal = ({
   const ExerciseDescriptionComponent = (exercise: Exercise, key: number): JSX.Element => {
     return (
       <>
-        <Stack
+        <Stack id="exercise-container"
           key={key}
           direction="row"
           display="flex"
-          className="exercise-container"
           sx={{
             pl: "0.25rem",
             pr: "0.5rem",
@@ -198,8 +196,7 @@ const AddNewExerciseModal = ({
             overflowX: "hidden",
           }}
         >
-          <Box
-            className="selected-check-box"
+          <Box id="selected-check-box"
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -213,8 +210,7 @@ const AddNewExerciseModal = ({
               sx={{ "&.Mui-checked": { color: "blue.main" } }}
             />
           </Box>
-          <Box
-            className="exercise-info"
+          <Box id="exercise-info"
             sx={{
               // border: borders && "1px solid red",
               width: "100%",
@@ -294,9 +290,7 @@ const AddNewExerciseModal = ({
               </Stack>
             </Stack>
           </Box>
-
-          <Box
-            className="more-info-container"
+          <Box id="more-info-container"
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -325,12 +319,11 @@ const AddNewExerciseModal = ({
     );
   };
   return (
-    <Box
+    <Box id="exercise-list"
+      className="border flex grow"
       sx={{
-        // border: "3px solid white",
+        border: "3px solid white",
         position: "relative",
-        width: "100%",
-        height: "100%",
         maxHeight: "100%",
         display: "flex",
         flexDirection: "column",

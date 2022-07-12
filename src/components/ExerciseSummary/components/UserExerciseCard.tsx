@@ -21,9 +21,11 @@ import {
   TextField,
   InputLabel,
 } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useRouter } from "next/router";
 import React from "react";
-import Trpc from "src/pages/api/trpc/[trpc]";
+import CancelIcon from '@mui/icons-material/Cancel';
+
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
 export interface SummaryCardProps {
   exercise: {
@@ -32,6 +34,7 @@ export interface SummaryCardProps {
     variant: string | null;
     muscle: string | null;
     sets: {
+      id: number;
       weight?: number | null;
       reps: number;
       rpe: number;
@@ -42,15 +45,15 @@ export interface SummaryCardProps {
   workout_id: string;
   setCurrentFocus: React.Dispatch<React.SetStateAction<number>>;
 }
-export const CurrentExerciseForm: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
+export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
   const [expanded, setExpanded] = React.useState(false);
   const onExpand = () => {
     if (expanded) {
       setCurrentFocus(-1)
       setExpanded(false);
     } else {
-      setCurrentFocus(index)
       setExpanded(true);
+      setCurrentFocus(index)
     }
   };
 
@@ -59,9 +62,19 @@ export const CurrentExerciseForm: React.FC<SummaryCardProps> = ({ exercise, isFo
   }, [isFocused]);
 
   const router = useRouter();
-
+  const selfRef = React.useRef<HTMLLIElement>(null);
   const query_context = trpc.useContext();
   const useAddSet = trpc.useMutation("exercise.add_set", {
+    onSuccess: (current_workout, _) => {
+      console.log(selfRef.current)
+      // selfRef.current?.remove();
+      query_context.setQueryData(
+        ["workout.get_by_id", { workout_id: workout_id }],
+        current_workout
+      );
+    },
+  });
+  const useDeleteSet = trpc.useMutation("exercise.remove_set", {
     onSuccess: (current_workout, _) => {
       query_context.setQueryData(
         ["workout.get_by_id", { workout_id: workout_id }],
@@ -69,8 +82,17 @@ export const CurrentExerciseForm: React.FC<SummaryCardProps> = ({ exercise, isFo
       );
     },
   });
-
-  const borders = false;
+  const useRemoveEx = trpc.useMutation("exercise.remove_from_current_workout", {
+    onSuccess(updated_workout) {
+      query_context.invalidateQueries("workout.get_by_id");
+      if (workout_id) {
+        query_context.setQueryData(
+          ["workout.get_by_id", { workout_id }],
+          updated_workout
+        );
+      }
+    },
+  })
   const expandIcon: SxProps = {
     display: "flex",
     transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
@@ -83,7 +105,7 @@ export const CurrentExerciseForm: React.FC<SummaryCardProps> = ({ exercise, isFo
   const set = React.useRef({
     weight: 0,
     reps: 0,
-    rpe: 0,
+    rpe: 0
   });
   const onAddSet = React.useCallback(() => {
     console.log("add set");
@@ -93,251 +115,257 @@ export const CurrentExerciseForm: React.FC<SummaryCardProps> = ({ exercise, isFo
       workout_id: workout_id,
     });
   }, [useAddSet, exercise.user_exercise_id, workout_id]);
+  const onDeleteSet = React.useCallback((set_id: number) => {
+    useDeleteSet.mutate({
+      set_id: set_id,
+      user_exercise_id: exercise.user_exercise_id,
+      workout_id: workout_id,
+    });
+  }, [exercise.user_exercise_id, useDeleteSet, workout_id]);
 
+  const dbRemove = React.useCallback(() => {
+    useRemoveEx.mutate({ exercise_id: exercise.user_exercise_id })
+  }, [exercise.user_exercise_id, useRemoveEx]);
+  const onDeleteExercise = React.useCallback(() => {
+    if (!selfRef.current) return;
+    // selfRef.current.scrollLeft = 0;
+    selfRef.current.classList.add("-translate-x-[100vw]");
+    selfRef.current.ontransitionend = () => {
+      useRemoveEx.mutate({ exercise_id: exercise.user_exercise_id });
+      // dbRemove();
+    }
+  }, [dbRemove]);
   return (
     <>
-      <Stack
-        key={index}
-        bgcolor="secondary.main"
-        borderRadius={2}
-        sx={{
-          display: "flex",
-          width: "100%",
-          px: ".5rem",
-          minHeight: "max-content",
-        }}
+      <li id={`card-container-${exercise.user_exercise_id}`}
+        ref={selfRef}
+        // eslint-disable-next-line
+        className="
+        no-scrollbar
+        flex
+        grow
+        min-h-min
+        max-h-min
+        scale-100
+        snap-x
+        overflow-y-hidden
+        overflow-x-scroll
+        scroll-smooth
+        space-x-2
+        rounded-lg border-yellow-500 
+        shadow-md transition-all duration-[450] ease-out
+        will-change-scroll"
       >
-        <Grid
-          container
-          component={Box}
-          className="exercise-summary"
-          sx={{
-            py: "0.25rem",
-            justifyContent: "space-between",
-            height: "min-content",
-          }}
-        >
-          <Grid
-            item
-            className="exercise-name"
-            sx={{ border: borders ? "1px solid red" : "" }}
-          >
-            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
-              <Typography sx={{ ...infoHeaders }}>Exercise</Typography>
-              <Typography variant="h6" sx={{ ...exerciseSummaryInfo }}>
-                {exercise.name}
-              </Typography>
-            </Stack>
-          </Grid>
-          <Grid
-            item
-            className="exercise-variant"
-            sx={{ border: borders ? "1px solid yellow" : "" }}
-          >
-            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
-              <Typography sx={{ ...infoHeaders }}>Variant</Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  ...exerciseSummaryInfo,
-                  fontSize: "1rem",
-                }}
-              >
-                {exercise.variant}
-              </Typography>
-            </Stack>
-          </Grid>
-          <Grid
-            item
-            className="target-muscle"
-            sx={{ border: borders ? "1px solid green" : "" }}
-          >
-            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
-              <Typography sx={{ ...infoHeaders }}>Muscle</Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  ...exerciseSummaryInfo,
-                  fontSize: "1rem",
-                }}
-              >
-                {exercise.muscle}
-              </Typography>
-            </Stack>
-          </Grid>
-          <Grid
-            item
-            className="set-count"
-            sx={{ border: borders ? "1px solid blue" : "" }}
-          >
-            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
-              <Typography sx={{ ...infoHeaders }}>Sets</Typography>
-              <Typography
-                variant="h6"
-                sx={{ ...exerciseSummaryInfo, fontSize: "1.1rem" }}
-              >
+        <div id="exercise-card"
+          className="flex min-h-min min-w-full
+          grow
+          snap-start 
+          flex-col
+          rounded-lg
+        bg-secondary">
+
+          <section id="overview-container"
+            onClick={onExpand}
+            className="flex justify-between space-x-[1rem] py-1 capitalize mx-3">
+            <div id="overview-info" className="w-full">
+              <div
+                id="exercise-name"
+                className="flex flex-col border-red-500">
+                <label className="text-[.8rem] leading-none text-text.secondary">Exercise</label>
+                <span className='text-xl leading-none'>
+                  {exercise.name}
+                </span>
+              </div>
+              <div id="additional-info" className="flex space-x-6 pt-[.2rem]">
+                <div
+                  id="exercise-variant"
+                  className="flex flex-col border-yellow-500 leading-snug">
+                  <label className="text-[.6rem] text-text.secondary">Variant</label>
+                  <span className='text-[1rem] font-light leading-none'>
+                    {exercise.variant}
+                  </span>
+                </div>
+                <div id="target-muscle"
+                  className="flex flex-col flex-nowrap border-green-500 leading-snug">
+                  <label className="text-[.6rem] text-text.secondary">Muscle</label>
+                  <span className='text-ellipsis whitespace-nowrap text-[1rem] font-light leading-none'>
+                    {exercise.muscle}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div id="set-count"
+              className="flex flex-col items-center border-blue">
+              <label className="text-[1rem] text-text.secondary">Sets</label>
+              <span className='text-[1.5rem]'>
                 {exercise.sets.length}
-              </Typography>
-            </Stack>
-          </Grid>
-          <Grid
-            item
-            className="expand-icon-container"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              border: borders ? "1px solid violet" : "none",
-            }}
-          >
-            <ButtonBase
-              onClick={onExpand}
-              sx={{ borderRadius: "100%", ...expandIcon }}
-            >
-              <ExpandMoreRounded />
-            </ButtonBase>
-          </Grid>
-        </Grid>
-        <Collapse className="exercise-details" in={expanded}>
-          <Divider sx={{ backgroundColor: "text.secondary" }} />
-          <TableContainer
-            sx={{
-              py: ".25rem",
-              px: ".5rem",
-              "& .MuiTableCell-root": {
-                border: "0",
-                py: "0.1rem",
-              },
-              "& .MuiTableBody-root": {
+              </span>
+            </div>
+            <div id="expand-icon-container"
+              className="flex items-center border-violet-700">
+              <Box
+                sx={{ borderRadius: "100%", ...expandIcon }}
+              >
+                <ExpandMoreRounded />
+              </Box>
+            </div>
+          </section>
+          <Collapse id="exercise-set-details" in={expanded}>
+            <Divider sx={{ backgroundColor: "text.secondary" }} />
+            <TableContainer
+              sx={{
+                py: ".25rem",
+                px: ".5rem",
                 "& .MuiTableCell-root": {
-                  // border: { borders } && "1px solid pink",
-                  fontWeight: 100,
-                  fontSize: "1rem",
+                  border: "0",
+                  py: "0.1rem",
                 },
-              },
-            }}
-          >
-            <Table padding="none">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center">Set</TableCell>
-                  <TableCell align="center">Weight</TableCell>
-                  <TableCell align="center">Reps</TableCell>
-                  <TableCell align="center">RPE</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {exercise.sets.map((set, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      "& .MuiTableCell-root": {
-                        maxWidth: "min-content",
-                      },
-                    }}
-                  >
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell align="center">{set.weight}</TableCell>
-                    <TableCell align="center">{set.reps}</TableCell>
-                    <TableCell align="center">{set.rpe}</TableCell>
+                "& .MuiTableBody-root": {
+                  "& .MuiTableCell-root": {
+                    // border: { borders } && "1px solid pink",
+                    fontWeight: 100,
+                    fontSize: "1rem",
+                  },
+                },
+              }}
+            >
+              <Table padding="none">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center">Set</TableCell>
+                    <TableCell align="center">Weight</TableCell>
+                    <TableCell align="center">Reps</TableCell>
+                    <TableCell align="center">RPE</TableCell>
                   </TableRow>
-                ))}
-                <TableRow
-                  sx={{
-                    height: ".2rem",
-                  }}
-                ></TableRow>
-                {(
-                  <>
+                </TableHead>
+                <TableBody>
+                  {exercise.sets.map((set, index) => (
                     <TableRow
                       sx={{
                         "& .MuiTableCell-root": {
-                          pt: "0.6rem",
-                          borderTop: "1px solid",
-                          borderColor: "text.secondary",
-                        },
+                          maxWidth: "min-content",
+                        }
                       }}
-                    >
-                      <TableCell
-                        align="center"
+                      key={index}>
+                      <TableCell align="center">{index + 1}</TableCell>
+                      <TableCell align="center">{set.weight}</TableCell>
+                      <TableCell align="center">{set.reps}</TableCell>
+                      <TableCell align="center">{set.rpe}</TableCell>
+                      <td className="absolute right-[1rem] overflow-visible ">
+                        <button className="relative   m-0 flex items-center  justify-center border-blue p-0">
+                          <CancelIcon
+                            onClick={() => onDeleteSet(set.id)}
+                            className="relative"
+                            fontSize="inherit" />
+                        </button>
+                      </td>
+                    </TableRow>
+                  ))}
+                  <TableRow
+                    sx={{
+                      height: ".2rem",
+                    }}
+                  ></TableRow>
+                  {(
+                    <>
+                      <TableRow
                         sx={{
-                          fontWeight: "bold",
+                          "& .MuiTableCell-root": {
+                            pt: "0.6rem",
+                            borderTop: "1px solid",
+                            borderColor: "text.secondary",
+                          },
                         }}
                       >
-                        {exercise.sets.length + 1}
-                      </TableCell>
-                      <TableCell align="center">
-                        <TextField
-                          variant="outlined"
-                          label="Weight"
-                          type="number"
-                          color="info"
-                          onChange={(e) =>
-                            (set.current.weight = parseInt(e.target.value))
-                          }
-                          InputLabelProps={{
-                            shrink: true,
-                            disableAnimation: true,
+                        <TableCell
+                          align="center"
+                          sx={{
+                            fontWeight: "bold",
                           }}
-                          sx={{ ...inputBox }}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <TextField
-                          variant="outlined"
-                          label="Reps"
-                          type="number"
-                          color="info"
-                          onChange={(e) =>
-                            (set.current.reps = parseInt(e.target.value))
-                          }
-                          InputLabelProps={{
-                            shrink: true,
-                            disableAnimation: true,
-                          }}
-                          sx={{ ...inputBox }}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <TextField
-                          variant="outlined"
-                          label="RPE"
-                          type="number"
-                          color="info"
-                          onChange={(e) =>
-                            (set.current.rpe = parseInt(e.target.value))
-                          }
-                          InputLabelProps={{
-                            shrink: true,
-                            disableAnimation: true,
-                          }}
-                          sx={{ ...inputBox }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  </>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box
-            sx={{
-              mx: "-.5rem",
-              borderTop: "1px solid white",
-              borderBottom: "1px solid white",
+                        >
+                          {exercise.sets.length + 1}
+                        </TableCell>
+                        <TableCell align="center">
+                          <TextField
+                            variant="outlined"
+                            label="Weight"
+                            type="number"
+                            color="info"
+                            onChange={(e) =>
+                              (set.current.weight = parseInt(e.target.value))
+                            }
+                            InputLabelProps={{
+                              shrink: true,
+                              disableAnimation: true,
+                            }}
+                            sx={{ ...inputBox }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <TextField
+                            variant="outlined"
+                            label="Reps"
+                            type="number"
+                            color="info"
+                            onChange={(e) =>
+                              (set.current.reps = parseInt(e.target.value))
+                            }
+                            InputLabelProps={{
+                              shrink: true,
+                              disableAnimation: true,
+                            }}
+                            sx={{ ...inputBox }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <TextField
+                            variant="outlined"
+                            label="RPE"
+                            type="number"
+                            color="info"
+                            onChange={(e) =>
+                              (set.current.rpe = parseInt(e.target.value))
+                            }
+                            InputLabelProps={{
+                              shrink: true,
+                              disableAnimation: true,
+                            }}
+                            sx={{ ...inputBox }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <ButtonBase className='rounded-b-lg' sx={{
+              border: "1px solid white", width: "100%", py: ".2rem",
               borderRadius: "0 0 .5rem .5rem",
-            }}
-          >
-            <ButtonBase sx={{ width: "100%", py: ".2rem" }} onClick={() => {
+            }} onClick={() => {
               onAddSet()
             }}>
-              <Typography fontWeight={"bold"} fontSize="1rem">
+              <span className="text-[1rem] font-bold">
                 Add Set
-              </Typography>
+              </span>
             </ButtonBase>
-          </Box>
-        </Collapse>
-      </Stack>
+          </Collapse>
+        </div>
+        <div id="remove-exercise-button"
+          className={`my-2 flex snap-end items-stretch rounded-lg bg-red-700 transition-all ${(expanded) && "hidden"}`}>
+          <ButtonBase className="text-[2.5rem]"
+
+            onClick={onDeleteExercise}
+            sx={{
+              minHeight: "fill",
+              px: ".5rem",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+            <DeleteIcon fontSize="inherit" />
+          </ButtonBase>
+        </div>
+      </li>
     </>
   );
 };
@@ -358,22 +386,12 @@ const inputBox: SxProps = {
 
   "& .MuiTextField-root": {},
   "& .MuiInputBase-input": {
-    pl: "0.8rem",
+    pl: "0.6rem",
     py: "0.2rem",
     "& .MuiInputLabel-root": {
       margin: 0,
     },
   },
 };
-const infoHeaders: SxProps = {
-  fontSize: ".8rem",
-  fontWeight: "regular",
-  color: "text.secondary",
-};
-const exerciseSummaryInfo: SxProps = {
-  mt: "-.4rem",
-  fontWeight: "light",
-  width: "max-content",
-  alignSelf: "center",
-  mb: "-.25rem",
-};
+
+

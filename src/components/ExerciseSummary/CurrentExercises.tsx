@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import Link from "next/link";
-import { UserExercsieCard, SummaryCardProps } from "./components/UserExerciseCard";
+import { UserExerciseCard } from "./components/UserExerciseCard";
 import AddNewExerciseModal from "./containers/AddNewExerciseModal";
 import { Exercise } from "@prisma/client";
 import superjson from "superjson";
@@ -19,7 +19,7 @@ interface ExerciseSummaryProps {
   onNewExerciseClick: () => void;
   workout_id: string;
 }
-const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
+const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   workout_id,
   onNewExerciseClick,
 }: ExerciseSummaryProps) => {
@@ -27,7 +27,7 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
   );
   const [showMore, toggleShowMore] = React.useState(false)
   const [currentFocus, setCurrentFocus] = React.useState(-1)
-  const formatted_exercises =
+  const formatted_exercises = React.useMemo(() =>
     workout?.exercises.map((exercise) => {
       return {
         user_exercise_id: exercise.id,
@@ -36,13 +36,15 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
         variant: exercise.exercise.equipment_name,
         sets: exercise.sets.map((set) => {
           return {
+            id: set.id,
             weight: set.weight,
             reps: set.reps,
             rpe: set.rpe,
           };
         }),
       };
-    }) || [];
+    }) || []
+    , [workout?.exercises])
   // console.log(currentFocus)
   useEffect(() => {
     formatted_exercises.length > 2
@@ -75,7 +77,6 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
           border: "1px solid white",
           width: "100%",
           minHeight: "max-content",
-          // px: "1rem",
           py: ".2rem",
           justifyContent: "center",
           alignItems: "center",
@@ -87,14 +88,14 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
       </ButtonBase>
       {/* </div> */}
 
-      <section id="exercise-forms"
-        className="flex flex-col space-y-2 overflow-scroll border-2 border-dashed border-pink-600 py-4"
+      <ul id="user-exercise-list"
+        className="no-scrollbar relative flex snap-y flex-col space-y-4 overflow-y-scroll border-2 border-dashed border-pink-600 pt-4"
       >
-        {formatted_exercises.map((exercise, index) => {
+        {formatted_exercises.reverse().map((exercise, index) => {
           return (
-            <UserExercsieCard
+            <UserExerciseCard
               index={index}
-              key={index}
+              key={exercise.user_exercise_id}
               workout_id={workout_id}
               exercise={exercise}
               isFocused={index === currentFocus}
@@ -102,7 +103,8 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
             />
           );
         })}
-      </section>
+        <div className={`sticky ${formatted_exercises.length == 0 && "hidden"} pointer-events-none bottom-0 min-h-[5rem] bg-gradient-to-t from-black to-transparent`}></div>
+      </ul>
 
       {workout?.exercises.length === 0 && (
         <div
@@ -117,4 +119,4 @@ const CurrentWorkoutExercises: React.FC<ExerciseSummaryProps> = ({
   );
 };
 
-export default CurrentWorkoutExercises;
+export default CurrentExercises;

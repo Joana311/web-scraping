@@ -22,8 +22,21 @@ function getBaseUrl() {
 }
 export default trpcNext.createNextApiHandler({
 
-  responseMeta: ({ paths, errors, }) => {
-
+  responseMeta: ({ paths, errors, ctx }) => {
+    // if (errors) {
+    //   let error = errors[0];
+    //   const host_url = ctx?.req?.headers?.host;
+    //   console.log(ctx)
+    //   if (error.message.includes("NO_SESSION") && ctx?.asPath !== "/") {
+    //     console.log("No sessions found should reroute to: ", host_url);
+    //     return {
+    //       status: 303, //"SEE_OTHER"
+    //       headers: {
+    //         location: '/api/auth/signin'
+    //       }
+    //     };
+    //   }
+    // }
     const safe_to_cache = paths && paths.every(path => path.includes(".public")) && errors.length === 0;
     const ONE_HOUR_IN_SECONDS = 60 * 60;
     const ONE_DAY_IN_SECONDS = ONE_HOUR_IN_SECONDS * 24;
@@ -48,7 +61,7 @@ export default trpcNext.createNextApiHandler({
     if (error.code === "INTERNAL_SERVER_ERROR") {
       // send to bug reporting
       // console.error("Something went wrong", error);
-      console.error("Something went wrong");
+      console.error("Something went wrong, check TRPC logging - Julio");
     }
   },
   /**

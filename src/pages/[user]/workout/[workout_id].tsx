@@ -4,10 +4,10 @@ import { Set as Prisma_Set, Exercise, PrismaClient } from "@prisma/client";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
-import CurrentWorkoutExercises from "src/components/ExerciseSummary/ExerciseSummary";
+import CurrentExercises from "src/components/ExerciseSummary/CurrentExercises";
 import { useSession } from "next-auth/react";
 import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
-
+import CancelIcon from '@mui/icons-material/Cancel';
 const Workout = () => {
   const router = useRouter();
   const query_context = trpc.useContext()
@@ -63,23 +63,33 @@ const Workout = () => {
   }, [])
   if (showModal) {
     return (
-      <AddNewExerciseModal
-        exercises={exrx_data}
-        workout_id={workout_id as string}
-        toggle={() => {
-          setShowModal(false);
-        }}
-      />
+      <>
+        <button id="close-modal"
+          onClick={() => setShowModal(false)}
+          className="absolute top-1 right-0 rounded-lg bg-red-600 px-2 text-[.9rem]">
+          {"close"}
+          <CancelIcon className="pl-1" fontSize="inherit" />
+        </button>
+        <section id="new-exercise-modal" className="flex grow border-4 border-blue">
+          <AddNewExerciseModal
+            exercises={exrx_data}
+            workout_id={workout_id as string}
+            toggle={() => {
+              setShowModal(false);
+            }}
+          />
+        </section>
+      </>
     );
   }
   return (
     <>
       <section
         id="workout-exercises"
-        className="flex flex-col space-y-[.6rem] border-4 border-blue"
+        className="no-scrollbar flex grow flex-col space-y-[.6rem] border-4 border-blue"
       >
         {!!workout &&
-          <CurrentWorkoutExercises
+          <CurrentExercises
             onNewExerciseClick={onNewExercise}
             workout_id={workout?.id! as string}
           />

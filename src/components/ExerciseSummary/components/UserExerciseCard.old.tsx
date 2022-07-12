@@ -42,15 +42,15 @@ export interface SummaryCardProps {
   workout_id: string;
   setCurrentFocus: React.Dispatch<React.SetStateAction<number>>;
 }
-export const UserExercsieCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
+export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
   const [expanded, setExpanded] = React.useState(false);
   const onExpand = () => {
     if (expanded) {
       setCurrentFocus(-1)
       setExpanded(false);
     } else {
-      setExpanded(true);
       setCurrentFocus(index)
+      setExpanded(true);
     }
   };
 
@@ -70,7 +70,7 @@ export const UserExercsieCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
     },
   });
 
-  const borders = true;
+  const borders = false;
   const expandIcon: SxProps = {
     display: "flex",
     transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
@@ -83,7 +83,7 @@ export const UserExercsieCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
   const set = React.useRef({
     weight: 0,
     reps: 0,
-    rpe: 0
+    rpe: 0,
   });
   const onAddSet = React.useCallback(() => {
     console.log("add set");
@@ -96,60 +96,109 @@ export const UserExercsieCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
 
   return (
     <>
-      <div id="exercise-card"
-        className="flex min-h-min grow 
-        flex-col
-        rounded-lg
-      bg-secondary
-        px-2 ">
-
-        <section id="exercise-overview"
-          className="flex justify-between space-x-[1rem] py-1 capitalize">
-          <div id="overview-info" className="w-full">
-            <div
-              id="exercise-name"
-              className="flex flex-col border-red-600">
-              <label className="text-[.8rem] leading-none text-text.secondary">Exercise</label>
-              <span className='text-xl leading-none'>
+      <Stack
+        key={index}
+        bgcolor="secondary.main"
+        borderRadius={2}
+        sx={{
+          display: "flex",
+          width: "100%",
+          px: ".5rem",
+          minHeight: "max-content",
+        }}
+      >
+        <Grid
+          container
+          component={Box}
+          className="exercise-summary"
+          sx={{
+            py: "0.25rem",
+            justifyContent: "space-between",
+            height: "min-content",
+          }}
+        >
+          <Grid
+            item
+            className="exercise-name"
+            sx={{ border: borders ? "1px solid red" : "" }}
+          >
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
+              <Typography sx={{ ...infoHeaders }}>Exercise</Typography>
+              <Typography variant="h6" sx={{ ...exerciseSummaryInfo }}>
                 {exercise.name}
-              </span>
-            </div>
-            <div id="additional-info" className="flex space-x-6 pt-[.2rem]">
-              <div
-                id="exercise-variant"
-                className="flex flex-col border-yellow-500 leading-snug">
-                <label className="text-[.6rem] text-text.secondary">Variant</label>
-                <span className='text-[1rem] font-light leading-none'>
-                  {exercise.variant}
-                </span>
-              </div>
-              <div id="target-muscle"
-                className="flex flex-col border-green-500 leading-snug">
-                <label className="text-[.6rem] text-text.secondary">Muscle</label>
-                <span className='text-[1rem] font-light leading-none'>
-                  {exercise.muscle}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div id="set-count"
-            className="flex flex-col items-center border-blue">
-            <label className="text-[1rem] text-text.secondary">Sets</label>
-            <span className='text-[1.5rem]'>
-              {exercise.sets.length}
-            </span>
-          </div>
-          <div id="expand-icon-container"
-            className="flex items-center border-violet-700">
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid
+            item
+            className="exercise-variant"
+            sx={{ border: borders ? "1px solid yellow" : "" }}
+          >
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
+              <Typography sx={{ ...infoHeaders }}>Variant</Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  ...exerciseSummaryInfo,
+                  fontSize: "1rem",
+                }}
+              >
+                {exercise.variant}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid
+            item
+            className="target-muscle"
+            sx={{ border: borders ? "1px solid green" : "" }}
+          >
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
+              <Typography sx={{ ...infoHeaders }}>Muscle</Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  ...exerciseSummaryInfo,
+                  fontSize: "1rem",
+                }}
+              >
+                {exercise.muscle}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid
+            item
+            className="set-count"
+            sx={{ border: borders ? "1px solid blue" : "" }}
+          >
+            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
+              <Typography sx={{ ...infoHeaders }}>Sets</Typography>
+              <Typography
+                variant="h6"
+                sx={{ ...exerciseSummaryInfo, fontSize: "1.1rem" }}
+              >
+                {exercise.sets.length}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid
+            item
+            className="expand-icon-container"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              border: borders ? "1px solid violet" : "none",
+            }}
+          >
             <ButtonBase
               onClick={onExpand}
               sx={{ borderRadius: "100%", ...expandIcon }}
             >
               <ExpandMoreRounded />
             </ButtonBase>
-          </div>
-        </section>
-        <Collapse id="exercise-set-details" in={expanded}>
+          </Grid>
+        </Grid>
+        <Collapse className="exercise-details" in={expanded}>
           <Divider sx={{ backgroundColor: "text.secondary" }} />
           <TableContainer
             sx={{
@@ -288,7 +337,7 @@ export const UserExercsieCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
             </ButtonBase>
           </Box>
         </Collapse>
-      </div>
+      </Stack>
     </>
   );
 };
@@ -309,12 +358,22 @@ const inputBox: SxProps = {
 
   "& .MuiTextField-root": {},
   "& .MuiInputBase-input": {
-    pl: "0.6rem",
+    pl: "0.8rem",
     py: "0.2rem",
     "& .MuiInputLabel-root": {
       margin: 0,
     },
   },
 };
-
-
+const infoHeaders: SxProps = {
+  fontSize: ".8rem",
+  fontWeight: "regular",
+  color: "text.secondary",
+};
+const exerciseSummaryInfo: SxProps = {
+  mt: "-.4rem",
+  fontWeight: "light",
+  width: "max-content",
+  alignSelf: "center",
+  mb: "-.25rem",
+};

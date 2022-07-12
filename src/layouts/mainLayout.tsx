@@ -17,6 +17,20 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [dayjs().toDate()]
     );
+    const img_src = React.useMemo(() => session?.user?.image, [session?.user?.image]);
+    const avatar = React.useCallback(() => {
+        if (session) {
+            return (
+                <Image src={img_src as string}
+                    width="90%" height="90%"
+                    className="rounded-full" />
+            )
+        } else {
+            return (
+                <AccountCircleIcon fontSize='inherit' />
+            )
+        }
+    }, [session])
     const router = useRouter();
     const appLocation = React.useMemo(() => {
         switch (router.pathname) {
@@ -47,7 +61,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 overflow-y-clip
                 bg-primary px-[1rem]"
             style={{
-                height: "100vh",
+                height: "100dvh",
                 // maxHeight: "fill-available",
             }}>
             <header id="nav-header"
@@ -77,18 +91,15 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                     h-[4rem] w-[4rem] 
                     items-center justify-center 
                     text-[4rem]">
-                    {!session?.user.image ?
-                        <AccountCircleIcon fontSize='inherit' /> :
-                        <Image
-                            src={session.user.image}
-                            width="90%" height="90%"
-                            className="rounded-full" />
-                    }
+
+                    {avatar()}
+
                 </div>
             </header>
             <div
                 id="page-container"
-                className="flex grow flex-col  
+                className="flex grow flex-col
+                relative  
                 border-4 border-orange-500 
                 pt-[2rem]">
                 {children}
