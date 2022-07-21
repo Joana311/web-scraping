@@ -32,7 +32,6 @@ const Workout = () => {
       }
     },
   });
-
   // createWorkout client side
   React.useEffect(() => {
     if (mutationRef.current) { return }
@@ -61,7 +60,26 @@ const Workout = () => {
   const onNewExercise = React.useCallback(() => {
     setShowModal(true);
   }, [])
-  if (showModal) {
+
+  const close_workout = trpc.useMutation("workout.close_by_id", {
+    onSuccess: () => {
+      query_context.invalidateQueries("workout.get_current");
+      query_context.invalidateQueries("workout.get_recent");
+      query_context.invalidateQueries("workout.get_by_id");
+      router.push(`/${router.query.user}`);
+    }
+  })
+  const onEndWorkout = () => {
+    let res = confirm("Are you sure you want to end this workout?");
+    if (res) {
+      close_workout.mutate({ workout_id: (workout?.id) || "" });
+    }
+  }
+  const isCurrentWorkout = React.useCallback(() => {
+    return workout?.id === query_context.getQueryData(["workout.get_current"])?.id
+  }, [workout_id, query_context.getQueryData(["workout.get_current"])?.id]);
+
+  if (showModal && isCurrentWorkout()) {
     return (
       <>
         <button id="close-modal"
@@ -70,7 +88,7 @@ const Workout = () => {
           {"close"}
           <CancelIcon className="pl-1" fontSize="inherit" />
         </button>
-        <section id="new-exercise-modal" className="flex grow border-4 border-blue">
+        <section id="new-exercise-modal" className="flex grow //border-4 border-blue">
           <AddNewExerciseModal
             exercises={exrx_data}
             workout_id={workout_id as string}
@@ -84,14 +102,24 @@ const Workout = () => {
   }
   return (
     <>
+      {!workout?.closed &&
+        <div className="absolute top-[.3rem] flex w-full justify-start">
+          <button id="end-workout"
+            onClick={() => onEndWorkout()}
+            className="relative rounded-lg  bg-yellow-500/20  border border-yellow-500 text-yellow-400  px-2 text-[.9rem]">
+            {"Finish Workout"}
+            {/* <CancelIcon className="pl-1" fontSize="inherit" /> */}
+          </button>
+        </div>}
       <section
         id="workout-exercises"
-        className="no-scrollbar flex grow flex-col space-y-[.6rem] border-4 border-blue"
+        className="no-scrollbar flex grow flex-col space-y-[.6rem]  border-blue"
       >
         {!!workout &&
           <CurrentExercises
             onNewExerciseClick={onNewExercise}
             workout_id={workout?.id! as string}
+            is_current={isCurrentWorkout()}
           />
         }
       </section>

@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 // React Functional Component
 const UserPage: NextPage = () => {
   return (
-    <div id="daily-summary" className="space-y-[2em] border-4 border-blue">
+    <div id="daily-summary" className="space-y-[2em] //border-4 border-blue">
       <section id="activity-summary-and-heatmap"
         className={`min-h-max`}
       >

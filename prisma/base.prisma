@@ -36,6 +36,8 @@ model UserWorkout {
   owner_id   String
   exercises  UserExercise[]
   closed     Boolean        @default(false)
+
+  @@unique([owner_id, id], name: "owner_and_workout_id")
 }
 
 model UserExercise {

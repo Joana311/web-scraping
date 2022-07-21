@@ -115,4 +115,95 @@ export const workoutRouter = createRouter()
         });
       }
     },
+  }).mutation("close_by_id", {
+    input: z.object({
+      workout_id: z.string().cuid(),
+    }),
+    async resolve({ input: { workout_id }, ctx: { session } }) {
+      const owner_id = session?.user.id!;
+      console.log("workout_id: ", workout_id);
+      console.log("owner_id: ", owner_id);
+      try {
+
+
+        let workout = await prisma.userWorkout.update({
+          where: {
+            owner_and_workout_id: {
+              owner_id: owner_id,
+              id: workout_id,
+            },
+          },
+          data: {
+            closed: true,
+            ended_at: new Date(),
+          },
+          select: defaultWorkoutSelect,
+        })
+        console.log("workout", workout);
+        if (!workout) {
+          throw new TRPCError({
+            message: "workout not found",
+            code: "BAD_REQUEST",
+          });
+        } else {
+          console.log("workout updated", workout);
+          return true
+        }
+      } catch (error) {
+        console.log("error", error);
+        // throw new TRPCError({
+        //   message: error.message,
+        //   code: "BAD_REQUEST",
+        // });
+      }
+
+
+    }
+
+  }).mutation("delete_by_id", {
+    input: z.object({
+      workout_id: z.string().cuid(),
+      is_confirmed: z.boolean().optional(),
+    }),
+    async resolve({ input: { workout_id, is_confirmed }, ctx: { session } }) {
+      const owner_id = session?.user.id!;
+      try {
+        let workout = await prisma.userWorkout.findUnique({
+          where: {
+            owner_and_workout_id: {
+              owner_id: owner_id,
+              id: workout_id,
+            },
+          },
+          select: defaultWorkoutSelect,
+        })
+        if (is_confirmed || is_workout_empty(workout)) {
+          try {
+            await prisma.userWorkout.delete({
+              where: {
+                owner_and_workout_id: {
+                  owner_id: owner_id,
+                  id: workout_id,
+                },
+              },
+            });
+          } catch (error) {
+            throw new TRPCError({
+              message: "There was an error deleting the workout",
+              code: "INTERNAL_SERVER_ERROR",
+            })
+          }
+        } else {
+          throw new TRPCError({
+            message: "workout is not empty",
+            code: "BAD_REQUEST",
+          });
+        }
+      } catch (error) {
+        throw new TRPCError({
+          message: error.message,
+          code: "BAD_REQUEST",
+        });
+      }
+    }
   });

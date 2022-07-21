@@ -8,6 +8,7 @@ import { NextPageContext } from "next";
 // ℹ️ Type-only import:
 // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export
 import type { AppRouter } from "@server/routers/_app";
+import { nextAuthOptions } from "src/pages/api/auth/[...nextauth]";
 
 /**
  * Extend `NextPageContext` with meta data that can be picked up by `responseMeta()` when server-side rendering
@@ -40,7 +41,7 @@ export default trpc;
  */
 export type inferQueryOutput<
   TRouteKey extends keyof AppRouter["_def"]["queries"]
-> = inferProcedureOutput<AppRouter["_def"]["queries"][TRouteKey]>;
+  > = inferProcedureOutput<AppRouter["_def"]["queries"][TRouteKey]>;
 
 // export type inferQueryOptions<
 //   TRouteKey extends keyof AppRouter["_def"]["queries"]
@@ -48,24 +49,28 @@ export type inferQueryOutput<
 
 export type inferQueryInput<
   TRouteKey extends keyof AppRouter["_def"]["queries"]
-> = inferProcedureInput<AppRouter["_def"]["queries"][TRouteKey]>;
+  > = inferProcedureInput<AppRouter["_def"]["queries"][TRouteKey]>;
 
 export type inferMutationOutput<
   TRouteKey extends keyof AppRouter["_def"]["mutations"]
-> = inferProcedureOutput<AppRouter["_def"]["mutations"][TRouteKey]>;
+  > = inferProcedureOutput<AppRouter["_def"]["mutations"][TRouteKey]>;
 
 export type inferMutationInput<
   TRouteKey extends keyof AppRouter["_def"]["mutations"]
-> = inferProcedureInput<AppRouter["_def"]["mutations"][TRouteKey]>;
+  > = inferProcedureInput<AppRouter["_def"]["mutations"][TRouteKey]>;
 
 type ClientError = TRPCClientErrorLike<AppRouter>;
 
 export type inferUseTRPCQueryOptions<
   TRouteKey extends keyof AppRouter["_def"]["queries"]
-> = UseTRPCQueryOptions<
-  TRouteKey,
-  inferQueryInput<TRouteKey>,
-  inferQueryOutput<TRouteKey>,
-  inferQueryOutput<TRouteKey>,
-  ClientError
->;
+  > = UseTRPCQueryOptions<
+    TRouteKey,
+    inferQueryInput<TRouteKey>,
+    inferQueryOutput<TRouteKey>,
+    inferQueryOutput<TRouteKey>,
+    ClientError
+  >;
+
+// type authOptions = inferUseTRPCQueryOptions<"next-auth.get_session">;
+// type authOutput = inferQueryOutput<"next-auth.get_session">;
+// type authInput = inferQueryInput<"next-auth.get_session">;

@@ -322,7 +322,7 @@ const AddNewExerciseModal = ({
     <Box id="exercise-list"
       className="border flex grow"
       sx={{
-        border: "3px solid white",
+        // border: "3px solid white",
         position: "relative",
         maxHeight: "100%",
         display: "flex",

@@ -100,7 +100,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 id="page-container"
                 className="flex grow flex-col
                 relative  
-                border-4 border-orange-500 
+                //border-4 border-orange-500 
                 pt-[2rem]">
                 {children}
             </div>

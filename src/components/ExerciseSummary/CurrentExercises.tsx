@@ -18,10 +18,12 @@ import trpc from "@client/trpc";
 interface ExerciseSummaryProps {
   onNewExerciseClick: () => void;
   workout_id: string;
+  is_current: boolean;
 }
 const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   workout_id,
   onNewExerciseClick,
+  is_current,
 }: ExerciseSummaryProps) => {
   const { data: workout } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }], { enabled: !!workout_id }
   );
@@ -68,28 +70,29 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
           </Link>
         }
       </div>
-      <ButtonBase
-        onClick={onNewExerciseClick}
-        sx={{
-          borderRadius: 2,
-          backgroundColor: "secondary.main",
-          display: "flex",
-          border: "1px solid white",
-          width: "100%",
-          minHeight: "max-content",
-          py: ".2rem",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <a className="text-[.9rem] font-semibold">
-          {"New Exercise"}
-        </a>
-      </ButtonBase>
+      {is_current &&
+        <ButtonBase
+          onClick={onNewExerciseClick}
+          sx={{
+            borderRadius: 2,
+            backgroundColor: "secondary.main",
+            display: "flex",
+            border: "1px solid white",
+            width: "100%",
+            minHeight: "max-content",
+            py: ".2rem",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <a className="text-[.9rem] font-semibold">
+            {"New Exercise"}
+          </a>
+        </ButtonBase>}
       {/* </div> */}
 
       <ul id="user-exercise-list"
-        className="no-scrollbar relative flex snap-y flex-col space-y-4 overflow-y-scroll border-2 border-dashed border-pink-600 pt-4"
+        className="no-scrollbar relative flex snap-y flex-col space-y-4 overflow-y-scroll //border-2 border-dashed border-pink-600 pt-4"
       >
         {formatted_exercises.reverse().map((exercise, index) => {
           return (
@@ -99,6 +102,7 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
               workout_id={workout_id}
               exercise={exercise}
               isFocused={index === currentFocus}
+              is_current={is_current}
               setCurrentFocus={setCurrentFocus}
             />
           );

@@ -36,9 +36,11 @@ mobile has a hard time displaying negative margins
 
     [ ] new workout is super slow to route to
     
+    [ ] routing to home sometimes doesnt show the correct button for create or continue workout. Need to make to either save state of an open workout in app context or make sure were making a request everytime we hit that page for `workout.current`
+
 ## Minor Bugs
 
-    [ ] iOS display is super wonky. need too look up better ways to display vh
+    [ ] iOS display is super wonky. need too look up better ways to display vh. need to update my iphone to latest iOS version.
 
 ## Todo
 
@@ -78,7 +80,7 @@ mobile has a hard time displaying negative margins
 
 ## Done Recently
     
-    [x] ability to delete an exercise from current workout 
+    [x] ability to delete an exercise from current workout. Added pretty animations too
     
     [x] allow for only 1 Exercise card to be expanded at a time.
 

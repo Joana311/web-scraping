@@ -43,9 +43,10 @@ export interface SummaryCardProps {
   isFocused: boolean;
   index: number;
   workout_id: string;
+  is_current: boolean;
   setCurrentFocus: React.Dispatch<React.SetStateAction<number>>;
 }
-export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id }) => {
+export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id, is_current: is_open }) => {
   const [expanded, setExpanded] = React.useState(false);
   const onExpand = () => {
     if (expanded) {
@@ -251,14 +252,15 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                       <TableCell align="center">{set.weight}</TableCell>
                       <TableCell align="center">{set.reps}</TableCell>
                       <TableCell align="center">{set.rpe}</TableCell>
-                      <td className="absolute right-[1rem] overflow-visible ">
-                        <button className="relative   m-0 flex items-center  justify-center border-blue p-0">
-                          <CancelIcon
-                            onClick={() => onDeleteSet(set.id)}
-                            className="relative"
-                            fontSize="inherit" />
-                        </button>
-                      </td>
+                      {is_open &&
+                        <td className="absolute right-[1rem] overflow-visible ">
+                          <button className="relative   m-0 flex items-center  justify-center border-blue p-0">
+                            <CancelIcon
+                              onClick={() => onDeleteSet(set.id)}
+                              className="relative"
+                              fontSize="inherit" />
+                          </button>
+                        </td>}
                     </TableRow>
                   ))}
                   <TableRow
@@ -268,7 +270,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                   ></TableRow>
                   {(
                     <>
-                      <TableRow
+                      {is_open && <TableRow
                         sx={{
                           "& .MuiTableCell-root": {
                             pt: "0.6rem",
@@ -333,38 +335,40 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                             sx={{ ...inputBox }}
                           />
                         </TableCell>
-                      </TableRow>
+                      </TableRow>}
                     </>
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
-            <ButtonBase className='rounded-b-lg' sx={{
-              border: "1px solid white", width: "100%", py: ".2rem",
-              borderRadius: "0 0 .5rem .5rem",
-            }} onClick={() => {
-              onAddSet()
-            }}>
-              <span className="text-[1rem] font-bold">
-                Add Set
-              </span>
-            </ButtonBase>
+            {is_open &&
+              <ButtonBase className='rounded-b-lg' sx={{
+                border: "1px solid white", width: "100%", py: ".2rem",
+                borderRadius: "0 0 .5rem .5rem",
+              }} onClick={() => {
+                onAddSet()
+              }}>
+                <span className="text-[1rem] font-bold">
+                  Add Set
+                </span>
+              </ButtonBase>}
           </Collapse>
         </div>
-        <div id="remove-exercise-button"
-          className={`my-2 flex snap-end items-stretch rounded-lg bg-red-700 transition-all ${(expanded) && "hidden"}`}>
-          <ButtonBase className="text-[2.5rem]"
+        {is_open &&
+          <div id="remove-exercise-button"
+            className={`my-2 flex snap-end items-stretch rounded-lg bg-red-700 transition-all ${(expanded) && "hidden"}`}>
+            <ButtonBase className="text-[2.5rem]"
 
-            onClick={onDeleteExercise}
-            sx={{
-              minHeight: "fill",
-              px: ".5rem",
-              alignItems: "center",
-              justifyContent: "center",
-            }}>
-            <DeleteIcon fontSize="inherit" />
-          </ButtonBase>
-        </div>
+              onClick={onDeleteExercise}
+              sx={{
+                minHeight: "fill",
+                px: ".5rem",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+              <DeleteIcon fontSize="inherit" />
+            </ButtonBase>
+          </div>}
       </li>
     </>
   );
