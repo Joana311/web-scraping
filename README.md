@@ -1,6 +1,6 @@
 # Screenshots
 
-![image](https://i.imgur.com/WD82jkl.gif)
+![image](https://i.imgur.com/Xy1SrBo.gif)
 
 # About
 
