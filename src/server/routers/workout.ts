@@ -5,12 +5,10 @@ import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
 import dayjs from "dayjs";
 import { resolve } from "path";
-
 export const defaultWorkoutSelect =
   _Prisma.validator<_Prisma.UserWorkoutInclude>()({
     exercises: { include: { exercise: true, sets: true } },
   });
-
 const is_workout_empty = (workout: any) => {
   // console.log("exercises", workout?.exercises);
   const no_exercises =
@@ -168,7 +166,7 @@ export const workoutRouter = createRouter()
     async resolve({ input: { workout_id, is_confirmed }, ctx: { session } }) {
       const owner_id = session?.user.id!;
       try {
-        let workout = await prisma.userWorkout.findUnique({
+        let workout = await prisma.userWorkout.findUniqueOrThrow({
           where: {
             owner_and_workout_id: {
               owner_id: owner_id,
@@ -199,7 +197,7 @@ export const workoutRouter = createRouter()
             code: "BAD_REQUEST",
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         throw new TRPCError({
           message: error.message,
           code: "BAD_REQUEST",

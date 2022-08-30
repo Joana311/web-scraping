@@ -9,13 +9,17 @@ module.exports = {
   ],
   theme: {
     // colors: {},
+    ripple: (theme) => ({
+      colors: theme("colors")
+    }),
     extend: {
       backgroundColor: {
         primary: "#000",
         secondary: "#262626"
       },
+
       colors: {
-        blue: "#2196f3",
+        blue: "#2196f3", //2196f3
         "blue-light": "#64b5f6",
         "blue-dark": "#0d47a1",
         "text.primary": "#fff",
@@ -27,5 +31,5 @@ module.exports = {
   variants: {
     animation: ({ after }) => after(["motion-safe", "motion-reduce"])
   },
-  plugins: []
+  plugins: [require("tailwindcss-ripple")()]
 };

@@ -1,6 +1,11 @@
-// @ts-check
+// @ts-nocheck
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { env } = require("./src/server/config/env");
+const withPWA = require("next-pwa")({
+  dest: "public",
+  register: true,
+  skipWaiting: true
+});
 
 /**
  * Don't be scared of the generics here.
@@ -17,7 +22,7 @@ function getConfig(config) {
 /**
  * @link https://nextjs.org/docs/api-reference/next.config.js/introduction
  */
-module.exports = getConfig({
+module.exports = withPWA({
   /**
    * Dynamic configuration available for the browser and server.
    * Note: requires `ssr: true` or a `getInitialProps` in `_app.tsx`

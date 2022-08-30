@@ -2,23 +2,16 @@ import { ExpandMoreRounded } from "@mui/icons-material";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Box,
-  ButtonBase,
-  Typography,
   Checkbox,
 } from "@mui/material";
 import Link from "next/link";
 import React, { SyntheticEvent } from "react";
-import { PrismaClient, Exercise } from "@prisma/client";
-import { GetStaticProps, GetServerSideProps } from "next";
-import { Context } from "../../../../misc/__dep__graphql/context";
+import { Exercise } from "@prisma/client";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-
-import { NextRouter, useRouter, withRouter } from "next/router";
+import { withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
-import { UrlWithParsedQuery } from "url";
 import trpc from "@client/trpc";
-import { useAppUser } from "@client/providers/app_user.test";
-import { ClassNames } from "@emotion/react";
+
 interface AddExerciseProps {
   exercises?: Exercise[];
   workout_id: string;
@@ -133,20 +126,19 @@ const AddNewExerciseModal = ({
       const selected_ids = [...selected.values()].map(([exercise_id, _]) => {
         return exercise_id;
       });
-
+      console.log(selected_ids);
       await add_exercises.mutateAsync({
         exercise_id: selected_ids,
       }, {
         onSuccess(data, variables, context) {
-          onClose!();
           // setExerciseSelected(new Map());
+          onClose!();
         },
       });
-      console.groupEnd();
     } else {
       console.log("No exercises selected");
-      onClose!();
     }
+    console.groupEnd();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExerciseMap]);
 
@@ -399,37 +391,14 @@ const AddNewExerciseModal = ({
           }}
         />
       </div>
-      <Box id="add-button-container"
-        sx={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          position: "absolute",
-          bottom: ".75rem",
-          zIndex: 2,
-        }}
-      >
-        <ButtonBase
-          onClick={onAddSelected}
-          sx={{
-            display: amountSelected ? "" : "none",
-            backgroundColor: amountSelected ? "blue.main" : "#fff",
-            borderRadius: 2,
-            //   border: "1px solid white",
-            width: "70%",
-            px: ".5rem",
-            py: ".2rem",
-            alignItems: "center",
-            zIndex: "100",
-          }}
-        >
-          <span
-            className={`h-max text-base font-bold`}
-          >
+      <div id="add-button-container"
+        className="w-[100%] flex justify-center absolute bottom-5 z-[100]">
+        <button style={{ display: amountSelected ? '' : "none" }} onClick={() => onAddSelected()} className="ripple-bg-blue rounded-md w-[70%] px-2 py-[.2rem] items-center bg-[#2196f3]">
+          <span className={`h-max text-base font-bold`}>
             Add {amountSelected ? `(${amountSelected})` : ""}
           </span>
-        </ButtonBase>
-      </Box>
+        </button>
+      </div>
     </section >
 
   );

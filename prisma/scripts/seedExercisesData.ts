@@ -1,3 +1,4 @@
+//
 import fs from "fs";
 import { PrismaClient } from "@prisma/client";
 const testMuscleGroups = ["shoulders", "chest", "back", "upper arms"];

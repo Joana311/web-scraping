@@ -86,9 +86,10 @@ export const exerciseRouter = createRouter()
   })
   .mutation("add_to_current_workout", {
     input: z.object({
-      exercise_id: z.string().cuid().array(),
+      exercise_id: z.string().uuid().array(),
     }),
     async resolve({ input: { exercise_id }, ctx }) {
+      console.log("adding exercises", exercise_id);
       const owner_id = ctx?.session?.user.id;
       let open_workout = await open_workout_if_exists(owner_id!);
       if (!open_workout) {

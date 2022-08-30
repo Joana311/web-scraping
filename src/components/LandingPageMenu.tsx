@@ -3,11 +3,6 @@ import Card from "@mui/material/Card";
 import React from "react";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
-import {
-  useAppUser,
-  useGetByUserName,
-  useLogin,
-} from "@client/providers/app_user.test";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
 

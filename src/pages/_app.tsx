@@ -4,7 +4,6 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { CacheProvider, EmotionCache } from "@emotion/react";
 import theme from "../../styles/theme";
-import createEmotionCache from "../emotion/createEmotionCache";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
 import { withTRPC } from "@trpc/next";
@@ -21,15 +20,12 @@ import "../../styles/globals.css";
 import { useRouter } from "next/router";
 import { TRPCClientError } from "@trpc/client";
 
-// Client-side cache, shared for the whole session of the user in the browser.
-const clientSideEmotionCache = createEmotionCache();
 // interface MyAppProps extends AppProps {
 //   emotionCache?: EmotionCache;
 //   pageProps: any;
 // }
 
 const App: AppType = ({ pageProps, Component }): JSX.Element => {
-  let emotionCache = clientSideEmotionCache;
   const {
     data: session,
     error,
