@@ -28,7 +28,7 @@ model Session {
 // if it doesnt work, user name instead of username
 // also use cuid instead of uuid if something goes wrong
 model User {
-    id            String    @id @default(uuid())
+    id            String    @id @default(cuid())
     name          String?
     username      String?
     email         String?   @unique

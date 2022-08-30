@@ -18,7 +18,11 @@ const generate_prisma_client = () => {
         console.log(`No global prisma client. Creating new.`);
         // console.log(global);
         _global.prisma = new PrismaClient({
-          /*log: ['query']*/
+          // log: ['query',
+          //   'info',
+          //   'warn',
+          //   'error'
+          // ],
         });
       }
     }

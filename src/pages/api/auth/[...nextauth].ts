@@ -24,23 +24,29 @@ export const nextAuthOptions: NextAuthOptions = {
             console.log(account)
         },
         signIn: async ({ user, isNewUser, account }) => {
-            console.log("signing in user")
+            console.log("Signing in user")
             console.log("isNewUser: ", isNewUser)
-
+            // delete expire sessions
+            console.log("Cleaning up expired sessions")
+            await prisma.session.deleteMany({
+                where: {
+                    userId: user.id,
+                    expires: {
+                        lt: dayjs().toISOString()
+                    }
+                }
+            });
         },
         updateUser({ user }) {
             console.log('updateUser', user);
         },
+        session({ session, }) {
+        },
     },
 
     callbacks: {
-        // async redirect(params) {
-        //     console.log("nextauth redirect")
-        //     console.log(params)
-        //     return params.url
-        // },
         async session({ session, user }) {
-            console.log("session callback")
+            // console.log("session callback")
             // console.log("user is: ", user)
             session.user = {
                 id: user.id,
@@ -48,33 +54,20 @@ export const nextAuthOptions: NextAuthOptions = {
                 username: user.name || null,
                 image: user.image || null,
             }
-            // console.log("passed user is: ", session.user)
             return session
-            // session.expires = dayjs().add(5, "minutes").toISOString()
-            // return {
-            //     user: {
-            //         
-            //     },
-            //     expires: session.expires,
-            // } as Session;
         }
     },
     session: {
         strategy: "database",
-        maxAge: 60 * 10, // 10 minutes
+        maxAge: 60 * 90, // 90 minutes
     },
     theme: {
         logo: "https://i.imgur.com/OX5mAdU.png",
         colorScheme: "dark",
         brandColor: "#ff0000",
     },
-    debug: false, // process.env.NODE_ENV !== 'production',
-    // secret: process.env.AUTH_SECRET!,
-    // jwt: {
-    //     // secret: process.env.JWT_SECRET!,
-    //     // encode: async () => { return {} },
-
-    // }
+    debug: true,//process.env.NODE_ENV !== 'production',
+    secret: process.env.NEXTAUTH_SECRET!,
 
 }
 

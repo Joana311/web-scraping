@@ -30,6 +30,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 <AccountCircleIcon fontSize='inherit' />
             )
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session])
     const router = useRouter();
     const appLocation = React.useMemo(() => {
@@ -56,13 +57,18 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
     return (
         <div id="app-container"
             className="flex
+                h-screen
+                max-h-screen
                 grow
                 flex-col
-                overflow-y-clip
+                overflow-y-hidden
+                border-4
+                border-emerald-500
                 bg-primary px-[1rem]"
             style={{
-                height: "100dvh",
-                // maxHeight: "fill-available",
+                // height: "100dvh",
+                // // maxHeight: "100vh",
+                // maxHeight: "100dvh"
             }}>
             <header id="nav-header"
                 className="
@@ -98,9 +104,12 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             </header>
             <div
                 id="page-container"
-                className="flex grow flex-col
-                relative  
-                //border-4 border-orange-500 
+                className="relative flex
+                fill-height
+                grow
+                flex-col
+                border
+                border-orange-500
                 pt-[2rem]">
                 {children}
             </div>

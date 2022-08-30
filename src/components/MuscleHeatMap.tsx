@@ -22,9 +22,9 @@ const MuscleHeatMap = () => {
                     data-name="Body_Outline"
                     // fill="blue"
                     stroke="white"
-                    stroke-width="1.5"
+                    strokeWidth="1.5"
                     opacity={1}
-                    stroke-miterlimit="10"
+                    strokeMiterlimit="10"
                     d="M285.15,248.66
                         c-0.35-1.45-4-3.65-7.28-5.59c-2.89-1.73-5.88-3.51-7.45-5.19c-3.63-3.89-7-4.32-7.07-4.33h-0.21l-0.15-0.15
                         c-10.33-10.77-8-21.49-11.12-31.82c-0.8-2.6-1.55-5.06-2.38-7.43c-4.22-12-13.3-18.69-16.87-23.09c-2.22-2.74-4.8-5.1-4.25-6.73
@@ -79,8 +79,8 @@ const MuscleHeatMap = () => {
                     fill="#fff"
                     // stroke="#fff"
                     opacity="1"
-                    stroke-width="1.5"
-                    stroke-miterlimit="10"
+                    strokeWidth="1.5"
+                    strokeMiterlimit="10"
                     d="M164.53,35
 		c0.31-1.918,0.521-3.85,0.63-5.79c0.106-5.395-0.973-10.747-3.16-15.68c-1.25-2.5-6.27-9.71-12.22-11.9
 		c-2.333-0.776-4.801-1.065-7.25-0.85c-2.449-0.215-4.917,0.074-7.25,0.85c-5.95,2.19-11,9.4-12.22,11.9
@@ -93,24 +93,24 @@ const MuscleHeatMap = () => {
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M147.87,69.17
 			c-3.089,0.558-6.249,0.595-9.35,0.11c-2.2-0.55,4.63,17.09,4.63,17.09l0.06-0.28v0.17C143.21,86.26,149.94,68.72,147.87,69.17z"
                     />
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M158.69,80c1.07,2.13,7,6.48,4.47,7.6
 			s-8.09,1-8.09-0.08S158.14,78.87,158.69,80z"
                     />
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M157.84,233.63c-1.22,1.26-9.17,8-9,9.19
 			c0.24,1.74,4.95,13.19,6.71,14.26s1.41-6.7,3.07-11c1.77-4.55,13.78-21.85,13.77-22.47C172.37,223.18,162.57,228.76,157.84,233.63
 			z"
@@ -118,16 +118,16 @@ const MuscleHeatMap = () => {
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M176.56,221.57
 			c1.78,19.32-23.18,73.67-28.18,91.42C142.17,263.78,172.67,239.94,176.56,221.57z"
                     />
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M179.81,339.59
 			c0.47-1.9-2.1,20.11-2.05,22.07s-6.23,3.71-7.9,5.89c-0.22-1.6,1.13-5.79,1.48-7.29S177.5,349,179.81,339.59z"
                     />
@@ -136,8 +136,8 @@ const MuscleHeatMap = () => {
                         data-name="Sternocleidomastoid"
                         fill="red"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M157.59,62.82
 			c3.62,1.25-0.35,10.07-0.56,11.59s-9.78,19.12-10.43,20.43s-1.74-7.82-0.66-9.56S156.77,62.54,157.59,62.82z M128.94,64.64
 			c-1.3,0-0.44,8.25-0.22,9.77s9.78,19.12,10.43,20.43s1.74-7.82,0.65-9.56S129.81,64.64,128.94,64.64z"
@@ -147,8 +147,8 @@ const MuscleHeatMap = () => {
                         data-name="Hands"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M257.33,234.82
 			c2.06,0.68,2.82,3.42,4,4.19s7.92,11.36,7.26,12.71s-5,4-5.63,5.44c-0.875,2.391-2.968,4.125-5.48,4.54
 			c-3.48,0.55-7.23-13.57-7.27-16s-0.27-9.29,0.72-9.79C251.53,235.63,256.5,234.55,257.33,234.82z M272.33,246.47
@@ -171,8 +171,8 @@ const MuscleHeatMap = () => {
                         data-name="Lateral_Delts"
                         fill="white"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M189.77,87.14
 			c5.21,0.21,15.86-0.92,21.94,4.51c3.87,3.46,4.25,14.92,1.75,25.67C211.07,108.63,200,94.31,189.77,87.14z M97.26,87.14
 			c-5.22,0.21-15.87-0.92-22,4.51c-3.87,3.46-4.25,14.92-1.75,25.67C76,108.63,87,94.31,97.26,87.14z"
@@ -182,8 +182,8 @@ const MuscleHeatMap = () => {
                         data-name="Front_Delts"
                         fill="#a00"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M182.19,88.61
 			c8.92,1.25,25.06,13.42,25.51,28.83C195.26,117.23,182.6,99.61,182.19,88.61z M104.83,88.61c-8.92,1.25-25.06,13.39-25.51,28.83
 			C91.76,117.23,104.42,99.61,104.83,88.61z"
@@ -193,8 +193,8 @@ const MuscleHeatMap = () => {
                         data-name="Pecs"
                         fill="#b60"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M146.21,97.37
 			c1.14-0.78,12.18-12.52,26.17-5.38c12.17,6.2,21.49,25.5,21.33,26c-0.21,0.67-27.08,16.62-37.51,16.62
 			c-6.09,0-10.65-4.36-10.65-6.15C145.55,126.67,144.9,98.27,146.21,97.37z M139.81,97.37c-1.14-0.78-12.18-12.52-26.17-5.38
@@ -206,8 +206,8 @@ const MuscleHeatMap = () => {
                         data-name="Biceps"
                         fill="#fff"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M200.94,120.1
 			c1.78-0.35,14.41,1.28,18,3.47c11.38,6.87,11.25,18.25,8.13,26.62c-1.51,4-1.1,16.15-7,16.15s-19.35-19.56-20.71-25.69
 			S196.4,121,200.94,120.1z M86.08,120.1c-1.78-0.35-14.41,1.28-18,3.47c-11.38,6.87-11.25,18.25-8.13,26.62
@@ -218,8 +218,8 @@ const MuscleHeatMap = () => {
                         data-name="Brachialis"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M212.19,169.15
 			c-0.195,0.03-0.395,0.009-0.58-0.06c-8.89-3.2-13.34-11.25-15.26-14.79c-0.314-0.89-0.545-1.807-0.69-2.74
 			c-0.35-0.37-1.48-4.91-1-5.22c0.455-0.312,1.066-0.266,1.47,0.11l0.45,0.49c2.66,2.87,8.47,16.21,16.9,19.25
@@ -233,8 +233,8 @@ const MuscleHeatMap = () => {
                         data-name="Brachioradialis"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M249.09,208.36
 			c0.64,1.66,7.36,21.24,6.08,21s-5.49-10.74-9.35-16.2C242.5,208.5,231,197,229.38,191.32c-0.78-2.72-6.92-9.21-5.67-22.08
 			C247.84,180,246.41,201.43,249.09,208.36z M36.93,208.36c-0.64,1.66-7.36,21.24-6.08,21s5.5-10.74,9.35-16.2
@@ -245,8 +245,8 @@ const MuscleHeatMap = () => {
                         data-name="Pronators"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M211,171
 			c1.39,0,15.19,17.3,14.89,20.44s-6.47-0.52-10.44-2.83s-6.18-4.48-6-5.82S209,171,211,171z M76.05,171
 			c-1.39,0-15.19,17.3-14.89,20.44s6.47-0.52,10.44-2.83s6.18-4.48,6.05-5.82S78,171,76.05,171z"
@@ -256,8 +256,8 @@ const MuscleHeatMap = () => {
                         data-name="Wrist_Flexors"
                         fill="red"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M220.61,195
 			c19.77,3,27.64,32.44,27.95,34.84c-3.88-5.12-16.8-19.55-17.86-20.91C228.56,206.22,222.43,198,220.61,195z M213.31,189.23
 			c-0.074,0.018-0.128,0.083-0.13,0.16c0.061,0.71,0.188,1.413,0.38,2.1c0.519,1.803,1.188,3.559,2,5.25
@@ -280,8 +280,8 @@ const MuscleHeatMap = () => {
                         data-name="Trapezius"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M161.21,72.38
 			c9.75-1.19,19.6,9.29,21.36,11.05s-10,2.26-11.06,2.26s-9-7-10.3-9S159.46,72.59,161.21,72.38z M125.82,72.38
 			c-9.76-1.19-19.61,9.29-21.36,11.05s10.05,2.26,11.05,2.26s9-7,10.31-9S127.56,72.59,125.82,72.38z"
@@ -289,8 +289,8 @@ const MuscleHeatMap = () => {
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M128.33,80c-1.07,2.13-7,6.48-4.47,7.6
 			s8.09,1,8.09-0.08S128.89,78.87,128.33,80z"
                     />
@@ -299,8 +299,8 @@ const MuscleHeatMap = () => {
                         data-name="Abominals"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M139.39,136.1
 			c3.13,0.5,0.52,10.39,0.26,11.69s-16.88,1.3-19.74,6.49s-0.78-5.71-0.78-7.79S126.4,134,139.39,136.1z M146.63,136.1
 			c-3.13,0.5-0.52,10.39-0.26,11.69s16.88,1.3,19.74,6.49s0.78-5.71,0.78-7.79S159.62,134,146.63,136.1z M166.9,163.34
@@ -320,8 +320,8 @@ const MuscleHeatMap = () => {
                         data-name="Obliques"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M177.38,172.65
 			c6.38,2-0.67,20.18-0.67,23s-1,16.66-1.37,19s-7.43,6.08-8.63,6.3s-1.17-5.83-0.66-8s3.19-26.11,3.35-28.71
 			C169.57,181.45,176.36,172.33,177.38,172.65z M108.64,172.65c-6.37,2,0.67,20.18,0.67,23s1,16.66,1.37,19s7.44,6.08,8.63,6.3
@@ -332,8 +332,8 @@ const MuscleHeatMap = () => {
                         data-name="Serratus_Anterior"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M180.18,156.38
 			c1.73-2.17-1.17,9.1-1.61,10.4s-6.3,6.3-7.17,5.43s-0.22-7.82-0.22-7.82C177.05,162.22,178.44,158.56,180.18,156.38z
 			 M171.82,152.38c-0.25,2-1.27,8.66,0,8.92s7.65-8.84,8.42-10.88s0.34-3.71-0.43-3.2s-7.73,3.14-7.99,5.18L171.82,152.38z
@@ -349,8 +349,8 @@ const MuscleHeatMap = () => {
                         data-name="Lastissimus_Dorsi"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M191,142.16
 			c-0.29,5.15-3.85,12.16-6.18,14.68c-1.68,1.82-1.76-15.37-1.76-17.19c0-2.18,5.74-13.73,8.2-16.67
 			C190.59,129.52,191.42,134.55,191,142.16z M95,142.16c0.29,5.15,3.85,12.16,6.18,14.68c1.68,1.82,1.76-15.37,1.76-17.19
@@ -361,8 +361,8 @@ const MuscleHeatMap = () => {
                         data-name="Adductors"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M153.22,259.35
 			c1.45,2.62-1.74,6.31-2.12,8.55s-0.76,11.76-3.47,5.71s-2.93-28.53-2.13-30.18C145.7,243,151.77,256.73,153.22,259.35z
 			 M132.8,259.35c-1.45,2.62,1.74,6.31,2.12,8.55s0.76,11.76,3.47,5.71s2.93-28.53,2.13-30.18
@@ -371,8 +371,8 @@ const MuscleHeatMap = () => {
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M128.18,233.63c1.22,1.26,9.17,8,9,9.19
 			c-0.24,1.74-4.95,13.19-6.71,14.26s-1.41-6.7-3.07-11c-1.77-4.55-13.78-21.85-13.77-22.47
 			C113.65,223.18,123.45,228.76,128.18,233.63z"
@@ -380,8 +380,8 @@ const MuscleHeatMap = () => {
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M109.46,221.57
 			c-1.78,19.32,23.18,73.67,28.18,91.42C143.85,263.78,113.35,239.94,109.46,221.57z"
                     />
@@ -390,8 +390,8 @@ const MuscleHeatMap = () => {
                         data-name="Quadriceps"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M167.84,266.86
 			c2.45-5.07,14.34-50.78,14.62-49.54c9.95,44.12-10.89,93.58-12.12,99.25s-2.41,22.44-2.6,24s-2.81,1.34-3.7,0.05
 			S156.87,289.6,167.84,266.86z M187.05,257.32c-2.59,16.6-11.94,52.83-13.34,59.5c-1.23,5.87-1.91,17.83-1.87,20.87
@@ -407,8 +407,8 @@ const MuscleHeatMap = () => {
                         data-name="Gastrocnemius"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M159.25,442.82
 			c-0.18,2.83-2.4,15.49-2.44,12.45s-9.65-37.82-9.85-51.33c-0.06-4.26,6.66-29.84,7.42-30.62
 			C164.19,393.78,159.43,440,159.25,442.82z M126.78,442.82c0.18,2.83,2.39,15.49,2.43,12.45s9.65-37.82,9.85-51.33
@@ -419,8 +419,8 @@ const MuscleHeatMap = () => {
                         data-name="Feet"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M163.62,472.12
 			c1.29-0.18,1.6,5.63,1.63,8s2.47,6.27,1.19,7.81s-4.91,3.67-7.05,6.3s-5.11,7.9-5.35,5.94s-1-10.42,0.05-12.6
 			S158.63,472.84,163.62,472.12z M162,495.84c-0.86,0.89-0.81,4.58,0.33,8s1.2,3.52,2.5,3.5s13.1-0.44,13.08-2.18
@@ -437,8 +437,8 @@ const MuscleHeatMap = () => {
                         data-name="Popliteus"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M156.54,346.59
 			c0.31,14.55,17.51,23.73,6.17,49.1C162.72,385.91,152.07,371.46,156.54,346.59z M129.48,346.59c-0.31,14.55-17.51,23.73-6.17,49.1
 			C123.3,385.91,134,371.46,129.48,346.59z"
@@ -446,8 +446,8 @@ const MuscleHeatMap = () => {
                     <path
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M106.21,339.59
 			c-0.47-1.9,2.11,20.11,2.05,22.07s6.23,3.71,7.9,5.89c0.22-1.6-1.13-5.79-1.48-7.29S108.52,349,106.21,339.59z"
                     />
@@ -456,8 +456,8 @@ const MuscleHeatMap = () => {
                         data-name="Knees"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M161,350.75
 			c0-2.76,2.33-3.66,5-3.69s4.55,0.81,4.59,3.57c0,2.32-4.92,14.27-5.8,13s-2.61-6.95-3.09-9.89
 			C161.294,352.792,161.057,351.78,161,350.75z M125.06,350.75c0-2.76-2.33-3.66-5-3.69s-4.55,0.81-4.59,3.57
@@ -468,8 +468,8 @@ const MuscleHeatMap = () => {
                         data-name="Proneus"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M115.59,415
 			c0.61,3.05,5,30.71,5.43,32.89s2,9.57,1.79,12.6s-5.47-13.28-5.88-15.25s-12.75-29.08-15.29-43.87c-0.51-3,2.42-25.38,2.42-25.38
 			S115,411.9,115.59,415z M170.43,415c-0.61,3.05-5,30.71-5.43,32.89s-2.05,9.57-1.79,12.6s5.47-13.28,5.88-15.25
@@ -480,8 +480,8 @@ const MuscleHeatMap = () => {
                         data-name="Tibialis_Anterior"
                         fill="#FFFFFF"
                         // stroke="#fff"
-                        stroke-width="1.5"
-                        stroke-miterlimit="10"
+                        strokeWidth="1.5"
+                        strokeMiterlimit="10"
                         d="M177,367.79
 			c1.36,3.67,0.68,18.46-2,26.76s-6.84,25.07-8.07,30.52S160.37,458.63,160,461s-2.57,2.86-2.4-0.18s4.35-16.14,4.53-19.19
 			s1.26-34.86,3.24-44.46C167.65,386,176.34,366.05,177,367.79z M120.7,397.19c2,9.6,3.06,41.42,3.24,44.46s4.35,16.14,4.53,19.19

@@ -49,7 +49,7 @@ export const open_workout_if_exists = async (owner_id: string) => {
 export const workoutRouter = createRouter()
   .query("all_by_owner_id", {
     input: z.object({
-      owner_id: z.string().uuid(),
+      owner_id: z.string().cuid(),
     }),
     async resolve({ input: { owner_id } }) {
       return await prisma.userWorkout.findMany({
@@ -60,7 +60,7 @@ export const workoutRouter = createRouter()
   })
   .query("current_by_owner_id", {
     input: z.object({
-      owner_id: z.string().uuid(),
+      owner_id: z.string().cuid(),
     }),
     async resolve({ input: { owner_id } }) {
       let open_workout = await open_workout_if_exists(owner_id);

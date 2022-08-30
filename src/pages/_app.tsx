@@ -102,7 +102,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
           <Component {...pageProps} />
         </MainLayout>
       </ThemeProvider>
-      <ReactQueryDevtools />
+      {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}
       {/* </CacheProvider> */}
     </SessionProvider>
   );

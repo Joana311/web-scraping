@@ -21,8 +21,10 @@ export default class MyDocument extends Document {
           />
         </Head>
         <body>
-          <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-          <script>eruda.init();</script>
+          {process.env.NODE_ENV === "development" && <>
+            <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+            <script>eruda.init();</script>
+          </>}
           <Main />
           <NextScript />
         </body>

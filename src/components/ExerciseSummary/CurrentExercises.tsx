@@ -25,7 +25,7 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   onNewExerciseClick,
   is_current,
 }: ExerciseSummaryProps) => {
-  const { data: workout } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }], { enabled: !!workout_id }
+  const { data: workout, isLoading: workout_isLoading } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }], { enabled: !!workout_id }
   );
   const [showMore, toggleShowMore] = React.useState(false)
   const [currentFocus, setCurrentFocus] = React.useState(-1)
@@ -47,7 +47,6 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
       };
     }) || []
     , [workout?.exercises])
-  // console.log(currentFocus)
   useEffect(() => {
     formatted_exercises.length > 2
       ? toggleShowMore(true)
@@ -58,18 +57,6 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
 
   return (
     <>
-      {/* <div className="h-max"> */}
-      <div id="title-bar" className="mb-1 flex flex-row justify-between" >
-        <h1 className='font-light'>Exercises</h1>
-        {showMore &&
-          <Link href="">
-            <span
-              className="pr-[.8em] text-[.9rem] font-semibold text-blue underline">
-              view all
-            </span>
-          </Link>
-        }
-      </div>
       {is_current &&
         <ButtonBase
           onClick={onNewExerciseClick}
@@ -89,10 +76,9 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
             {"New Exercise"}
           </a>
         </ButtonBase>}
-      {/* </div> */}
 
-      <ul id="user-exercise-list"
-        className="no-scrollbar relative flex snap-y flex-col space-y-4 overflow-y-scroll //border-2 border-dashed border-pink-600 pt-4"
+      <section id="user-exercise-list"
+        className="no-scrollbar relative flex grow snap-y flex-col space-y-4 overflow-y-scroll border-dashed border-pink-600 pt-4"
       >
         {formatted_exercises.reverse().map((exercise, index) => {
           return (
@@ -108,17 +94,7 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
           );
         })}
         <div className={`sticky ${formatted_exercises.length == 0 && "hidden"} pointer-events-none bottom-0 min-h-[5rem] bg-gradient-to-t from-black to-transparent`}></div>
-      </ul>
-
-      {workout?.exercises.length === 0 && (
-        <div
-          className="text-[1rem] font-light text-text.secondary "
-        >
-          <span>{"No Exercises"}</span>
-          <br />
-          <span>{'Click "New Exercise" to get started.'}</span>
-        </div>
-      )}
+      </section>
     </>
   );
 };

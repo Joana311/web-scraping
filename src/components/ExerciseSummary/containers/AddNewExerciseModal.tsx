@@ -1,16 +1,10 @@
 import { ExpandMoreRounded } from "@mui/icons-material";
+import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Box,
-  Button,
   ButtonBase,
-  colors,
-  Grid,
-  Input,
-  Stack,
-  SxProps,
   Typography,
   Checkbox,
-  Container,
 } from "@mui/material";
 import Link from "next/link";
 import React, { SyntheticEvent } from "react";
@@ -24,56 +18,45 @@ import { WithRouterProps } from "next/dist/client/with-router";
 import { UrlWithParsedQuery } from "url";
 import trpc from "@client/trpc";
 import { useAppUser } from "@client/providers/app_user.test";
+import { ClassNames } from "@emotion/react";
 interface AddExerciseProps {
   exercises?: Exercise[];
   workout_id: string;
-  toggle?: () => void;
+  close_modal?: () => void;
 }
-const infoIconCssProps: SxProps = {
-  display: "flex",
-  color: "text",
-};
-const infoLabelsCss: SxProps = {
-  fontSize: ".6rem",
-  fontWeight: "semi-bold",
-  color: "text.secondary",
-  mt: "-.25rem",
-  letterSpacing: ".05rem",
-};
-const infoValueCss: SxProps = {
-  textTransform: "capitalize",
-  mt: "-.25rem",
-  fontWeight: "light",
-  maxWidth: "10ch",
-  fontSize: ".9rem",
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-};
-const exerciseNameCss: SxProps = {
-  fontWeight: "medium",
-  width: "max-content",
-  alignSelf: "start",
-  textTransform: "capitalize",
-  fontSize: "1.3rem",
-};
 
+const filters = {
+  exercise_mechanics: [
+    "push",
+    "pull"
+  ],
+  exercise_equipment: [
+    'assisted',
+    'lever',
+    'barbell',
+    'body weight',
+    'cable',
+    'dumbbell',
+    'sled',
+    'smith',
+  ]
+}
 const AddNewExerciseModal = ({
   exercises,
-  toggle,
+  close_modal,
   router,
 }: AddExerciseProps & WithRouterProps) => {
-  const toggleShowExercise = toggle;
+  const formRef = React.useRef<HTMLFormElement>(null);
+  const onClose = close_modal;
   const workout_id = router.query.workout_id! as string;
   const [amountSelected, setAmountSelected] = React.useState(0);
-  const [selectedExerciseMap, setExerciseSelected] = React.useState(
-    new Map<string, boolean>()
-  );
-  const [filteredExercises, setFilteredExercises] = React.useState(exercises);
+  const [selectedExerciseMap, setExerciseSelected] = React.useState(new Map<string, boolean>());
+  const [searchResults, setFilteredExercises] = React.useState(exercises);
   const [isScrolledTop, setIsScrolledTop] = React.useState(true);
-  const [searchTerm, setSearchTerm] = React.useState<String | undefined>(
+  const [searchTerm, setSearchTerm] = React.useState<string | undefined>(
     undefined
   );
+  const [checkedTags, setCheckedTags] = React.useState(new Map<string, boolean>());
   const match_by_word = (search_term: string, exercise: Exercise): boolean => {
     // split search term into words if there are spaces
     const search_terms = search_term.split(" ");
@@ -103,18 +86,33 @@ const AddNewExerciseModal = ({
   };
   const query_context = trpc.useContext();
   React.useEffect(() => {
-    if (!searchTerm) return;
+    // console.log(checkedTags);
+    if (!searchTerm && checkedTags.size === 0) { setFilteredExercises(exercises); return };
     setFilteredExercises(
       exercises!.filter((exercise) => {
-        return exercise.name?.toLowerCase().includes(searchTerm.toLowerCase());
-        // return match_by_word(searchTerm, exercise);
+        let term_exists = !!searchTerm;
+        let filters_exist = checkedTags.size > 0;
+        let tag_match = false;
+        // set to flase if there are no true filters
+        let no_checked_tags = [...checkedTags.values()].every(tag => tag === false);
+        console.log(checkedTags);
+
+        if (filters_exist && !no_checked_tags) {
+          checkedTags.forEach((is_checked, tag) => {
+            exercise.force?.includes(tag) && is_checked && (tag_match = true);
+            exercise.equipment_name?.includes(tag) && is_checked && (tag_match = true);
+          })
+        }
+        else tag_match = true; // if map is empty then tag_match is true
+        let term_match = term_exists ? exercise.name?.toLowerCase().includes(searchTerm!.toLowerCase()) : true;
+
+        return tag_match && term_match;
+        // return match_by_word(searchTerm, exercise) ;
       })
     );
-  }, [searchTerm]);
-  const borders = false;
+  }, [searchTerm, exercises, checkedTags]);
 
-
-  const useAddExercise = trpc.useMutation("exercise.add_to_current_workout", {
+  const add_exercises = trpc.useMutation("exercise.add_to_current_workout", {
     onSuccess(updated_workout) {
       query_context.invalidateQueries("workout.get_by_id");
       if (workout_id) {
@@ -125,8 +123,8 @@ const AddNewExerciseModal = ({
       }
     },
   });
-
-  const addSelected = React.useCallback(() => {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const onAddSelected = React.useCallback(async () => {
     console.group("Adding Selected Exercises");
     const selected = [...selectedExerciseMap.entries()].filter(
       ([_, included]) => included == true
@@ -136,22 +134,22 @@ const AddNewExerciseModal = ({
         return exercise_id;
       });
 
-      const _ = useAddExercise.mutateAsync({
+      await add_exercises.mutateAsync({
         exercise_id: selected_ids,
       }, {
         onSuccess(data, variables, context) {
-
+          onClose!();
+          // setExerciseSelected(new Map());
         },
       });
       console.groupEnd();
-      // router.
-      toggleShowExercise!();
     } else {
       console.log("No exercises selected");
-      toggleShowExercise!();
+      onClose!();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExerciseMap]);
+
   const moreInfoHandler = (href: string) => {
     window.open(href, "_blank");
   };
@@ -159,12 +157,12 @@ const AddNewExerciseModal = ({
   const RESULT_RENDER_LIMIT = 25;
 
   const handleCheckBox = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean,
     exercise_id: string
   ) => {
     setExerciseSelected((exerciseMap) => {
       // add element key to map with a value of true
-      exerciseMap.set(exercise_id, e.target.checked);
+      exerciseMap.set(exercise_id, checked);
       // count amount of selected exercises (value is true)
       const amount = [...exerciseMap.values()].filter(
         (value) => value == true
@@ -178,265 +176,216 @@ const AddNewExerciseModal = ({
     const scrollPosition = (event.target as HTMLDivElement).scrollTop;
     setIsScrolledTop(scrollPosition < 10);
   };
-  const ExerciseDescriptionComponent = (exercise: Exercise, key: number): JSX.Element => {
+  const [showFilters, setShowFilters] = React.useState(false);
+  const ExerciseOverviewCard = (props: { exercise: Exercise }) => {
+    const { exercise } = props;
+    const isChecked = !!selectedExerciseMap.get(exercise.id);
     return (
-      <>
-        <Stack id="exercise-container"
-          key={key}
-          direction="row"
-          display="flex"
-          sx={{
-            pl: "0.25rem",
-            pr: "0.5rem",
-            justifyContent: "space-between",
-            height: "min-content",
-            backgroundColor: "secondary.main",
-            borderRadius: 2,
-            py: ".2rem",
-            overflowX: "hidden",
-          }}
-        >
-          <Box id="selected-check-box"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              border: borders ? "1px solid violet" : "none",
-            }}
-          >
-            <Checkbox
-              checked={selectedExerciseMap.get(exercise.id) ?? false}
-              onChange={(e) => handleCheckBox(e, exercise.id)}
-              sx={{ "&.Mui-checked": { color: "blue.main" } }}
-            />
-          </Box>
-          <Box id="exercise-info"
-            sx={{
-              // border: borders && "1px solid red",
-              width: "100%",
-              pl: "0.25rem",
-            }}
-          >
-            <Stack sx={{ height: "100%", justifyContent: "space-between" }}>
-              <Typography
-                sx={{
-                  ...exerciseNameCss,
-                }}
-              >
-                {exercise.name}
-              </Typography>
-              <Stack direction="row" gap="1rem">
-                <Box
-                  className="target-muscle"
-                  sx={{ border: borders ? "px solid green" : "none" }}
-                >
-                  <Stack
-                    sx={{ height: "100%", justifyContent: "space-between" }}
-                  >
-                    <Typography sx={{ ...infoLabelsCss }}>
-                      Target Muscle:
-                    </Typography>
-                    <Typography
-                      sx={{
-                        ...infoValueCss,
-                        minWidth: "14ch",
-                        textTransform: "lowercase",
-                      }}
-                    >
-                      {exercise.muscle_name ?? "N/A"}
-                    </Typography>
-                  </Stack>
-                </Box>
-
-                <Box
-                  className="movement-force"
-                  sx={{ border: borders ? "1px solid orange" : "none" }}
-                >
-                  <Stack
-                    sx={{ height: "100%", justifyContent: "space-between" }}
-                  >
-                    <Typography sx={{ ...infoLabelsCss }}>
-                      Mechanics:
-                    </Typography>
-                    <Typography
-                      sx={{
-                        ...infoValueCss,
-                      }}
-                    >
-                      {exercise.force ?? "N/A"}
-                    </Typography>
-                  </Stack>
-                </Box>
-
-                <Box
-                  className="exercise-equipment"
-                  sx={{ border: borders ? "1px solid yellow" : "none" }}
-                >
-                  <Stack
-                    sx={{ height: "100%", justifyContent: "space-between" }}
-                  >
-                    <Typography sx={{ ...infoLabelsCss, mb: "-.25rem" }}>
-                      Equipment:
-                    </Typography>
-                    <Typography
-                      sx={{
-                        ...infoValueCss,
-                      }}
-                    >
-                      {exercise.equipment_name ?? "N/A"}
-                    </Typography>
-                  </Stack>
-                </Box>
-              </Stack>
-            </Stack>
-          </Box>
-          <Box id="more-info-container"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              border: borders ? "1px solid violet" : "none",
-            }}
-          >
-            <ButtonBase
-              disabled={!exercise.href}
-              onClick={() => moreInfoHandler(exercise.href!)}
-              sx={{
-                borderRadius: "100%",
-                ...infoIconCssProps,
-                "&.Mui-disabled": {
-                  ".MuiSvgIcon-root": {
-                    color: colors.grey[600],
-                  },
-                },
-              }}
-            >
-              <InfoOutlinedIcon />
-            </ButtonBase>
-          </Box>
-        </Stack>
-      </>
-    );
-  };
-  return (
-    <Box id="exercise-list"
-      className="border flex grow"
-      sx={{
-        // border: "3px solid white",
-        position: "relative",
-        maxHeight: "100%",
-        display: "flex",
-        flexDirection: "column",
-        // overflowY: "auto",
-      }}
-    >
-      <Box
-        className="search-bar"
-        sx={{
-          border: "1px solid white",
-          width: "fill-available",
-          // mt: "-1rem",
-          borderRadius: 2,
-          px: ".5rem",
-          mb: ".8rem",
-          maxHeight: "min-content",
-        }}
+      <li id="exercise-container"
+        className="flex min-h-max rounded-md bg-secondary py-1 px-2"
       >
-        <Input
+        <Checkbox
+          id={`exercise-checkbox-${exercise.id}`}
+          checked={isChecked}
+          onChange={(e) => handleCheckBox((e.target as HTMLInputElement).checked, exercise.id)}
+          sx={{ "&.Mui-checked": { color: "blue.main" }, borderRadius: "0px" }}
+        />
+        <label id="exercise-info"
+          className="ml-1 justify-between border-purple-500"
+          htmlFor={`exercise-checkbox-${exercise.id}`}
+        >
+          <span id="exercise-name"
+            className="w-max self-start text-[1.2rem] font-medium capitalize leading-tight"
+          >
+            {exercise.name}
+          </span>
+          <div id="exercise-details" className="flex space-x-2">
+            <div
+              id="target-muscle"
+              className="flex flex-col justify-between border-green-500"
+            >
+              <h1 className="text-[.6rem] font-bold leading-snug tracking-widest text-text.secondary">
+                Target Muscle:
+              </h1>
+              <span
+                className='w-[14ch] truncate text-[.9rem] font-light capitalize leading-snug'
+              >
+                {exercise.muscle_name ?? "N/A"}
+              </span>
+            </div>
+
+            <div
+              id="force"
+              className="flex flex-col justify-between border-orange-500"
+            >
+
+              <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
+                Mechanics:
+              </h1>
+              <span
+                className='w-[8ch] truncate text-[.9rem] font-light capitalize leading-snug'
+              >
+                {exercise.force ?? "N/A"}
+              </span>
+            </div>
+            <div
+              id="equipment"
+              className="flex flex-col justify-between border-yellow-500"
+            >
+
+              <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
+                Equipment:
+              </h1>
+              <span
+                className='w-[10ch] truncate text-[.9rem] font-light capitalize leading-snug'
+              >
+                {exercise.equipment_name ?? "N/A"}
+              </span>
+            </div>
+          </div>
+        </label>
+        <button id="more-info-button"
+          disabled={!exercise.href}
+          onClick={() => moreInfoHandler(exercise.href!)}
+          className="ml-auto rounded-full disabled:text-gray-600"
+        >
+          <InfoOutlinedIcon />
+        </button>
+      </li>
+    );
+  }
+  const getFilterName = (filter_key: string) => {
+    switch (filter_key) {
+      case "exercise_equipment":
+        return "Equipment"
+      case "exercise_mechanics":
+        return "Mechanics"
+    }
+  };
+  const areFiltersEmpty = () => [...checkedTags.values()].filter(tag => true).length === 0;
+
+  return (
+    <section id="new-exercise-modal"
+      className="flex grow flex-col overflow-y-clip border-4 border-blue">
+      <div id="search-bar" className="relative h-max border-2 border-violet-500">
+        <input
+          name="search"
+          type="text"
+          ref={inputRef}
           onChange={(e) => {
             setSearchTerm(e.target.value);
           }}
           placeholder="Search..."
-        ></Input>
-      </Box>
-      <Box
-        className="exercises-title-bar"
-        sx={{
-          display: "flex",
-          // border: "1px dashed white",
-          justifyContent: "space-between",
-          width: "100%",
-          maxHeight: "min-content",
-        }}
-      >
-        <Typography fontSize={`1rem`} fontWeight={"regular"}>
+          className="mb-3 w-full rounded-md border bg-black px-2 py-1 text-base focus:outline-none "
+        />
+        <button
+          onClick={() => {
+            setSearchTerm('')
+            setCheckedTags(new Map())
+            if (inputRef?.current) {
+              inputRef.current!.value = '';
+            }
+          }}
+          className={`absolute top-1 right-2 ${!searchTerm && areFiltersEmpty() && "hidden"}`}>
+          <CancelIcon />
+        </button>
+        <div id="show-filter-toggle"
+          onClick={() => setShowFilters(prev => !prev)} className="-mt-2 flex w-max pr-2 text-[.9rem] underlineww">
+          <span id="expand-icon-container"
+            className={`flex -rotate-90 items-center rounded-full border-violet-700 ${showFilters && "rotate-0"} transition-all duration-200`}>
+            <ExpandMoreRounded fontSize="inherit" />
+          </span>
+          <span>{!showFilters ? "show" : "hide"} filters</span>
+        </div>
+        <div id='filters'
+          className={`flex h-max flex-col space-y-0 border border-rose-600 ${!showFilters && 'hidden'}`}>
+          {Object.entries(filters).map((filter) => {
+            const [filter_key, filter_value] = filter;
+            return (
+              <form className="flex border items-start">
+                <span id='filter-category' className="text-sm text-text.secondary mr-4 mt-[.2rem]">
+                  {getFilterName(filter_key)}:
+                </span>
+                <ul id="tag-list" className="flex flex-wrap gap-x-1">
+                  {filter_value.map((filter_name) => {
+                    let isChecked = !!checkedTags.get(filter_name);
+                    return (
+                      <label htmlFor={filter_name.replace(' ', '-')}>
+                        <input id={filter_name.replace(' ', '-')}
+                          className="peer appearance-none"
+                          type="checkbox"
+                          checked={!!checkedTags.get(filter_name)}
+                          onChange={() => {
+                            // console.log(filter_name + " selected")
+                            // console.log(checkedTags)
+                            setCheckedTags(prev => new Map([...prev, [filter_name, !checkedTags.get(filter_name)]]))
+                          }} />
+                        <span className="whitespace-nowrap rounded-md bg-white/90 px-2 text-xs font-bold capitalize text-black peer-checked:bg-blue peer-checked:text-white">{filter_name}</span>
+                      </label>)
+                  }
+
+                  )}
+                </ul>
+              </form>
+            );
+          })}
+        </div>
+      </div>
+      <div id="title-bar" className="flex min-h-max w-full justify-between  border-green-600">
+        <span className="text-[1rem]">
           Exercises:
-        </Typography>
-        <Typography
-          fontSize={`0.7rem`}
-          fontWeight={"bold"}
-          color="secondary"
-          alignSelf="end"
+        </span>
+        <span
+          className="self-center text-[.7rem] font-bold text-text.secondary"
         >
           {`Only first ${RESULT_RENDER_LIMIT} results shown.`}
-        </Typography>
-        <Link href="#">
-          <Typography
-            fontWeight={"semibold"}
-            sx={{
-              pr: ".8em",
-              fontSize: ".9rem",
-              textDecoration: "underline",
-              color: "blue.main",
-            }}
-          >
+        </span>
+        <Link href="#" className="peer">
+          <a className="text-text.secondary underline font-semibold pr-3 text-[.9rem] pointer-events-none appearance-none">
             view all
-          </Typography>
+          </a>
         </Link>
-      </Box>
-      <Box
-        className="scroll-add-container"
-        sx={{
-          // border: "1px solid red",
-          // overflowY: "visible",
-          width: "100%",
-          flex: "1",
-          position: "relative",
+      </div>
+      <div id="exercise-result-list"
+        className=" 
+        flex flex-col
+        space-y-[.7rem]
+        overflow-y-auto
+        border-2
+        border-red-600
+        pb-[4rem]
+        pt-2"
+        onScroll={handleScroll}
+        style={{
+          maxHeight: "100dvh"
         }}
       >
-        <Box
-          className="fade-top"
+        {/* <Box
+          id="top-fade"
           sx={{
+            border: "1px solid white",
             opacity: "" || "0.5",
             transition: "opacity .3s",
             height: "2rem",
-            position: "absolute",
-            top: "-0.1rem",
+            position: "relative",
+            top: "0",
             width: "100%",
             color: "white",
             zIndex: 1,
             background:
               "linear-gradient(to bottom, rgba(0,0,0,1) , rgba(0,0,0,0))",
           }}
-        />
+        /> */}
+
+        {searchResults &&
+          searchResults.map((exercise, key) => {
+            if (key < RESULT_RENDER_LIMIT) {
+              return <ExerciseOverviewCard key={exercise.id} exercise={exercise} />;
+            }
+          })}
+
         <Box
-          id="scrollable-exercises"
-          sx={{
-            // border: "2px dashed green",
-            overflowY: "scroll",
-            // height: "400px",
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            pb: "3rem",
-          }}
-          onScroll={handleScroll}
-        >
-          <Stack
-            spacing={"0.7rem"}
-            direction="column"
-            sx={{ minHeight: "fill", pt: ".5rem", px: ".25rem" }}
-          >
-            {filteredExercises &&
-              filteredExercises?.map((exercise, key) => {
-                if (key < RESULT_RENDER_LIMIT) {
-                  return ExerciseDescriptionComponent(exercise, key);
-                }
-              })}
-          </Stack>
-        </Box>
-        <Box
-          className="fade-bottom"
+          id="fade-bottom"
           sx={{
             height: "5rem",
             position: "absolute",
@@ -449,45 +398,43 @@ const AddNewExerciseModal = ({
               "linear-gradient(to top, rgba(0,0,0,.9) 30% , rgba(0,0,0,0))",
           }}
         />
-        <Box
-          className="add-button-container"
+      </div>
+      <Box id="add-button-container"
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          position: "absolute",
+          bottom: ".75rem",
+          zIndex: 2,
+        }}
+      >
+        <ButtonBase
+          onClick={onAddSelected}
           sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            position: "absolute",
-            bottom: ".5rem",
-            zIndex: 2,
+            display: amountSelected ? "" : "none",
+            backgroundColor: amountSelected ? "blue.main" : "#fff",
+            borderRadius: 2,
+            //   border: "1px solid white",
+            width: "70%",
+            px: ".5rem",
+            py: ".2rem",
+            alignItems: "center",
+            zIndex: "100",
           }}
         >
-          <ButtonBase
-            onClick={addSelected}
-            sx={{
-              display: amountSelected ? "" : "none",
-              backgroundColor: amountSelected ? "blue.main" : "#fff",
-              borderRadius: 2,
-              //   border: "1px solid white",
-              width: "70%",
-              px: ".5rem",
-              py: ".2rem",
-              alignItems: "center",
-              zIndex: "100",
-            }}
+          <span
+            className={`h-max text-base font-bold`}
           >
-            <Typography
-              fontWeight={"bold"}
-              fontSize="1rem"
-              color={amountSelected ? "#fff" : "primary"}
-              sx={{ height: "max-content" }}
-            >
-              Add {amountSelected ? `(${amountSelected})` : ""}
-            </Typography>
-          </ButtonBase>
-        </Box>
+            Add {amountSelected ? `(${amountSelected})` : ""}
+          </span>
+        </ButtonBase>
       </Box>
-    </Box>
+    </section >
+
   );
 };
+
 export default withRouter<AddExerciseProps & WithRouterProps>(
   AddNewExerciseModal
 );

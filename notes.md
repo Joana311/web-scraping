@@ -34,17 +34,13 @@ mobile has a hard time displaying negative margins
 
 ## Big Bugs
 
-    [ ] new workout is super slow to route to
-    
-    [ ] routing to home sometimes doesnt show the correct button for create or continue workout. Need to make to either save state of an open workout in app context or make sure were making a request everytime we hit that page for `workout.current`
-
 ## Minor Bugs
 
-    [ ] iOS display is super wonky. need too look up better ways to display vh. need to update my iphone to latest iOS version.
+    [-] iOS display is super wonky. need too look up better ways to display vh. __need to update my iphone to latest iOS version__.
 
 ## Todo
 
-    [ ] find a better way to organize react components for better prop drilling (in particular AddNewExerciseModal)
+    [ ] find a better way to request the 4mb data used in AddNewExerciseModal, look into streaming.
 
     [ ] create a route specifically for current workout.
 
@@ -56,13 +52,16 @@ mobile has a hard time displaying negative margins
 
     [ ] optimize api functions to not make so many prisma calls. 
 
+    [ ] improve re-routing logic whenever a session is expired
+
+    [ ] add notes feature to exercises in workout 
 
     [/] implement searching & filtering for AddExercises.
         
         * my current solution is slow af rn *  
 
-        [ ] filter on server side. 
-
+        [/] filter on server side. 
+          * currently filtering on client side *
         [ ] remove the ability to add exercises that are already in the workout.
 
     [ ] create a UserExercise page with better details `../user/workout/exercise/:id`
@@ -70,6 +69,7 @@ mobile has a hard time displaying negative margins
 ## In Progress
 
     [-] finish the moving off of Mui to Tailwind
+        * mostly done. Just need to remove some buttons, and the mui table * 
 
     [x] add muscle heat map inside of daily summary
 
@@ -79,6 +79,15 @@ mobile has a hard time displaying negative margins
         * currently doing it inside trpc's createContext instead of using the middleware option, might wait for trpc v10 to do any big trpc refactors *
 
 ## Done Recently
+    
+    [x] create a page for the AddNewExerciseModal or make it based off of route parameters so that i can use swipe on mobile 
+    
+    [x] fix next-auth no secret warning
+
+    [x] routing to home sometimes doesnt show the correct button for create or continue workout. Need to make to either save state of an open workout in app context or make sure were making a request everytime we hit that page for `workout.current`
+
+    [x] new workout is super slow to route to
+        * fixed by moving the add workout request to the button click event instead of the page load*
     
     [x] ability to delete an exercise from current workout. Added pretty animations too
     

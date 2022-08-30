@@ -18,7 +18,7 @@ async function seedExercisesData() {
       const equipment_list = muscles[muscle_name];
       for (const equipment_name in equipment_list) {
         const exercises = equipment_list[equipment_name];
-        await exercises.map(async (exercise) => {
+        await exercises.map(async (exercise: any) => {
           // debugger;
           try {
             await prisma.exercise.create({
@@ -71,38 +71,38 @@ async function seedExercisesData() {
 }
 
 async function main() {
-  await prisma.user.createMany({
-    data: [
-      {
-        name: "Pablo123",
-        email: "pigbig@test.com",
-      },
-      {
-        name: "xGirl",
-        email: "catch_me@outside.com",
-      },
-      {
-        name: "SeniorDaddy",
-        email: "bartGooden24@quest.com",
-      },
-      {
-        name: "MikeBiggums",
-        email: "rogue@quest.com",
-      },
-      {
-        name: "Kitten",
-        email: "goodgirl@hotmail.com",
-      },
-      {
-        name: "Pablo_007",
-        email: "bigpig@tiktok.com",
-      },
-      {
-        name: "Scott",
-        email: "scott@dobyns.co",
-      },
-    ],
-  });
+  // await prisma.user.createMany({
+  //   data: [
+  //     {
+  //       name: "Pablo123",
+  //       email: "pigbig@test.com",
+  //     },
+  //     {
+  //       name: "xGirl",
+  //       email: "catch_me@outside.com",
+  //     },
+  //     {
+  //       name: "SeniorDaddy",
+  //       email: "bartGooden24@quest.com",
+  //     },
+  //     {
+  //       name: "MikeBiggums",
+  //       email: "rogue@quest.com",
+  //     },
+  //     {
+  //       name: "Kitten",
+  //       email: "goodgirl@hotmail.com",
+  //     },
+  //     {
+  //       name: "Pablo_007",
+  //       email: "bigpig@tiktok.com",
+  //     },
+  //     {
+  //       name: "Scott",
+  //       email: "scott@dobyns.co",
+  //     },
+  //   ],
+  // });
   await seedExercisesData();
 }
 

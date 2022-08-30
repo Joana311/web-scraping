@@ -8,29 +8,50 @@
     height: -webkit-fill-available;
   }
   #app-container {
-    min-height: 100vh;
+    /* min-height: 100vh;
     max-height: 100vh;
     min-height: 100dvh;
     max-height: -webkit-fill-available;
-    max-height: -moz-available;
+    max-height: -moz-available; */
   }
   #page-container {
-    max-height: -webkit-fill-available;
-    max-height: -moz-available;
+    /* max-height: -webkit-fill-available;
+    max-height: -moz-available; */
+
     scrollbar-width: none; /* Firefox */
+
     /* -webkit-scrollbar {
       display: none;
     } */
   }
 }
 @layer utilities {
+  @keyframes pulse {
+    50% {
+      opacity: 0.82;
+    }
+  }
+  @keyframes shrink-grow {
+    50% {
+      transform: scale(1.025);
+    }
+  }
   /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-
   .no-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+  }
+  .pulse-weak {
+    animation: pulse 1.4s cubic-bezier(0.55, 0, 0.6, 1) infinite;
+  }
+  .pulse-size {
+    animation: shrink-grow 1.5s ease-in-out infinite;
+  }
+  .fill-height {
+    max-height: -webkit-fill-available;
+    max-height: -moz-available;
   }
 }

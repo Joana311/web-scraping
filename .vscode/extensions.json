@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        "streetsidesoftware.code-spell-checker",
+        "drywolf.dark-plus-plus-theme",
+        "roonie007.hide-files",
+        "ecmel.vscode-html-css",
+        "bradgashler.htmltagwrap"
+    ]
+}

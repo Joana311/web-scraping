@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 // React Functional Component
 const UserPage: NextPage = () => {
   return (
-    <div id="daily-summary" className="space-y-[2em] //border-4 border-blue">
+    <div id="daily-summary" className="space-y-[2em] overflow-x-visible border-blue">
       <section id="activity-summary-and-heatmap"
         className={`min-h-max`}
       >
@@ -20,14 +20,6 @@ const UserPage: NextPage = () => {
       >
         <RecentWorkouts />
       </section>
-      {/* {!!data && <Link id='prepass' href={{
-          pathname: "/[user]/workout/[workout_id]", query: {
-            workout_id: data?.id,
-            user: router.query.user as string,
-          }
-        }} >
-          <a className="hidden" />
-        </Link>} */}
     </div>
   );
 };

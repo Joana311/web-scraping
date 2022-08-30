@@ -135,6 +135,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
       useRemoveEx.mutate({ exercise_id: exercise.user_exercise_id });
       // dbRemove();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRemove]);
   return (
     <>
@@ -142,12 +143,9 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
         ref={selfRef}
         // eslint-disable-next-line
         className="
+        flex-shrink-0
         no-scrollbar
         flex
-        grow
-        min-h-min
-        max-h-min
-        scale-100
         snap-x
         overflow-y-hidden
         overflow-x-scroll
@@ -158,8 +156,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
         will-change-scroll"
       >
         <div id="exercise-card"
-          className="flex min-h-min min-w-full
-          grow
+          className="flex min-w-full
           snap-start 
           flex-col
           rounded-lg
@@ -167,7 +164,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
 
           <section id="overview-container"
             onClick={onExpand}
-            className="flex justify-between space-x-[1rem] py-1 capitalize mx-3">
+            className="mx-3 flex justify-between space-x-[1rem] py-1 capitalize">
             <div id="overview-info" className="w-full">
               <div
                 id="exercise-name"
@@ -182,14 +179,14 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                   id="exercise-variant"
                   className="flex flex-col border-yellow-500 leading-snug">
                   <label className="text-[.6rem] text-text.secondary">Variant</label>
-                  <span className='text-[1rem] font-light leading-none'>
+                  <span className={`w-[12ch] overflow-hidden text-ellipsis text-[1rem] font-light leading-none ${!expanded && "whitespace-nowrap"}`}>
                     {exercise.variant}
                   </span>
                 </div>
                 <div id="target-muscle"
                   className="flex flex-col flex-nowrap border-green-500 leading-snug">
                   <label className="text-[.6rem] text-text.secondary">Muscle</label>
-                  <span className='text-ellipsis whitespace-nowrap text-[1rem] font-light leading-none'>
+                  <span className={`w-[15ch] overflow-hidden text-ellipsis text-[1rem] font-light leading-none ${!expanded && "whitespace-nowrap"}`}>
                     {exercise.muscle}
                   </span>
                 </div>
@@ -211,10 +208,11 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
               </Box>
             </div>
           </section>
-          <Collapse id="exercise-set-details" in={expanded}>
+          <Collapse id="exercise-set-details" style={{ height: 'max' }} in={expanded}>
             <Divider sx={{ backgroundColor: "text.secondary" }} />
             <TableContainer
               sx={{
+                minHeight: "fit-content",
                 py: ".25rem",
                 px: ".5rem",
                 "& .MuiTableCell-root": {
@@ -296,6 +294,9 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                             onChange={(e) =>
                               (set.current.weight = parseInt(e.target.value))
                             }
+                            inputProps={{
+                              inputMode: "decimal",
+                            }}
                             InputLabelProps={{
                               shrink: true,
                               disableAnimation: true,
@@ -312,6 +313,9 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                             onChange={(e) =>
                               (set.current.reps = parseInt(e.target.value))
                             }
+                            inputProps={{
+                              inputMode: "numeric",
+                            }}
                             InputLabelProps={{
                               shrink: true,
                               disableAnimation: true,
@@ -324,10 +328,14 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                             variant="outlined"
                             label="RPE"
                             type="number"
+
                             color="info"
                             onChange={(e) =>
                               (set.current.rpe = parseInt(e.target.value))
                             }
+                            inputProps={{
+                              inputMode: "numeric",
+                            }}
                             InputLabelProps={{
                               shrink: true,
                               disableAnimation: true,

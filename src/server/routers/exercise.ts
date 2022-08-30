@@ -86,7 +86,7 @@ export const exerciseRouter = createRouter()
   })
   .mutation("add_to_current_workout", {
     input: z.object({
-      exercise_id: z.string().uuid().array(),
+      exercise_id: z.string().cuid().array(),
     }),
     async resolve({ input: { exercise_id }, ctx }) {
       const owner_id = ctx?.session?.user.id;

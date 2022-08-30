@@ -24,7 +24,7 @@ model Exercise {
 }
 
 model User {
-  id            String        @id @default(uuid())
+  id            String        @id @default(cuid())
   workouts      UserWorkout[] @relation(name: "UserToUserWorkout")
   name          String?
   username      String?
