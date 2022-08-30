@@ -10,8 +10,6 @@
         "build": "next build",
         "start": "next start",
         "ts-node": "ts-node --compiler-options={\\\"module\\\":\\\"commonjs\\\"}",
-        "now-build": "next build & npm db:migrate",
-        "seed_exrx": "ts-node -r esm ./prisma/scripts/seedExercisesData.ts",
         "prismix": "npx prismix && prisma format"
     },
     "prisma": {
