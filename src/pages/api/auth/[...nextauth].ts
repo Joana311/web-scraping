@@ -66,8 +66,8 @@ export const nextAuthOptions: NextAuthOptions = {
         colorScheme: "dark",
         brandColor: "#ff0000",
     },
-    debug: true,//process.env.NODE_ENV !== 'production',
-    secret: process.env.NEXTAUTH_SECRET!,
+    debug: process.env.NODE_ENV !== 'production',
+    secret: process.env.SECRET!,
 
 }
 

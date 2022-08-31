@@ -12,7 +12,18 @@ export default class MyDocument extends Document {
           <meta name="theme-color" content="#ffffff" />
           <link rel='manifest' href='/manifest.json' />
           <link rel='icon' type='image/png' href='/logo.png' />
-          <link rel='apple-touch-icon' href='/logo.png' />
+          {
+            process.env.NODE_ENV === "production" ?
+              <>
+                <link rel='apple-touch-icon' href='/logo.png' />
+                <link rel='icon' type='image/png' href='/logo.png' />
+              </> :
+              <>
+                <link rel='apple-touch-icon' href='/logo_dev.png' />
+                <link rel='icon' type='image/png' href='/logo_dev.png' />
+              </>
+
+          }
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
@@ -40,6 +51,7 @@ export default class MyDocument extends Document {
 MyDocument.getInitialProps = async (document_context) => {
   // Resolution order
   //
+
   // On the server:
   // 1. app.getInitialProps <---- fetch exercise directory
   // 2. page.getInitialProps
