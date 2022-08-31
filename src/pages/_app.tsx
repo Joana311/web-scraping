@@ -19,6 +19,7 @@ import { httpLink } from "@trpc/client/links/httpLink";
 import "../../styles/globals.css";
 import { useRouter } from "next/router";
 import { TRPCClientError } from "@trpc/client";
+import { IncomingHttpHeaders } from "http2";
 
 // interface MyAppProps extends AppProps {
 //   emotionCache?: EmotionCache;
@@ -167,13 +168,13 @@ export default withTRPC<AppRouter>({
       queryClientConfig: {},
       headers: () => {
         //on ssr forward cookies to the server to check for auth sessions
-        const client_headers = ctx?.req?.headers;
+        const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
 
         console.log("auth: ", client_headers?.authorization);
 
         if (client_headers) {
           return {
-            cookie: client_headers.cookie,
+            cookie: client_headers?.cookie,
             "x-ssr": "1"
           };
         } else return {};

@@ -5,12 +5,9 @@ import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 
 import { getServerSession, type Session } from "next-auth";
 // import { PrismaClient } from "@prisma/client";
-import { getSession, useSession } from "next-auth/react";
-import { getCookieParser } from "next/dist/server/api-utils";
 import { nextAuthOptions } from "src/pages/api/auth/[...nextauth]";
-import prisma from "../prisma/client";
+
 import { TRPCError } from "@trpc/server";
-import { Prisma, User } from "@prisma/client";
 
 //using getSession is slower than getServerSession 
 
@@ -70,7 +67,6 @@ export async function createContext(
   // for API-response caching see https://trpc.io/docs/caching
   console.log(opts.req.query.trpc)
   const session = (await getServerSession(opts, nextAuthOptions));
-  // const cookies = opts.req.headers.cookie ? opts.req.headers.cookie : null;
   const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
   return ctx
 }
