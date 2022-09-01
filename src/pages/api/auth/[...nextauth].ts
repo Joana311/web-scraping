@@ -8,15 +8,11 @@ export const nextAuthOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         DiscordProvider({
-
             clientId: process.env.DISCORD_CLIENT_ID!,
             clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-
         })
     ],
-
     events: {
-
         createUser: ({ user }) => {
             console.log("creating user in database")
             console.log(user)
@@ -46,12 +42,10 @@ export const nextAuthOptions: NextAuthOptions = {
             console.log('session event: ', session);
         },
     },
-
     callbacks: {
-        
         async session({ session, user }) {
-            console.log("session callback")
-            console.log(session)
+            // console.log("session callback")
+            // console.log(session)
             // console.log("user is: ", user)
             session.user = {
                 id: user.id,
@@ -64,7 +58,7 @@ export const nextAuthOptions: NextAuthOptions = {
     },
     session: {
         strategy: "database",
-        maxAge: 60 * 90, // 90 minutes
+        maxAge: 60 * 60 * 1.5, // 1.5 hours
     },
     theme: {
         logo: "https://i.imgur.com/OX5mAdU.png",

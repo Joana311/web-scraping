@@ -1,15 +1,11 @@
 
 import trpc from "@client/trpc";
-import {
-  ButtonBase,
-  CircularProgress,
-} from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const RecentWorkouts = () => {
   const query_client = trpc.useContext();
@@ -161,25 +157,12 @@ const RecentWorkouts = () => {
       </ul>
 
       {!isWorkoutOpen &&
-        <ButtonBase
-          onClick={onCreateNewWorkout}
-          sx={{
-            borderRadius: 2,
-            backgroundColor: "secondary.main",
-            display: "flex",
-            border: "1px solid white",
-            width: "100%",
-            height: "max-content",
-            px: ".5rem",
-            py: ".2rem",
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          <span className="text-[.9rem] font-semibold">
+        <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
+          onClick={onCreateNewWorkout}>
+          <a>
             {"New Workout"}
-          </span>
-        </ButtonBase>
+          </a>
+        </button>
       }
     </>
   );

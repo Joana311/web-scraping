@@ -3,7 +3,8 @@ import * as trpc from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 
-import { getServerSession, type Session } from "next-auth";
+import { type Session } from "next-auth";
+import { getServerSession } from "next-auth";
 // import { PrismaClient } from "@prisma/client";
 import { nextAuthOptions } from "src/pages/api/auth/[...nextauth]";
 
@@ -39,13 +40,13 @@ export async function createContextInner(_opts: CreateContextOptions) {
     }
   }
 
-  // const session = (await getServerSession(_opts, nextAuthOptions));
-  if (!session) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "NO_SESSION. No auth session found for incoming request.",
-    });
-  }
+  // console.log("Actually in SSR session", await getServerSession({ req: _opts.req, res: _opts.res }, nextAuthOptions));
+  // if (!session) {
+  //   throw new TRPCError({
+  //     code: "UNAUTHORIZED",
+  //     message: "NO_SESSION. No auth session found for incoming request.",
+  //   });
+  // }
   // next-auth didn't have a way to make user_id 
   // inferrable from the actual `session` return type. 
   // const user = session.user as any as User;
@@ -67,6 +68,7 @@ export async function createContext(
   // for API-response caching see https://trpc.io/docs/caching
   console.log(opts.req.query.trpc)
   const session = (await getServerSession(opts, nextAuthOptions));
+  // console.log("SSR Session: ", session)
   const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
   return ctx
 }

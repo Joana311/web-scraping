@@ -1,9 +1,6 @@
 import { ExpandMoreRounded } from "@mui/icons-material";
 import CancelIcon from "@mui/icons-material/Cancel";
-import {
-  Box,
-  Checkbox,
-} from "@mui/material";
+import { Checkbox } from "@mui/material";
 import Link from "next/link";
 import React, { SyntheticEvent } from "react";
 import { Exercise } from "@prisma/client";
@@ -258,8 +255,8 @@ const AddNewExerciseModal = ({
 
   return (
     <section id="new-exercise-modal"
-      className="flex grow flex-col overflow-y-clip border-4 border-blue">
-      <div id="search-bar" className="relative h-max border-2 border-violet-500">
+      className="flex grow flex-col overflow-y-clip //border-4 border-blue">
+      <div id="search-bar" className="relative h-max //border-2 border-violet-500">
         <input
           name="search"
           type="text"
@@ -290,11 +287,11 @@ const AddNewExerciseModal = ({
           <span>{!showFilters ? "show" : "hide"} filters</span>
         </div>
         <div id='filters'
-          className={`flex h-max flex-col space-y-0 border border-rose-600 ${!showFilters && 'hidden'}`}>
+          className={`flex h-max flex-col space-y-0 //border border-rose-600 ${!showFilters && 'hidden'}`}>
           {Object.entries(filters).map((filter) => {
             const [filter_key, filter_value] = filter;
             return (
-              <form className="flex border items-start">
+              <form className="flex //border items-start">
                 <span id='filter-category' className="text-sm text-text.secondary mr-4 mt-[.2rem]">
                   {getFilterName(filter_key)}:
                 </span>
@@ -322,6 +319,7 @@ const AddNewExerciseModal = ({
             );
           })}
         </div>
+          <div className={`border-b w-full transition-all duration-300 my-1 mx-auto rad ${showFilters ? "w-full": "w-[10%]"}`}/>
       </div>
       <div id="title-bar" className="flex min-h-max w-full justify-between  border-green-600">
         <span className="text-[1rem]">
@@ -339,57 +337,19 @@ const AddNewExerciseModal = ({
         </Link>
       </div>
       <div id="exercise-result-list"
-        className=" 
-        flex flex-col
-        space-y-[.7rem]
-        overflow-y-auto
-        border-2
-        border-red-600
-        pb-[4rem]
-        pt-2"
+        className="flex flex-col space-y-[.7rem] overflow-y-auto //border-2 border-red-600 pb-[4rem] pt-2"
         onScroll={handleScroll}
         style={{
           maxHeight: "100dvh"
-        }}
-      >
-        {/* <Box
-          id="top-fade"
-          sx={{
-            border: "1px solid white",
-            opacity: "" || "0.5",
-            transition: "opacity .3s",
-            height: "2rem",
-            position: "relative",
-            top: "0",
-            width: "100%",
-            color: "white",
-            zIndex: 1,
-            background:
-              "linear-gradient(to bottom, rgba(0,0,0,1) , rgba(0,0,0,0))",
-          }}
-        /> */}
-
+        }}>
         {searchResults &&
           searchResults.map((exercise, key) => {
             if (key < RESULT_RENDER_LIMIT) {
               return <ExerciseOverviewCard key={exercise.id} exercise={exercise} />;
             }
           })}
-
-        <Box
-          id="fade-bottom"
-          sx={{
-            height: "5rem",
-            position: "absolute",
-            bottom: "-0.1rem",
-
-            width: "100%",
-            color: "black",
-            zIndex: 1,
-            background:
-              "linear-gradient(to top, rgba(0,0,0,.9) 30% , rgba(0,0,0,0))",
-          }}
-        />
+        <div id="bottom-fade"
+          className="h-[5rem] absolute -bottom-[.1rem] w-full from-black/90 bg-gradient-to-t to-transparent" />
       </div>
       <div id="add-button-container"
         className="w-[100%] flex justify-center absolute bottom-5 z-[100]">

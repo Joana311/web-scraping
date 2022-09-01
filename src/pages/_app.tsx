@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { CacheProvider, EmotionCache } from "@emotion/react";
 import theme from "../../styles/theme";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
@@ -18,28 +17,36 @@ import { splitLink } from "@trpc/client/links/splitLink";
 import { httpLink } from "@trpc/client/links/httpLink";
 import "../../styles/globals.css";
 import { useRouter } from "next/router";
-import { TRPCClientError } from "@trpc/client";
 import { IncomingHttpHeaders } from "http2";
+import { Session } from "next-auth/core/types";
 
 // interface MyAppProps extends AppProps {
 //   emotionCache?: EmotionCache;
 //   pageProps: any;
 // }
-
+type AuthCtx = {
+  session?: Session | null;
+}
+const AuthContext = React.createContext<AuthCtx>({
+  session: undefined,
+});
+export function useSession() {
+  return React.useContext(AuthContext);
+}
 const App: AppType = ({ pageProps, Component }): JSX.Element => {
   const {
-    data: session,
+    data: auth_data,
     error,
     isError,
     isLoading
   } = trpc.useQuery(["next-auth.get_session"], {
     context: { skipBatch: true },
     refetchOnWindowFocus: true,
-    refetchOnMount: false,
-    // 5 minutes in milliseconds 
+    refetchOnMount: true,
+    enabled: typeof window !== "undefined",
+    // 5 minutes in milliseconds
     staleTime: 5 * 60 * 1000,
-    refetchInterval: 0,
-    retryOnMount: false,
+    // retryOnMount: false,
     onError(error) {
       if (
         error?.data?.code === "UNAUTHORIZED" &&
@@ -60,7 +67,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
   const utils = trpc.useContext();
   React.useMemo(() => {
     if (utils && typeof window !== "undefined") {
-      console.log("setting react-query defaults");
+      // console.log("setting react-query defaults");
       utils.queryClient.setDefaultOptions({
         queries: {
           retry(failureCount, error: any) {
@@ -69,6 +76,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
                 error.message.includes("NO_SESSION")) ||
               failureCount > 1
             ) {
+              console.log("Session not found invalidating client session")
               utils.queryClient.invalidateQueries(["next-auth.get_session"], {
                 refetchInactive: true
               });
@@ -81,28 +89,31 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     }
   }, []);
   const router = useRouter();
-  // React.useEffect(() => {
-  //   
-  // }, [error, isError, router]);
+  const _session = React.useRef(auth_data);
+  const session = React.useMemo(() => {
+    if (auth_data) {
+      _session.current = auth_data;
+      return _session.current;
+    }
+    if (error?.message?.includes("NO_SESSION")) {
+      return undefined;
+    }
+    return _session.current;
+  }, [auth_data, error]);
   return (
-    <SessionProvider refetchOnWindowFocus={false} session={session}>
-      {/* <CacheProvider value={emotionCache}> */}
-      <Head>
+
+    <AuthContext.Provider value={{ session: session }} >
+      <Head >
         <title>ExBuddy</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-      </Head>
-      <ThemeProvider theme={theme}>
-        {/* <AuthProvider /> */}
-        <MainLayout session={session!}>
-          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-          <CssBaseline />
-          <Component {...pageProps} />
-        </MainLayout>
-      </ThemeProvider>
+      </Head >
+      <MainLayout>
+        <Component {...pageProps} />
+      </MainLayout>
       {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}
-      {/* </CacheProvider> */}
-    </SessionProvider>
-  );
+    </AuthContext.Provider>
+
+  )
 };
 // App.getInitialProps = async ({ ctx }) => {
 //   return {
@@ -170,7 +181,7 @@ export default withTRPC<AppRouter>({
         //on ssr forward cookies to the server to check for auth sessions
         const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
 
-        console.log("auth: ", client_headers?.authorization);
+        // console.log("auth: ", client_headers?.authorization);
 
         if (client_headers) {
           return {
@@ -196,20 +207,18 @@ export default withTRPC<AppRouter>({
         status: ctx.status
       };
     }
-    // console.log("THSKDHASDKJAHSDKJASGDJAHGD", ctx.req.headers.host);
     const error = opts.clientErrors[0];
     if (error) {
-      const host_url = ctx.req?.headers?.host ?? getBaseUrl();
-      // console.log("context path", ctx.asPath)
-      if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
-        console.log("No sessions found should reroute to: ", host_url);
-        return {
-          status: 303, //"SEE_OTHER"
-          headers: {
-            location: '/api/auth/signin'
-          }
-        };
-      }
+      // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
+      // if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
+      //   console.log("No sessions found should reroute to: ", host_url);
+      //   return {
+      //     status: 303, //"SEE_OTHER"
+      //     headers: {
+      //       location: '/api/auth/signin'
+      //     }
+      //   };
+      // }
       // Propagate http first error from API calls
       return {
         status: error.data?.httpStatus ?? 500

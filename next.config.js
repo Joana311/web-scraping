@@ -4,7 +4,8 @@ const { env } = require("./src/server/config/env");
 const withPWA = require("next-pwa")({
   dest: "public",
   register: true,
-  skipWaiting: true
+  skipWaiting: true,
+  disable: env.NODE_ENV === "development"
 });
 
 /**

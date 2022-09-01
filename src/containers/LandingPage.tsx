@@ -1,20 +1,11 @@
 import Link from "next/link";
 import { signIn, signOut } from "next-auth/react";
-import { useState, useEffect } from "react";
-import { ButtonBase, Grid, Typography } from "@mui/material";
-import { useSession } from "next-auth/react";
+import { useSession } from "../pages/_app"
 import { useRouter } from "next/router";
+import trpc from "@client/trpc";
 export function LandingPage() {
-  const [userName, setUserName] = useState(undefined);
   const router = useRouter();
-  useEffect(() => {
-  }, [userName]);
-  const { data: session, status } = useSession();
-  // console.log("session from client : ", session?.user)
-  // if (status !== "loading" && session?.user && typeof window !== "undefined") {
-  //   router.push(`/${session?.user?.name}`);
-  // }
-
+  const { session } = useSession();
   return (
     <div className='my-auto flex flex-col items-center'>
       <h1 className="text-4xl">Hello {session?.user.name || "Stranger"}!</h1>
@@ -32,42 +23,18 @@ const LandingPageMenu = (props: { session: any }) => {
       >
         {!!session &&
           <Link href={`/${session?.user?.name}`}>
-            <ButtonBase
-              sx={{
-                borderRadius: 2,
-                backgroundColor: "secondary.main",
-                display: "flex",
-                border: "1px solid white",
-                px: ".5rem",
-                py: ".2rem",
-                height: "45px",
-                justifyContent: "center",
-                alignItems: "center",
-                fontSize: "1rem"
-              }}
+            <button className="rounded-md bg-secondary ripple-bg-bg.secondary border border-white px-2 py-1 h-12 text-[1rem]"
             >
               Continue
-            </ButtonBase>
+            </button>
           </Link>
         }
-        <ButtonBase
+        <button className="rounded-md bg-secondary ripple-bg-bg.secondary border border-white px-2 py-1 h-12 text-[1rem]"
           // eslint-disable-next-line
           onClick={() => { !!session ? signOut() : signIn("discord") }}
-          sx={{
-            borderRadius: 2,
-            backgroundColor: "secondary.main",
-            display: "flex",
-            border: "1px solid white",
-            px: ".5rem",
-            py: ".2rem",
-            height: "45px",
-            justifyContent: "center",
-            alignItems: "center",
-            fontSize: "1rem"
-          }}
         >
           {!!session ? "Sign Out" : "Sign In w/ Discord"}
-        </ButtonBase>
+        </button>
       </div>
     </>
   );

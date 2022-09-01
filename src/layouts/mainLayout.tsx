@@ -5,13 +5,15 @@ import React from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useSession } from "src/pages/_app";
 
 type LayoutProps = {
     children: React.ReactNode;
-    session: Session | undefined;
+    session?: Session | undefined;
 }
 
-export const MainLayout = ({ session, children }: LayoutProps) => {
+export const MainLayout = ({ children }: LayoutProps) => {
+    const { session } = useSession();
     const todaysDate = React.useMemo(
         () => dayjs().format("dddd, MMM D"),
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -19,7 +21,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
     );
     const img_src = React.useMemo(() => session?.user?.image, [session?.user?.image]);
     const avatar = React.useCallback(() => {
-        if (session) {
+        if (img_src) {
             return (
                 <Image src={img_src as string}
                     width="90%" height="90%"
@@ -31,7 +33,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             )
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [session])
+    }, [img_src])
     const router = useRouter();
     const appLocation = React.useMemo(() => {
         switch (router.pathname) {
@@ -62,7 +64,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 grow
                 flex-col
                 overflow-y-hidden
-                border-4
+                //border-4
                 border-emerald-500
                 bg-primary px-[1rem]"
             style={{
@@ -108,7 +110,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 fill-height
                 grow
                 flex-col
-                border
+                //border
                 border-orange-500
                 pt-[2rem]">
                 {children}

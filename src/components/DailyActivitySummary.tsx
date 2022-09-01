@@ -1,5 +1,4 @@
 import React from "react";
-import { Box, Grid, Stack, Typography } from "@mui/material";
 import MuscleHeatMap from "./MuscleHeatMap";
 
 const DailyActivitySummary = () => {

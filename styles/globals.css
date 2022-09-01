@@ -6,6 +6,8 @@
   html {
     height: 100vh;
     height: -webkit-fill-available;
+    color: #fff;
+    border-color: white;
   }
   #app-container {
     /* min-height: 100vh;

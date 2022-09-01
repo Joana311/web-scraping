@@ -1,11 +1,7 @@
-import { Stack, Box, Grid, Typography, Input } from "@mui/material";
 import React from "react";
-import { Set as Prisma_Set, Exercise, PrismaClient } from "@prisma/client";
-import { NextPage } from "next";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
 import CurrentExercises from "src/components/ExerciseSummary/CurrentExercises";
-import { useSession } from "next-auth/react";
 import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
 import CancelIcon from '@mui/icons-material/Cancel';
 const Workout = () => {

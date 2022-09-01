@@ -1,19 +1,6 @@
 import React, { useEffect } from "react";
-import {
-  Box,
-  ButtonBase,
-  colors,
-  Fade,
-  Grid,
-  Stack,
-  SxProps,
-  Typography,
-} from "@mui/material";
-import Link from "next/link";
 import { UserExerciseCard } from "./components/UserExerciseCard";
-import AddNewExerciseModal from "./containers/AddNewExerciseModal";
-import { Exercise } from "@prisma/client";
-import superjson from "superjson";
+
 import trpc from "@client/trpc";
 interface ExerciseSummaryProps {
   onNewExerciseClick: () => void;
@@ -58,24 +45,10 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   return (
     <>
       {is_current &&
-        <ButtonBase
-          onClick={onNewExerciseClick}
-          sx={{
-            borderRadius: 2,
-            backgroundColor: "secondary.main",
-            display: "flex",
-            border: "1px solid white",
-            width: "100%",
-            minHeight: "max-content",
-            py: ".2rem",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <a className="text-[.9rem] font-semibold">
-            {"New Exercise"}
-          </a>
-        </ButtonBase>}
+        <button className="border rounded-lg ripple-bg-white text-black text-[1rem] font-extrabold w-[90%] mx-auto"
+          onClick={onNewExerciseClick}>
+          {"+ New Exercise"}
+        </button>}
 
       <section id="user-exercise-list"
         className="no-scrollbar relative flex grow snap-y flex-col space-y-4 overflow-y-scroll border-dashed border-pink-600 pt-4"

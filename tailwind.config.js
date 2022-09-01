@@ -5,7 +5,8 @@ module.exports = {
     "./src/components/**/*.{ts,tsx}",
     "./src/components/ExerciseSummary/**/*.{ts,tsx}",
     "./src/containers/*.{ts,tsx}",
-    "./src/pages/**/*.{ts,tsx}"
+    "./src/pages/**/*.{ts,tsx}",
+    "!./src/components/MuscleHeatMap.tsx"
   ],
   theme: {
     // colors: {},
