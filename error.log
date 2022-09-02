@@ -56,4 +56,4 @@ C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules
     at async PrismaClient._request (C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules\.pnpm\@prisma+client@4.0.0_prisma@4.0.0\node_modules\@prisma\client\runtime\index.js:50572:18) {
   name: 'DeleteSessionError',
   code: 'P2025'
-}
+} 
