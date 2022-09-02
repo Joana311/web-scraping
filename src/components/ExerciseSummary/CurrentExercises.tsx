@@ -54,7 +54,9 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
         className="no-scrollbar relative flex grow snap-y flex-col space-y-4 overflow-y-scroll border-dashed border-pink-600 pt-4"
       >
         {formatted_exercises.sort((a, b) => {
-          return (b.user_exercise_id as number) - (a.user_exercise_id as number)
+          let _a = typeof a === "number" ? a : 0;
+          let _b = typeof b === "number" ? b : 0;
+          return _b - _a;
         }).map((exercise, index) => {
           return (
             <UserExerciseCard
