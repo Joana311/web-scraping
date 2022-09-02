@@ -32,7 +32,7 @@ export default class MyDocument extends Document {
           />
         </Head>
         <body>
-          {process.env.NODE_ENV === "development" && <>
+          {process.env.NODE_ENV === "development" && false && <>
             <script src="//cdn.jsdelivr.net/npm/eruda"></script>
             <script>eruda.init();</script>
           </>}

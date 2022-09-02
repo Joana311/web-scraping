@@ -1,0 +1,59 @@
+[next-auth][debug][adapter_getSessionAndUser] { args: [ '0bacc8c8-3cc7-4193-9017-a62ce4ad240e' ] }
+[next-auth][debug][adapter_deleteSession] { args: [ '0bacc8c8-3cc7-4193-9017-a62ce4ad240e' ] }
+[next-auth][debug][adapter_deleteSession] { args: [ '0bacc8c8-3cc7-4193-9017-a62ce4ad240e' ] }
+[next-auth][error][adapter_error_deleteSession] 
+https://next-auth.js.org/errors#adapter_error_deletesession
+Invalid `p.session.delete()` invocation in
+C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules\.pnpm\@next-auth+prisma-adapter@1.0.3_n7u6stkqded6gjkc3mdt2lhxl4\node_modules\@next-auth\prisma-adapter\dist\index.js:33:58
+
+  30 },
+  31 createSession: (data) => p.session.create({ data }),
+  32 updateSession: (data) => p.session.update({ where: { sessionToken: data.sessionToken }, data }),
+→ 33 deleteSession: (sessionToken) => p.session.delete(
+  An operation failed because it depends on one or more records that were required but not found. Record to delete does not exist. {        
+  message: '\n' +
+    'Invalid `p.session.delete()` invocation in\n' +
+    'C:\\Users\\Julio\\Documents\\REACT\\Learning\\progress-tracker2021-nextjs\\node_modules\\.pnpm\\@next-auth+prisma-adapter@1.0.3_n7u6stkqded6gjkc3mdt2lhxl4\\node_modules\\@next-auth\\prisma-adapter\\dist\\index.js:33:58\n' +
+    '\n' +
+    '  30 },\n' +
+    '  31 createSession: (data) => p.session.create({ data }),\n' +
+    '  32 updateSession: (data) => p.session.update({ where: { sessionToken: data.sessionToken }, data }),\n' +
+    '→ 33 deleteSession: (sessionToken) => p.session.delete(\n' +
+    '  An operation failed because it depends on one or more records that were required but not found. Record to delete does not exist.',   
+  stack: 'Error: \n' +
+    'Invalid `p.session.delete()` invocation in\n' +
+    'C:\\Users\\Julio\\Documents\\REACT\\Learning\\progress-tracker2021-nextjs\\node_modules\\.pnpm\\@next-auth+prisma-adapter@1.0.3_n7u6stkqded6gjkc3mdt2lhxl4\\node_modules\\@next-auth\\prisma-adapter\\dist\\index.js:33:58\n' +
+    '\n' +
+    '  30 },\n' +
+    '  31 createSession: (data) => p.session.create({ data }),\n' +
+    '  32 updateSession: (data) => p.session.update({ where: { sessionToken: data.sessionToken }, data }),\n' +
+    '→ 33 deleteSession: (sessionToken) => p.session.delete(\n' +
+    '  An operation failed because it depends on one or more records that were required but not found. Record to delete does not exist.\n' +    '    at RequestHandler.handleRequestError (C:\\Users\\Julio\\Documents\\REACT\\Learning\\progress-tracker2021-nextjs\\node_modules\\.pnpm\\@prisma+client@4.0.0_prisma@4.0.0\\node_modules\\@prisma\\client\\runtime\\index.js:49670:13)\n' +
+    '    at RequestHandler.request (C:\\Users\\Julio\\Documents\\REACT\\Learning\\progress-tracker2021-nextjs\\node_modules\\.pnpm\\@prisma+client@4.0.0_prisma@4.0.0\\node_modules\\@prisma\\client\\runtime\\index.js:49652:12)\n' +
+    '    at async PrismaClient._request (C:\\Users\\Julio\\Documents\\REACT\\Learning\\progress-tracker2021-nextjs\\node_modules\\.pnpm\\@prisma+client@4.0.0_prisma@4.0.0\\node_modules\\@prisma\\client\\runtime\\index.js:50572:18)',
+  name: 'Error'
+}
+[next-auth][error][SESSION_ERROR] 
+https://next-auth.js.org/errors#session_error
+Invalid `p.session.delete()` invocation in
+C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules\.pnpm\@next-auth+prisma-adapter@1.0.3_n7u6stkqded6gjkc3mdt2lhxl4\node_modules\@next-auth\prisma-adapter\dist\index.js:33:58
+
+  30 },
+  31 createSession: (data) => p.session.create({ data }),
+  32 updateSession: (data) => p.session.update({ where: { sessionToken: data.sessionToken }, data }),
+→ 33 deleteSession: (sessionToken) => p.session.delete(
+  An operation failed because it depends on one or more records that were required but not found. Record to delete does not exist. Error:   
+Invalid `p.session.delete()` invocation in
+C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules\.pnpm\@next-auth+prisma-adapter@1.0.3_n7u6stkqded6gjkc3mdt2lhxl4\node_modules\@next-auth\prisma-adapter\dist\index.js:33:58
+
+  30 },
+  31 createSession: (data) => p.session.create({ data }),
+  32 updateSession: (data) => p.session.update({ where: { sessionToken: data.sessionToken }, data }),
+→ 33 deleteSession: (sessionToken) => p.session.delete(
+  An operation failed because it depends on one or more records that were required but not found. Record to delete does not exist.
+    at RequestHandler.handleRequestError (C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules\.pnpm\@prisma+client@4.0.0_prisma@4.0.0\node_modules\@prisma\client\runtime\index.js:49670:13)
+    at RequestHandler.request (C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules\.pnpm\@prisma+client@4.0.0_prisma@4.0.0\node_modules\@prisma\client\runtime\index.js:49652:12)
+    at async PrismaClient._request (C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules\.pnpm\@prisma+client@4.0.0_prisma@4.0.0\node_modules\@prisma\client\runtime\index.js:50572:18) {
+  name: 'DeleteSessionError',
+  code: 'P2025'
+}

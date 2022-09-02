@@ -41,12 +41,12 @@ export async function createContextInner(_opts: CreateContextOptions) {
   }
 
   // console.log("Actually in SSR session", await getServerSession({ req: _opts.req, res: _opts.res }, nextAuthOptions));
-  // if (!session) {
-  //   throw new TRPCError({
-  //     code: "UNAUTHORIZED",
-  //     message: "NO_SESSION. No auth session found for incoming request.",
-  //   });
-  // }
+  if (!session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "NO_SESSION. No auth session found for incoming request.",
+    });
+  }
   // next-auth didn't have a way to make user_id 
   // inferrable from the actual `session` return type. 
   // const user = session.user as any as User;

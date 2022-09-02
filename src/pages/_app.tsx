@@ -53,7 +53,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
         isError &&
         router.pathname !== "/"
       ) {
-        router.reload();
+        router.push("/");
       }
     },
   });

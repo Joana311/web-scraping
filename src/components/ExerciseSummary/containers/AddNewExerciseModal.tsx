@@ -75,28 +75,58 @@ const AddNewExerciseModal = ({
     return is_match;
   };
   const query_context = trpc.useContext();
+  const RESULT_RENDER_LIMIT = 25;
   React.useEffect(() => {
     // console.log(checkedTags);
     if (!searchTerm && checkedTags.size === 0) { setFilteredExercises(exercises); return };
+    let n = 0
     setFilteredExercises(
       exercises!.filter((exercise) => {
+        if (n === RESULT_RENDER_LIMIT) return false;
+        // console.log(n)
+        // console.log(exercise.equipment_name, exercise.force, exercise.name)
         let term_exists = !!searchTerm;
         let filters_exist = checkedTags.size > 0;
+        // console.log(term_exists, filters_exist);
         let tag_match = false;
         // set to flase if there are no true filters
-        let no_checked_tags = [...checkedTags.values()].every(tag => tag === false);
-        console.log(checkedTags);
+        let checked_tags = ![...checkedTags.values()].every(tag => tag === false);
+        // console.log(checkedTags, checked_tags);
 
-        if (filters_exist && !no_checked_tags) {
+        if (filters_exist && checked_tags) {
+          let i = 0
           checkedTags.forEach((is_checked, tag) => {
-            exercise.force?.includes(tag) && is_checked && (tag_match = true);
-            exercise.equipment_name?.includes(tag) && is_checked && (tag_match = true);
+            // pull and barbell
+
+            if (i > 0 && tag_match === false) {
+              // console.log(i, tag_match);
+              return;
+            }
+
+            else {
+              if (exercise.force?.includes(tag) && is_checked) {
+                // console.log("force: ", tag, " = ", is_checked);
+                tag_match = true
+              }
+              else if (exercise.equipment_name?.includes(tag) && is_checked) {
+                // console.log("equipment: ", tag, " = ", is_checked);
+                tag_match = true
+              }
+
+              else {
+                // console.log("no match index ", i, " : ", tag);
+                // tag_match = false
+              };
+            };
+            //  i++;
           })
         }
         else tag_match = true; // if map is empty then tag_match is true
+        // console.log("term exist", term_exists)
         let term_match = term_exists ? exercise.name?.toLowerCase().includes(searchTerm!.toLowerCase()) : true;
+        // console.log("term, tag =>", term_match, tag_match);
 
-        return tag_match && term_match;
+        return tag_match && term_match && n++;
         // return match_by_word(searchTerm, exercise) ;
       })
     );
@@ -143,7 +173,7 @@ const AddNewExerciseModal = ({
     window.open(href, "_blank");
   };
 
-  const RESULT_RENDER_LIMIT = 25;
+
 
   const handleCheckBox = (
     checked: boolean,
@@ -287,19 +317,19 @@ const AddNewExerciseModal = ({
           <span>{!showFilters ? "show" : "hide"} filters</span>
         </div>
         <div id='filters'
-          className={`flex h-max flex-col space-y-0 //border border-rose-600 ${!showFilters && 'hidden'}`}>
-          {Object.entries(filters).map((filter) => {
+          className={`flex flex-col space-y-0 /border border-rose-600 transition-all duration-[500] ease-out overflow-hidden ${!showFilters ? 'max-h-0' : 'max-h-24'}`}>
+          {Object.entries(filters).map((filter, index) => {
             const [filter_key, filter_value] = filter;
             return (
-              <form className="flex //border items-start">
+              <form className="flex //border items-start" key={index}>
                 <span id='filter-category' className="text-sm text-text.secondary mr-4 mt-[.2rem]">
                   {getFilterName(filter_key)}:
                 </span>
                 <ul id="tag-list" className="flex flex-wrap gap-x-1">
-                  {filter_value.map((filter_name) => {
+                  {filter_value.map((filter_name, index) => {
                     let isChecked = !!checkedTags.get(filter_name);
                     return (
-                      <label htmlFor={filter_name.replace(' ', '-')}>
+                      <label htmlFor={filter_name.replace(' ', '-')} key={index}>
                         <input id={filter_name.replace(' ', '-')}
                           className="peer appearance-none"
                           type="checkbox"
@@ -319,7 +349,7 @@ const AddNewExerciseModal = ({
             );
           })}
         </div>
-          <div className={`border-b w-full transition-all duration-300 my-1 mx-auto rad ${showFilters ? "w-full": "w-[10%]"}`}/>
+        <div className={`border-b w-full transition-all duration-300 my-1 mx-auto ease-out ${showFilters ? "w-full" : "w-[10%]"}`} />
       </div>
       <div id="title-bar" className="flex min-h-max w-full justify-between  border-green-600">
         <span className="text-[1rem]">

@@ -22,7 +22,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
 export interface SummaryCardProps {
   exercise: {
-    user_exercise_id: string;
+    user_exercise_id: number;
     name: string;
     variant: string | null;
     muscle: string | null;
@@ -118,14 +118,14 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
   }, [exercise.user_exercise_id, useDeleteSet, workout_id]);
 
   const dbRemove = React.useCallback(() => {
-    useRemoveEx.mutate({ exercise_id: exercise.user_exercise_id })
+    useRemoveEx.mutate({ user_exercise_id: exercise.user_exercise_id })
   }, [exercise.user_exercise_id, useRemoveEx]);
   const onDeleteExercise = React.useCallback(() => {
     if (!selfRef.current) return;
     // selfRef.current.scrollLeft = 0;
     selfRef.current.classList.add("-translate-x-[100vw]");
     selfRef.current.ontransitionend = () => {
-      useRemoveEx.mutate({ exercise_id: exercise.user_exercise_id });
+      useRemoveEx.mutate({ user_exercise_id: exercise.user_exercise_id });
       // dbRemove();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,7 +158,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
           <section id="overview-container"
             onClick={onExpand}
             className="mx-3 flex justify-between space-x-[1rem] py-1 capitalize">
-            <div id="overview-info" className="w-full">
+            <div id="overview-info" className="w-min">
               <div
                 id="exercise-name"
                 className="flex flex-col border-red-500">
@@ -167,7 +167,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                   {exercise.name}
                 </span>
               </div>
-              <div id="additional-info" className="flex space-x-6 pt-[.2rem]">
+              <div id="additional-info" className="flex justify-between pt-[.2rem]">
                 <div
                   id="exercise-variant"
                   className="flex flex-col border-yellow-500 leading-snug">
@@ -194,27 +194,29 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
             </div>
             <div id="expand-icon-container"
               className="flex items-center border-violet-700">
-              <Box
-                sx={{ borderRadius: "100%", ...expandIcon }}
+              <div className={`flex -rotate-90 ease-in transition-all duration-[450] ${expanded && "rotate-0"}`}
               >
                 <ExpandMoreRounded />
-              </Box>
+              </div>
             </div>
           </section>
-          <Collapse id="exercise-set-details" style={{ height: 'max' }} in={expanded}>
-            <Divider sx={{ backgroundColor: "text.secondary" }} />
+          <Collapse id="exercise-set-details" style={{ height: 'max' }} className="text-white" in={expanded}>
+            <div className="h-[1px] bg-text.secondary" />
             <TableContainer
               sx={{
                 minHeight: "fit-content",
                 py: ".25rem",
                 px: ".5rem",
                 "& .MuiTableCell-root": {
+                  color: "inherit",
                   border: "0",
                   py: "0.1rem",
                 },
                 "& .MuiTableBody-root": {
                   "& .MuiTableCell-root": {
                     // border: { borders } && "1px solid pink",
+                    color: "inherit",
+                    borderColor: "white",
                     fontWeight: 100,
                     fontSize: "1rem",
                   },
@@ -279,11 +281,12 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                           {exercise.sets.length + 1}
                         </TableCell>
                         <TableCell align="center">
-                          <TextField
+                          {/* <TextField
                             variant="outlined"
                             label="Weight"
                             type="number"
-                            color="info"
+                            // className="text-white border-white"
+                            color="primary"
                             onChange={(e) =>
                               (set.current.weight = parseInt(e.target.value))
                             }
@@ -295,13 +298,49 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                               disableAnimation: true,
                             }}
                             sx={{ ...inputBox }}
-                          />
+                          /> */}
+
+                          <fieldset id='input-field' className="relative mx-auto mb-1 flex w-max">
+                            <input id='weight-input'
+                              className='peer
+                              font-[400]
+                              pb-1
+                              outline-none
+                              focus:border-white
+                              border-2 border-text.secondary
+                              bg-secondary
+                              pt-1.5
+                              pl-2
+                              rounded-md
+                              mt-1.5 w-[8.5ch]'
+                              maxLength={5}
+                              type="number"
+                              inputMode="decimal"
+                              onChange={(e) =>
+                                (set.current.weight = parseInt(e.target.value))
+                              } />
+                            <label htmlFor="weight-input"
+                              className="absolute 
+                                text-[.75rem] 
+                                tracking-[.01rem] leading-none
+                                text-text.secondary
+                                pl-1
+                                left-[9px]
+                                pr-1
+                                font-[300]
+                                focus:text-text.primary
+                                active:text-text.primary
+                              bg-secondary peer-focus:text-text.primary">
+                              Weight(s)
+                            </label>
+                          </fieldset>
                         </TableCell>
                         <TableCell align="center">
-                          <TextField
+                          {/* <TextField
                             variant="outlined"
                             label="Reps"
                             type="number"
+                            // className="text-white border-white"
                             color="info"
                             onChange={(e) =>
                               (set.current.reps = parseInt(e.target.value))
@@ -314,14 +353,49 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                               disableAnimation: true,
                             }}
                             sx={{ ...inputBox }}
-                          />
+                          /> */}
+                          <fieldset id='input-field' className="relative mx-auto mb-1 flex w-max">
+                            <input id='rep-input'
+                              className='peer
+                              font-[400]
+                              outline-none
+                              pb-1
+                              focus:border-white
+                              border-2 border-text.secondary
+                              bg-secondary
+                              pt-1.5
+                              pl-2
+                              rounded-md
+                              mt-1.5 w-[8.5ch]'
+                              maxLength={5}
+                              type="number"
+                              inputMode="numeric"
+                              onChange={(e) =>
+                                (set.current.reps = parseInt(e.target.value))
+                              } />
+                            <label htmlFor="rep-input"
+                              className="absolute 
+                                text-[.75rem] 
+                                tracking-[.01rem] leading-none
+                                text-text.secondary
+                                pl-1
+                                left-[9px]
+                                pr-1
+                                font-[300]
+                                focus:text-text.primary
+                                active:text-text.primary
+                              bg-secondary peer-focus:text-text.primary">
+                              Reps
+                            </label>
+                          </fieldset>
+
                         </TableCell>
                         <TableCell align="center">
-                          <TextField
+                          {/* <TextField
                             variant="outlined"
                             label="RPE"
                             type="number"
-
+                            // className="text-white border-white"
                             color="info"
                             onChange={(e) =>
                               (set.current.rpe = parseInt(e.target.value))
@@ -334,7 +408,41 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                               disableAnimation: true,
                             }}
                             sx={{ ...inputBox }}
-                          />
+                          /> */}
+                          <fieldset id='input-field' className="relative mx-auto mb-1 flex w-max">
+                            <input id='rpe-input'
+                              className='peer
+                              font-[400]
+                              pb-1
+                              outline-none
+                              focus:border-white
+                              border-2 border-text.secondary
+                              bg-secondary
+                              pt-1.5
+                              pl-2
+                              rounded-md
+                              mt-1.5 w-[8.5ch]'
+                              type="number"
+                              inputMode="numeric"
+                              maxLength={5}
+                              onChange={(e) =>
+                                (set.current.rpe = parseInt(e.target.value))
+                              } />
+                            <label htmlFor="rpe-input"
+                              className="absolute 
+                                text-[.75rem] 
+                                tracking-[.01rem] leading-none
+                                text-text.secondary
+                                pl-1
+                                left-[9px]
+                                pr-1
+                                font-[300]
+                                focus:text-text.primary
+                                active:text-text.primary
+                              bg-secondary peer-focus:text-text.primary">
+                              RPE
+                            </label>
+                          </fieldset>
                         </TableCell>
                       </TableRow>}
                     </>
@@ -377,6 +485,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
 const inputBox: SxProps = {
   borderRadius: 1,
   // border: "1px solid white",
+  borderColor: "white",
   fontSize: "1.2rem",
   width: "7ch",
   fontWeight: "semi-bold",
@@ -395,6 +504,7 @@ const inputBox: SxProps = {
     py: "0.2rem",
     "& .MuiInputLabel-root": {
       margin: 0,
+      color: "#fff"
     },
   },
 };

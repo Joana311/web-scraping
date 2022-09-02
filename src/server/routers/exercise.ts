@@ -13,7 +13,7 @@ export const exerciseRouter = createRouter()
   })
   .mutation("add_set", {
     input: z.object({
-      user_exercise_id: z.string().cuid(),
+      user_exercise_id: z.number().gte(0),
       workout_id: z.string().cuid(),
       set: z.object({
         reps: z.number().lt(700).gt(0),
@@ -51,7 +51,7 @@ export const exerciseRouter = createRouter()
 
   .mutation("remove_set", {
     input: z.object({
-      user_exercise_id: z.string().cuid(),
+      user_exercise_id: z.number().gte(0),
       workout_id: z.string().cuid(),
       set_id: z.number().gt(0)
     }),
@@ -121,25 +121,25 @@ export const exerciseRouter = createRouter()
   })
   .mutation("remove_from_current_workout", {
     input: z.object({
-      exercise_id: z.string().cuid(),
+      user_exercise_id: z.number().gte(0),
     }),
-    async resolve({ input: { exercise_id }, ctx }) {
+    async resolve({ input: { user_exercise_id }, ctx }) {
       const owner_id = ctx?.session?.user.id;
       let open_workout = await open_workout_if_exists(owner_id!);
+
       if (!open_workout) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "open workout does not exist",
         });
       } else {
-        console.log("removing exercise", exercise_id);
-        // console.log("from workout", open_workout);
+        console.log("removing exercise", user_exercise_id);
         const workout = await prisma.userWorkout.update({
           where: { id: open_workout.id },
           data: {
             exercises: {
               delete: {
-                id: exercise_id,
+                id: user_exercise_id,
               }
             },
           },
