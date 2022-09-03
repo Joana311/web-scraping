@@ -46,16 +46,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     enabled: typeof window !== "undefined",
     // 5 minutes in milliseconds
     staleTime: 5 * 60 * 1000,
-    // retryOnMount: false,
-    onError(error) {
-      if (
-        error?.data?.code === "UNAUTHORIZED" &&
-        isError &&
-        router.pathname !== "/"
-      ) {
-        router.push("/");
-      }
-    },
+    retryOnMount: false,
   });
   // trpc.useQuery(["exercise.public.directory"], {
   //   context: { skipBatch: true },
@@ -65,40 +56,50 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
   //   retry: false,
   // });
   const utils = trpc.useContext();
-  React.useMemo(() => {
-    if (utils && typeof window !== "undefined") {
-      // console.log("setting react-query defaults");
+  const isInit = React.useRef(false)
+  React.useEffect(() => {
+    if (utils && typeof window !== "undefined" && !isInit.current) {
+      console.log("setting react-query defaults");
       utils.queryClient.setDefaultOptions({
         queries: {
           retry(failureCount, error: any) {
             if (
               (error.data?.code === "UNAUTHORIZED" &&
-                error.message.includes("NO_SESSION")) ||
-              failureCount > 1
+                error.message.includes("NO_SESSION")) &&
+              failureCount == 1
             ) {
               console.log("Session not found invalidating client session")
-              utils.queryClient.invalidateQueries(["next-auth.get_session"], {
-                refetchInactive: true
-              });
+              console.log("failureCount: ", 2);
+              // i think whats happening here is that 2 queries are fired. then on failure query is invalidated.
+              // which causes itself to be refetched. which causes the error to be thrown again.
+              // i dont think we actually need to invalidate. the purpose of it is
+              // for when the session expires and any other query that is not "next-auth.get_session"
+              // picks up on it and propogates the error down.
+              console.log("error with auth session. should re-route to home.")
+              router.push("/");
+              // }
+              utils.queryClient.setQueryData(["next-auth.get_session"], null);
               return false;
             }
             return true;
-          }
+          },
         }
       });
+      isInit.current = true;
     }
   }, []);
   const router = useRouter();
   const _session = React.useRef(auth_data);
   const session = React.useMemo(() => {
-    if (auth_data) {
+    // console.log("new session or error found")
+    // console.log("session: ", auth_data);
+    // console.log("error: ", error?.message?.includes("NO_SESSION"));
+    if (!_session.current && auth_data) {
       _session.current = auth_data;
       return _session.current;
     }
-    if (error?.message?.includes("NO_SESSION")) {
-      return undefined;
-    }
-    return _session.current;
+    if (auth_data == _session.current) return _session.current;
+    return undefined;
   }, [auth_data, error]);
   return (
 
@@ -107,7 +108,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
         <title>ExBuddy</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head >
-      <MainLayout>
+      <MainLayout session={session}>
         <Component {...pageProps} />
       </MainLayout>
       {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}

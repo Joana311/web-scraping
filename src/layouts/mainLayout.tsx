@@ -12,8 +12,12 @@ type LayoutProps = {
     session?: Session | undefined;
 }
 
-export const MainLayout = ({ children }: LayoutProps) => {
-    const { session } = useSession();
+export const MainLayout = ({ session, children }: LayoutProps) => {
+    // const { session } = useSession();
+    // const session = 
+    React.useEffect(() => {
+        console.log("session from main: ", session);
+    }, [session]);
     const todaysDate = React.useMemo(
         () => dayjs().format("dddd, MMM D"),
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,23 +58,37 @@ export const MainLayout = ({ children }: LayoutProps) => {
         // router.push(`/${session?.user.name || ""}`);
         router.push('/');
     }
+    const app_container = React.useRef<HTMLDivElement>(null);
+
+    // React.useEffect(() => {
+    //     if (app_container.current) {
+    //         app_container.current.
+    //     }
+    // }, [])
 
 
     return (
         <div id="app-container"
+            ref={app_container}
+            onScroll={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }}
             className="flex
                 h-screen
                 max-h-screen
-                grow
+                /grow
                 flex-col
-                overflow-y-hidden
-                //border-4
+                overflow-hidden
+                /border-4
+                /rounded-b-[2.25rem]
                 border-emerald-500
+                overscroll-none
                 bg-primary px-[1rem]"
             style={{
                 // height: "100dvh",
-                // // maxHeight: "100vh",
-                // maxHeight: "100dvh"
+                // maxHeight: "100vh",
+                maxHeight: "100vh"
             }}>
             <header id="nav-header"
                 className="

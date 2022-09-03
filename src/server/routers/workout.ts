@@ -89,6 +89,36 @@ export const workoutRouter = createRouter()
         take: amount || 1,
       });
     },
+  }).query("get_daily_recent", {
+    input: z.object({
+      amount: z.number().optional(),
+    }),
+    async resolve({ input: { amount }, ctx }) {
+      const owner_id = ctx?.session?.user.id;
+      // return await prisma.userWorkout.findMany({
+      //   orderBy: { created_at: "desc" },
+      //   where: { owner_id },
+      //   include: { exercises: { include: { exercise: true, sets: true } } },
+      //   take: amount || 1,
+      // });
+      const todays_date = dayjs();
+      const todays_workouts = await prisma.userWorkout.findMany({
+        orderBy: { created_at: "desc" },
+        where: {
+          AND: [
+            { owner_id },
+            {
+              created_at: {
+                gte: todays_date.startOf("day").toISOString()
+              }
+            }
+          ],
+        },
+        include: { exercises: { include: { exercise: true, sets: true } } },
+        take: amount,
+      })
+      return todays_workouts;
+    },
   }).query("get_current", {
     async resolve({ ctx }) {
       const owner_id = ctx?.session?.user.id;

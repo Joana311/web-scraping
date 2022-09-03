@@ -8,16 +8,16 @@ const Workout = () => {
   const router = useRouter();
   const query_context = trpc.useContext()
   let { query: { workout_id, add_new } } = router;
-  console.log(router)
+  // console.log(router)
 
   trpc.useQuery(["workout.get_current"], { enabled: !query_context.getQueryData(["workout.get_current"])?.id })
   const { data: workout, isLoading: workout_isLoading } = trpc.useQuery(["workout.get_by_id",
     { workout_id: workout_id as string }],
     {
-      onError() {
+      onError(e) {
         query_context.invalidateQueries("workout.get_current");
         query_context.invalidateQueries("workout.get_recent");
-        router.push(`/${router.query.user}`);
+        if (!e.message.includes("NO_SESSION")) router.push(`/${router.query.user}`);
       },
     });
   const [showModal, setShowModal] = React.useState(false);
@@ -26,6 +26,9 @@ const Workout = () => {
     if (add_new) {
       setShowModal(true);
     } else {
+      setShowModal(false);
+    }
+    return () => {
       setShowModal(false);
     }
   }, [add_new])

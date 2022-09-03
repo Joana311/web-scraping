@@ -45,7 +45,7 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   return (
     <>
       {is_current &&
-        <button className="border rounded-lg ripple-bg-white text-black text-[1rem] font-extrabold w-[90%] mx-auto"
+        <button className="border rounded-lg ripple-bg-white min-h-max text-black text-[1rem] font-extrabold w-[90%] mx-auto"
           onClick={onNewExerciseClick}>
           {"+ New Exercise"}
         </button>}

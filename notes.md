@@ -36,13 +36,9 @@ mobile has a hard time displaying negative margins
 
 ## Minor Bugs
 
-    [-] iOS display is super wonky. need too look up better ways to display vh. __need to update my iphone to latest iOS version__.
-
 ## Todo
 
     [ ] find a better way to request the 4mb data used in AddNewExerciseModal, look into streaming.
-
-    [ ] create a route specifically for current workout.
 
     [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
 
@@ -52,21 +48,29 @@ mobile has a hard time displaying negative margins
 
     [ ] optimize api functions to not make so many prisma calls.
 
-    [ ] improve re-routing logic whenever a session is expired
+    [ ] make the muscle map actually reflect the current workout of a user
+
+    [ ] save the `selected` state in AddNewExerciseModal via query params. and reset it  when the add button is pressed
 
     [ ] add notes feature to exercises in workout
-
-    [/] implement searching & filtering for AddExercises.
-
-        * my current solution is slow af rn *
-
-        [/] filter on server side.
-          * currently filtering on client side *
-        [ ] remove the ability to add exercises that are already in the workout.
 
     [ ] create a UserExercise page with better details `../user/workout/exercise/:id`
 
 ## In Progress
+
+    [-] implement searching & filtering for AddExercises.
+
+        [x] added support for force and equipment tag filters
+
+        [/] filter on server side.
+          * currently filtering on client side *
+
+        [ ] remove the ability to add exercises that are already in the workout.
+
+    [-] alot of ui jitters/jumps caused by conditional renders. Clean up with use of skeletons or better load state logic.
+
+        [x] add skeletons for loading states on the daily workouts elements in /[user] router
+            ** still need to fix the rendering logic a bit, especially on deletion of a workout **
 
     [-] finish the moving off of Mui to Tailwind
         * mostly done. Just need to remove some buttons, and the mui table *
@@ -78,13 +82,20 @@ mobile has a hard time displaying negative margins
     [-] setup middleware for pulling user data from the db to use id as a context for requests.
         * currently doing it inside trpc's createContext instead of using the middleware option, might wait for trpc v10 to do any big trpc refactors *
 
+    [-] fixed messy rerouting logic for deAuthentication.
+
+        [ ] improve re-routing logic whenever a session is expired and the user is redirected to `/` (currently does not log you out or clear app info about user)
+
 ## Done Recently
 
-    [x] fixed messy rerouting logic for deAuth
+    [x] iOS display is super wonky. need too look up better ways to display vh. __need to update my iphone to latest iOS version__.
+        ** this has mostly been fixed since adding the pwa support since that should be the primary way to use the app on mobile. **
 
-    [x] swapped from local db to supabase
+    [x] create a route specifically for current workout.
 
-    [x] implemented next-pwa to make the app saveable to homescreen
+    [x] swapped from local db to supabase hosted db so that i can deploy the app.
+
+    [x] implemented next-pwa to make the app saveable to homescreen and function nativelike.
 
     [x] create a page for the AddNewExerciseModal or make it based off of route parameters so that i can use swipe on mobile
 

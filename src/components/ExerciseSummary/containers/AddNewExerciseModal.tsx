@@ -223,7 +223,7 @@ const AddNewExerciseModal = ({
               id="target-muscle"
               className="flex flex-col justify-between border-green-500"
             >
-              <h1 className="text-[.6rem] font-bold leading-snug tracking-widest text-text.secondary">
+              <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
                 Target Muscle:
               </h1>
               <span
@@ -242,7 +242,7 @@ const AddNewExerciseModal = ({
                 Mechanics:
               </h1>
               <span
-                className='w-[8ch] truncate text-[.9rem] font-light capitalize leading-snug'
+                className='max-w-[8ch] truncate text-[.9rem] font-light capitalize leading-snug'
               >
                 {exercise.force ?? "N/A"}
               </span>
@@ -256,7 +256,7 @@ const AddNewExerciseModal = ({
                 Equipment:
               </h1>
               <span
-                className='w-[10ch] truncate text-[.9rem] font-light capitalize leading-snug'
+                className='max-w-[10ch] truncate text-[.9rem] font-light capitalize leading-snug'
               >
                 {exercise.equipment_name ?? "N/A"}
               </span>
@@ -266,7 +266,7 @@ const AddNewExerciseModal = ({
         <button id="more-info-button"
           disabled={!exercise.href}
           onClick={() => moreInfoHandler(exercise.href!)}
-          className="ml-auto rounded-full disabled:text-gray-600"
+          className="mr-2 ml-auto  rounded-lg disabled:text-gray-600"
         >
           <InfoOutlinedIcon />
         </button>
@@ -288,14 +288,25 @@ const AddNewExerciseModal = ({
       className="flex grow flex-col overflow-y-clip //border-4 border-blue">
       <div id="search-bar" className="relative h-max //border-2 border-violet-500">
         <input
-          name="search"
+          id="exercise-search-input"
           type="text"
+          inputMode="search"
+          onFocus={(e) => {
+
+            searchTerm && e.target.select();
+          }}
+          onKeyUp={(e) => {
+            if (e.key == "Enter") {
+              (document.activeElement as HTMLElement).blur();
+              // e.target?.blur();
+            };
+          }}
           ref={inputRef}
           onChange={(e) => {
             setSearchTerm(e.target.value);
           }}
           placeholder="Search..."
-          className="mb-3 w-full rounded-md border bg-black px-2 py-1 text-base focus:outline-none "
+          className="mb-3 w-full rounded-2xl border transition-all duration-400 bg-black px-2 py-1 text-base focus:rounded-md focus:outline-none "
         />
         <button
           onClick={() => {
@@ -367,11 +378,12 @@ const AddNewExerciseModal = ({
         </Link>
       </div>
       <div id="exercise-result-list"
-        className="flex flex-col space-y-[.7rem] overflow-y-auto //border-2 border-red-600 pb-[4rem] pt-2"
+        className="max-h-screen flex flex-col space-y-[.7rem] overflow-y-scroll /border-2 border-red-600 pb-[4rem] pt-2"
         onScroll={handleScroll}
-        style={{
-          maxHeight: "100dvh"
-        }}>
+      // style={{
+      //   maxHeight: "100dvh"
+      // }}
+      >
         {searchResults &&
           searchResults.map((exercise, key) => {
             if (key < RESULT_RENDER_LIMIT) {

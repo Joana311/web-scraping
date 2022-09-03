@@ -4,17 +4,28 @@
 
 @layer base {
   html {
-    height: 100vh;
+    height: 100%;
     height: -webkit-fill-available;
+    overflow: hidden;
+    overscroll-behavior: none;
     color: #fff;
-    border-color: white;
+    background-color: #000;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+  }
+  body {
+    height: 100%;
+    
+    /* position: relative; */
   }
   #app-container {
-    /* min-height: 100vh;
-    max-height: 100vh;
-    min-height: 100dvh;
-    max-height: -webkit-fill-available;
+    /* min-height: 100vh; */
+    /* max-height: 100svh; */
+    /* min-height: 100dvh; */
+    /* max-height: -webkit-fill-available;
     max-height: -moz-available; */
+
+    -webkit-overflow-scrolling: touch;
   }
   #page-container {
     /* max-height: -webkit-fill-available;

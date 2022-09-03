@@ -43,9 +43,9 @@ const RecentWorkouts = () => {
       })
       query_client.invalidateQueries("workout.get_current");
       query_client.invalidateQueries("workout.get_recent");
-    }
+    },
   })
-  const { data: open_workout } = trpc.useQuery(["workout.get_current"], {
+  const { data: open_workout, isFetching: current_isFetching } = trpc.useQuery(["workout.get_current"], {
     // enabled: typeof window !== "undefined",
     refetchOnMount: true,
     onSuccess(open_workout) {
@@ -57,23 +57,18 @@ const RecentWorkouts = () => {
     },
     ssr: false
   });
-  const { data: recent_workouts, isError } = trpc.useQuery(
-    ["workout.get_recent", { amount: 3 }],
+  const { data: daily_recent_workouts, isError, isFetching: daily_recent_isFetching } = trpc.useQuery(
+    ["workout.get_daily_recent", { amount: 3 }],
     {
       // enabled: typeof window == "undefined",
       ssr: false,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
-      onSuccess(recent_workouts) {
-        if (recent_workouts.length > 0) {
-          const todays_workouts = recent_workouts.filter((w) =>
-            dayjs(w.created_at).isSame(dayjs(), "day")
-          );
-          setTodaysSessions(todays_workouts.map(workoutToSession));
-          recent_workouts.length > 2 && toggleShowMore(true);
-        } else {
-          setIsWorkoutOpen(false);
-        }
+      onSuccess(daily_recent_workouts) {
+        setTodaysSessions(daily_recent_workouts.map(workoutToSession));
+        daily_recent_workouts.length > 2 && toggleShowMore(true)
+        daily_recent_workouts.length === 0 && setIsWorkoutOpen(false);
+
       }
     }
   );
@@ -94,7 +89,7 @@ const RecentWorkouts = () => {
       id: workout.id,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [recent_workouts]
+    [daily_recent_workouts]
   );
 
   const onCreateNewWorkout = async () => {
@@ -119,6 +114,12 @@ const RecentWorkouts = () => {
         if (workout.id == open_workout?.id) {
           setIsWorkoutOpen(false);
         }
+        let _old_daily = query_client.getQueryData(["workout.get_daily_recent"]) || [];
+        query_client.setQueryData(["workout.get_current"], null)
+        query_client.setQueryData(["workout.get_daily_recent"],
+          _old_daily.filter((w: any) => w.id !== workout.id))
+        query_client.invalidateQueries("workout.get_daily_recent");
+        query_client.invalidateQueries("workout.get_current");
       }
     });
   }
@@ -140,29 +141,51 @@ const RecentWorkouts = () => {
           </Link>
         )}
       </h1>
-      <ul id='recent-workout-cards' className='flex flex-col space-y-[.6rem] pb-[.6rem]'>
-        {todaysSessions.length ? (
-          todaysSessions.map((workout, index) => {
-            return <WorkoutSummaryCard is_current={workout.id == open_workout?.id} workout={workout} onEndWorkout={onEndWorkout} onDeleteWorkout={onDeleteWorkout} key={index} />
-          })
-        ) : (
-          <div id='no-workout-notifier'
-            className="text-[1rem] font-light text-text.secondary"
-          >
-            <span>{"No Workouts Found"}</span>
-            <br />
-            <span>{"Start a new one!"}</span>
-          </div>
-        )}
-      </ul>
+      {/* {console.log(current_isFetching, daily_recent_isFetching, !daily_recent_workouts, (daily_recent_workouts?.length != todaysSessions.length))} */}
+      {(current_isFetching || daily_recent_isFetching || create_workout.isLoading)
+        &&
+        (create_workout.isLoading || !daily_recent_workouts
+          || (daily_recent_workouts.length != todaysSessions.length))
+        ?
+        <div className="flex flex-col pb-[.6rem]">
+          <SummaryCardSkeleton />
+        </div>
+        :
+        <>
+          <ul id='recent-workout-cards' className='flex flex-col space-y-[.6rem] pb-[.6rem]'>
+            {/* {console.log(todaysSessions, todaysSessions.length)} */}
+            {!!todaysSessions &&
+              todaysSessions.length != 0 &&
+              todaysSessions.map((workout, index) => {
+                console.log(workout)
+                return <WorkoutSummaryCard
+                  is_current={workout.id == open_workout?.id}
+                  workout={workout}
+                  onEndWorkout={onEndWorkout}
+                  onDeleteWorkout={onDeleteWorkout}
+                  key={index} />
+              })
+            }
+          </ul>
 
-      {!isWorkoutOpen &&
-        <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
-          onClick={onCreateNewWorkout}>
-          <a>
-            {"New Workout"}
-          </a>
-        </button>
+          {!isWorkoutOpen && !current_isFetching &&
+            <>
+              <div id='no-workout-notifier'
+                className="text-[1rem] font-light text-text.secondary"
+              >
+                <span>{"No Open Workouts Found"}</span>
+                <br />
+                <span>{"Start a new one!"}</span>
+              </div>
+              <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
+                onClick={onCreateNewWorkout}>
+                <a>
+                  {"New Workout"}
+                </a>
+              </button>
+            </>
+          }
+        </>
       }
     </>
   );
@@ -254,7 +277,11 @@ const WorkoutSummaryCard = (props: {
         {is_current && <section id="additional-actions"
           className="ml-2 flex min-w-full snap-start snap-always justify-between rounded-lg bg-secondary px-4 py-1">
           <button id="delete-workout"
-            onClick={() => onDeleteWorkout(workout)}
+            onClick={() => {
+              selfRef.current && (selfRef.current.scrollLeft = 0)
+              selfRef.current && selfRef.current.classList.add("-translate-x-[150%]")
+              onDeleteWorkout(workout)
+            }}
             className="flex items-center rounded-lg bg-red-700 px-2 text-[2.5rem]" >
             <DeleteIcon fontSize="inherit" /></button>
           <button id="end-workout"
@@ -283,6 +310,35 @@ const WorkoutSummaryCard = (props: {
       </li>
     </>
   );
+}
+const SummaryCardSkeleton = () => {
+  return (
+    <div className="h-[4rem] animate-pulse bg-secondary rounded-lg">
+      <section
+        className={`flex min-w-full snap-start items-center space-x-[1.25rem] rounded-lg  px-2 h-full`}>
+        <section id="workout-duration"
+          className="flex self-center items-center justify-center">
+          <div id='start-time' className="flex w-[5.5rem] flex-col items-center justify-between h-12 py-1" >
+            <span className="bg-secondary-dark rounded-lg w-[6ch] h-[.65rem]" />
+            <span className="bg-secondary-dark rounded-lg w-[8ch] h-[1.25rem]" />
+          </div>
+          <span className="mx-[.7rem] mt-3 text-2xl">
+          </span>
+          <div id='end-time' className="flex w-[5.5rem] flex-col items-center justify-between h-12 py-1" >
+            <span className="bg-secondary-dark rounded-lg w-[6ch] h-[.65rem]" />
+            <span className="bg-secondary-dark rounded-lg w-[8ch] h-[1.25rem]" />
+          </div>
+        </section>
+
+        <section id='workout-info'
+          className="flex flex-col items-start justify-center text-[.85rem] space-y-1 leading-4">
+          <span className="w-[10ch] h-[.85rem] bg-secondary-dark rounded-lg " />
+          <span className="w-[8ch]  h-[.85rem] bg-secondary-dark rounded-lg" />
+          <span className="w-[12ch] h-[.85rem] bg-secondary-dark rounded-lg" />
+        </section>
+      </section>
+    </div >
+  )
 }
 
 
