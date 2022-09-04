@@ -45,10 +45,11 @@ export default trpcNext.createNextApiHandler({
       console.log("public route detected", paths)
       console.log("inserting cache headers");
       return {
-        // headers: { "cache-control": `s-maxage=${ONE_WEEK_IN_SECONDS}, public, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`, }
+        headers: { "cache-control": `s-maxage=${ONE_WEEK_IN_SECONDS}, public, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`, }
       };
     } else return {}
   },
+
   router: appRouter,
   /**
    * @link https://trpc.io/docs/context
@@ -60,6 +61,7 @@ export default trpcNext.createNextApiHandler({
 
   onError({ error, }) {
     if (error.code === "INTERNAL_SERVER_ERROR") {
+      console.error(error);
       // send to bug reporting
       // console.error("Something went wrong", error);
       console.error("Something went wrong, check TRPC logging - Julio");

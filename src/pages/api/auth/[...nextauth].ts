@@ -43,9 +43,15 @@ export const nextAuthOptions: NextAuthOptions = {
         },
     },
     callbacks: {
+        // signIn(params) {
+        //     console.log("signIn callback, user retreived")
+        //     console.log(params.user)
+        //     console.log(params.credentials)
+        //     return true
+        // },
         async session({ session, user }) {
-            // console.log("session callback")
-            // console.log(session)
+            console.log("session callback")
+            console.log(session)
             // console.log("user is: ", user)
             session.user = {
                 id: user.id,
@@ -71,7 +77,7 @@ export const nextAuthOptions: NextAuthOptions = {
 }
 
 export default NextAuth(
-    { ...nextAuthOptions, }
+    { ...nextAuthOptions }
 
 )
 type callback_types = NonNullable<typeof nextAuthOptions.callbacks>

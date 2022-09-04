@@ -4,11 +4,15 @@ import * as trpcNext from "@trpc/server/adapters/next";
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 
 import { type Session } from "next-auth";
-import { getServerSession } from "next-auth";
+
+import { unstable_getServerSession as getServerSession } from "next-auth";
+
 // import { PrismaClient } from "@prisma/client";
-import { nextAuthOptions } from "src/pages/api/auth/[...nextauth]";
+import { nextAuthOptions } from "../../pages/api/auth/[...nextauth]";
 
 import { TRPCError } from "@trpc/server";
+import { NextApiRequest, NextApiResponse } from "next";
+import { NextAuthHandlerParams } from "next-auth/core";
 
 //using getSession is slower than getServerSession 
 
@@ -67,7 +71,10 @@ export async function createContext(
 ): Promise<Context> {
   // for API-response caching see https://trpc.io/docs/caching
   console.log(opts.req.query.trpc)
-  const session = (await getServerSession(opts, nextAuthOptions));
+  // opts.req.query['nextauth'] = " ";
+  console.log("req incomming", opts.req.query);
+  const session = await getServerSession(opts.req as NextApiRequest, opts.res as NextApiResponse, { ...nextAuthOptions })
+  console.log("session returned from next-atuh", session);
 
   // innerContext usefull for testing purposes to mock req/res
   // const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
