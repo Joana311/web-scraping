@@ -18,12 +18,15 @@
     "cals",
     "cuids",
     "exrx",
+    "loglevel",
     "NEXTAUTH",
     "nextjs",
     "prismix",
     "Sternocleidomastoid",
     "superjson",
     "Supraspinatus",
+    "svgr",
+    "tailwindcss",
     "trpc"
   ],
   "prettier.trailingComma": "none"
