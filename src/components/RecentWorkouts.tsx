@@ -112,9 +112,6 @@ const RecentWorkouts = () => {
         ref.hidden = true
         delete_workout.mutate({ workout_id: workout.id, is_confirmed: true }, {
           onSuccess: () => {
-            if (workout.id == open_workout?.id) {
-              setIsWorkoutOpen(false);
-            }
             let _old_daily = query_client.getQueryData(["workout.get_daily_recent"]) || [];
             query_client.setQueryData(["workout.get_current"], null)
             query_client.setQueryData(["workout.get_daily_recent"],
@@ -191,7 +188,7 @@ const RecentWorkouts = () => {
             </button>
           </>
         }
-    </>
+      </>
     </>
   );
 };
