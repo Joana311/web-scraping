@@ -45,7 +45,7 @@ export default trpcNext.createNextApiHandler({
       console.log("public route detected", paths)
       console.log("inserting cache headers");
       return {
-        headers: { "cache-control": `s-maxage=${ONE_WEEK_IN_SECONDS}, public, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`, }
+        // headers: { "cache-control": `s-maxage=${ONE_WEEK_IN_SECONDS}, public, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`, }
       };
     } else return {}
   },
