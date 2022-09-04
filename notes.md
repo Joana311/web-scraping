@@ -39,8 +39,12 @@ mobile has a hard time displaying negative margins
 ## Minor Bugs
 
     [ ] the scroll notifiers elements are not hiding correctly when there is no area to scroll.
+        * disabled for now *
 
-    [ ] navigating forward from /[user] to /[user]/recent after recent was deleted takes you to a blank page because it cannot get the session i should handle this with a 404 page and then reroute. 
+    [ ] navigating forward from /[user] to /[user]/recent after recent was deleted takes you to a blank page because it cannot get the session i should handle this with a 404 page and then reroute.
+
+    [ ] adding an exercise when viewing a different workout (as in not current) doesnt return an error it instead it adds to the current workout.
+        (fix by changing the route to add via workout id and check if the workout is closed and return an error if it is)
 
 ## Todo
 

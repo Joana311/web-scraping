@@ -104,32 +104,33 @@ const RecentWorkouts = () => {
       close_workout.mutate({ workout_id });
     }
   }
-  const onDeleteWorkout = (workout: ReturnType<typeof workoutToSession>, ref: HTMLElement) => {
-
-
-
+  const onDeleteWorkout = React.useCallback((workout: ReturnType<typeof workoutToSession>, ref: HTMLElement) => {
+    const remove = () => {
+      ref && (ref.scrollLeft = 0)
+      ref && ref.classList.add("-translate-x-[150%]")
+      ref && (ref.ontransitionend = () => {
+        ref.hidden = true
+        delete_workout.mutate({ workout_id: workout.id, is_confirmed: true }, {
+          onSuccess: () => {
+            if (workout.id == open_workout?.id) {
+              setIsWorkoutOpen(false);
+            }
+            let _old_daily = query_client.getQueryData(["workout.get_daily_recent"]) || [];
+            query_client.setQueryData(["workout.get_current"], null)
+            query_client.setQueryData(["workout.get_daily_recent"],
+              _old_daily.filter((w: any) => w.id !== workout.id))
+          }
+        });
+      })
+    }
     if (workout.exercises > 0 && workout.sets > 0) {
       let confirm_delete = confirm("This workout has data. Are you sure you want to delete it?");
       if (confirm_delete == false) {
         return
       }
     }
-    ref && (ref.scrollLeft = 0)
-    ref && ref.classList.add("-translate-x-[150%]")
-    ref && (ref.ontransitionend = () => {
-      delete_workout.mutate({ workout_id: workout.id, is_confirmed: true }, {
-        onSuccess: () => {
-          if (workout.id == open_workout?.id) {
-            setIsWorkoutOpen(false);
-          }
-          let _old_daily = query_client.getQueryData(["workout.get_daily_recent"]) || [];
-          query_client.setQueryData(["workout.get_current"], null)
-          query_client.setQueryData(["workout.get_daily_recent"],
-            _old_daily.filter((w: any) => w.id !== workout.id))
-        }
-      });
-    })
-  }
+    remove()
+  }, [delete_workout, open_workout?.id, query_client])
 
   return (
     <>
@@ -190,8 +191,7 @@ const RecentWorkouts = () => {
             </button>
           </>
         }
-      </>
-
+    </>
     </>
   );
 };

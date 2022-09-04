@@ -67,7 +67,6 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             className="flex
                 h-screen
                 max-h-screen
-                /grow
                 flex-col
                 overflow-hidden
                 /border-4
@@ -78,7 +77,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             style={{
                 // height: "100dvh",
                 // maxHeight: "100vh",
-                maxHeight: "100vh"
+                maxHeight: "100svh"
             }}>
             <header id="nav-header"
                 className="
