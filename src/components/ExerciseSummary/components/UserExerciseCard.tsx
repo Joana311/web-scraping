@@ -87,15 +87,6 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
       }
     },
   })
-  const expandIcon: SxProps = {
-    display: "flex",
-    transform: expanded ? "rotate(0deg)" : "rotate(-90deg)",
-    transition: "transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
-    transitionProperty: "transform",
-    transitionDuration: "150ms",
-    transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
-    transitionDelay: "0ms",
-  };
   const set = React.useRef({
     weight: 0,
     reps: 0,
@@ -139,6 +130,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
         flex-shrink-0
         no-scrollbar
         flex
+        snap-start
         snap-x
         overflow-y-hidden
         overflow-x-scroll

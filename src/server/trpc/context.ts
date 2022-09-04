@@ -24,7 +24,7 @@ import { TRPCError } from "@trpc/server";
 // type b = Pick<a, "data">;
 // type session = NonNullable<b["data"]>;
 interface CreateContextOptions extends CreateNextContextOptions {
-  session: Session | null
+  session?: Session
 }
 
 /**
@@ -68,8 +68,27 @@ export async function createContext(
   // for API-response caching see https://trpc.io/docs/caching
   console.log(opts.req.query.trpc)
   const session = (await getServerSession(opts, nextAuthOptions));
-  // console.log("SSR Session: ", session)
-  const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
+
+  // innerContext usefull for testing purposes to mock req/res
+  // const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
+
+  // check first for public routes
+  if (typeof opts.req.query.trpc === "string" && opts.req.query.trpc.includes(".public")) {
+    return {
+      ...opts,
+    }
+  }
+  // console.log("Creating context from session: ", session)
+  if (!session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "NO_SESSION. No auth session found for incoming request.",
+    });
+  }
+  const ctx = {
+    ...opts,
+    session,
+  }
   return ctx
 }
 

@@ -42,9 +42,10 @@ export default trpcNext.createNextApiHandler({
     const ONE_DAY_IN_SECONDS = ONE_HOUR_IN_SECONDS * 24;
     const ONE_WEEK_IN_SECONDS = ONE_DAY_IN_SECONDS * 7;
     if (safe_to_cache) {
+      console.log("public route detected", paths)
       console.log("inserting cache headers");
       return {
-        headers: { "cache-control": `s-maxage=1 , stale-while-revalidate=${ONE_HOUR_IN_SECONDS}`, }
+        headers: { "cache-control": `s-maxage=${ONE_WEEK_IN_SECONDS}, public, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`, }
       };
     } else return {}
   },

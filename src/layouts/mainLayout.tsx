@@ -50,26 +50,16 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             case "/[user]/workout/history":
                 return "Workout History";
             default:
-                return "Home";
+                return router.pathname
         }
-        return router.pathname
     }, [router.pathname]);
     const onHomeClick = () => {
         // router.push(`/${session?.user.name || ""}`);
         router.push('/');
     }
-    const app_container = React.useRef<HTMLDivElement>(null);
-
-    // React.useEffect(() => {
-    //     if (app_container.current) {
-    //         app_container.current.
-    //     }
-    // }, [])
-
 
     return (
         <div id="app-container"
-            ref={app_container}
             onScroll={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -122,15 +112,22 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
 
                 </div>
             </header>
+            {/* using overflow-y-hidden makes it work on desktop but,
+            it messes up one of the scale animations by clipping on the x-axis */}
             <div
                 id="page-container"
-                className="relative flex
-                fill-height
-                grow
-                flex-col
-                //border
-                border-orange-500
-                pt-[2rem]">
+                className="relative
+                    flex
+                    fill-height
+                    grow
+                    flex-col
+                    /border
+                    /overflow-y-hidden
+                    z-0
+                    border-orange-500
+                    pt-[2rem]"
+            // style={{ height: "fill-available" }}
+            >
                 {children}
             </div>
 

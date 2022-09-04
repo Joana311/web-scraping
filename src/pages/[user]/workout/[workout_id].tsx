@@ -61,19 +61,20 @@ const Workout = () => {
   }
   const isCurrentWorkout = React.useCallback(() => {
     let current_workout_id = query_context.getQueryData(["workout.get_current"])?.id
-    // console.log(`get_current-id: ${current_workout_id}, page-query-id: ${workout_id}, test: ${current_workout_id === workout_id}`);
     return workout_id === current_workout_id
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workout_id, query_context.getQueryData(["workout.get_current"])?.id]);
 
   if (showModal && isCurrentWorkout()) {
     return (
-      <section id="modal container" className="flex grow flex-col overflow-y-hidden">
+      <section id="modal container" className="flex grow flex-col overflow-y-hidden /border-4 border-blue">
         <button id="close-modal"
           onClick={onCloseModal}
-          className="absolute top-1 right-0 rounded-lg bg-red-600 px-2 text-[.9rem]">
-          {"close"}
-          <CancelIcon className="pl-1" fontSize="inherit" />
+          className="absolute top-1 right-0 rounded-md border border-red-800 bg-red-800/50 px-2 py-0.5 max-h-min flex items-center text-[.9rem] text-red-600">
+          <span className="flex leading-none  ">
+            close
+          </span>
+          <CancelIcon className="pl-1 pt-0.5" fontSize="inherit" color="inherit" />
         </button>
         <AddNewExerciseModal
           exercises={exercise_directory}
@@ -85,21 +86,13 @@ const Workout = () => {
   }
   return (
     <>
-      {/* {!workout?.closed &&
-        <div className="absolute top-[.3rem] flex w-full justify-start">
-          <button id="end-workout"
-            onClick={() => onEndWorkout()}
-            className="relative rounded-lg  bg-yellow-500/20  border border-yellow-500 text-yellow-400  px-2 text-[.9rem]">
-            {"Finish Workout"}
-          </button>
-        </div >} */}
       <section id="workout-exercises"
-        className="flex grow flex-col space-y-[.6rem] overflow-y-hidden text-clip border-blue"
+        className="flex grow flex-col space-y-[.6rem] overflow-y-hidden text-clip /border-4 border-blue"
       >
         <div id="title-bar-and-end-button"
           className="mb-1 flex min-h-max flex-row items-center justify-between border-green-300" >
           <h1 className='font-light'>Exercises</h1>
-          {!workout?.closed &&
+          {workout && !workout.closed &&
             <button id="end-workout-button"
               disabled={workout?.exercises.length === 0}
               onClick={() => onEndWorkout()}

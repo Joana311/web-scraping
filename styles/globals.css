@@ -15,7 +15,7 @@
   }
   body {
     height: 100%;
-    
+
     /* position: relative; */
   }
   #app-container {
@@ -65,6 +65,12 @@
   }
   .fill-height {
     max-height: -webkit-fill-available;
+    max-height: -webkit-stretch;
     max-height: -moz-available;
+    max-height: stretch;
+    /* height: -webkit-fill-available; */
+    /* height: -webkit-stretch; */
+    /* height: -moz-available; */
+    /* height: stretch; */
   }
 }

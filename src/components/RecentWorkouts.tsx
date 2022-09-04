@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { AnyMxRecord } from "dns";
 
 const RecentWorkouts = () => {
   const query_client = trpc.useContext();
@@ -19,19 +20,20 @@ const RecentWorkouts = () => {
       sets: number;
       estimated_cals: string | number;
       id: string;
-    }[]
-  >([]);
+    }[] | null
+  >(null);
   const [showMore, toggleShowMore] = React.useState(false);
   const close_workout = trpc.useMutation("workout.close_by_id", {
     onSuccess: () => {
       // setOpenWorkoutId(undefined);
       query_client.invalidateQueries("workout.get_current");
-      query_client.invalidateQueries("workout.get_recent");
+      query_client.invalidateQueries("workout.get_daily_recent");
     }
   })
   const delete_workout = trpc.useMutation("workout.delete_by_id", {
     onSuccess: () => {
-      query_client.invalidateQueries("workout.get_recent");
+      query_client.invalidateQueries("workout.get_daily_recent");
+      query_client.invalidateQueries("workout.get_current");
     }
   })
   const router = useRouter();
@@ -42,7 +44,7 @@ const RecentWorkouts = () => {
         ...new_workout
       })
       query_client.invalidateQueries("workout.get_current");
-      query_client.invalidateQueries("workout.get_recent");
+      query_client.invalidateQueries("workout.get_daily_recent");
     },
   })
   const { data: open_workout, isFetching: current_isFetching } = trpc.useQuery(["workout.get_current"], {
@@ -102,26 +104,31 @@ const RecentWorkouts = () => {
       close_workout.mutate({ workout_id });
     }
   }
-  const onDeleteWorkout = (workout: ReturnType<typeof workoutToSession>) => {
+  const onDeleteWorkout = (workout: ReturnType<typeof workoutToSession>, ref: HTMLElement) => {
+
+
+
     if (workout.exercises > 0 && workout.sets > 0) {
       let confirm_delete = confirm("This workout has data. Are you sure you want to delete it?");
       if (confirm_delete == false) {
         return
       }
     }
-    delete_workout.mutate({ workout_id: workout.id, is_confirmed: true }, {
-      onSuccess: () => {
-        if (workout.id == open_workout?.id) {
-          setIsWorkoutOpen(false);
+    ref && (ref.scrollLeft = 0)
+    ref && ref.classList.add("-translate-x-[150%]")
+    ref && (ref.ontransitionend = () => {
+      delete_workout.mutate({ workout_id: workout.id, is_confirmed: true }, {
+        onSuccess: () => {
+          if (workout.id == open_workout?.id) {
+            setIsWorkoutOpen(false);
+          }
+          let _old_daily = query_client.getQueryData(["workout.get_daily_recent"]) || [];
+          query_client.setQueryData(["workout.get_current"], null)
+          query_client.setQueryData(["workout.get_daily_recent"],
+            _old_daily.filter((w: any) => w.id !== workout.id))
         }
-        let _old_daily = query_client.getQueryData(["workout.get_daily_recent"]) || [];
-        query_client.setQueryData(["workout.get_current"], null)
-        query_client.setQueryData(["workout.get_daily_recent"],
-          _old_daily.filter((w: any) => w.id !== workout.id))
-        query_client.invalidateQueries("workout.get_daily_recent");
-        query_client.invalidateQueries("workout.get_current");
-      }
-    });
+      });
+    })
   }
 
   return (
@@ -141,52 +148,50 @@ const RecentWorkouts = () => {
           </Link>
         )}
       </h1>
-      {/* {console.log(current_isFetching, daily_recent_isFetching, !daily_recent_workouts, (daily_recent_workouts?.length != todaysSessions.length))} */}
-      {(current_isFetching || daily_recent_isFetching || create_workout.isLoading)
-        &&
-        (create_workout.isLoading || !daily_recent_workouts
-          || (daily_recent_workouts.length != todaysSessions.length))
-        ?
-        <div className="flex flex-col pb-[.6rem]">
-          <SummaryCardSkeleton />
-        </div>
-        :
-        <>
-          <ul id='recent-workout-cards' className='flex flex-col space-y-[.6rem] pb-[.6rem]'>
-            {/* {console.log(todaysSessions, todaysSessions.length)} */}
-            {!!todaysSessions &&
-              todaysSessions.length != 0 &&
-              todaysSessions.map((workout, index) => {
+
+
+      <>
+        <ul id='recent-workout-cards' className='flex flex-col space-y-[.6rem] pb-[.6rem]'>
+          {/* {console.log(todaysSessions, todaysSessions.length)} */}
+          {!!todaysSessions ?
+            <>
+              {create_workout.isLoading && current_isFetching && <SummaryCardSkeleton />}
+              {todaysSessions!.map((workout, index) => {
                 console.log(workout)
                 return <WorkoutSummaryCard
                   is_current={workout.id == open_workout?.id}
                   workout={workout}
                   onEndWorkout={onEndWorkout}
                   onDeleteWorkout={onDeleteWorkout}
-                  key={index} />
+                  key={workout.id} />
               })
-            }
-          </ul>
-
-          {!isWorkoutOpen && !current_isFetching &&
-            <>
-              <div id='no-workout-notifier'
-                className="text-[1rem] font-light text-text.secondary"
-              >
-                <span>{"No Open Workouts Found"}</span>
-                <br />
-                <span>{"Start a new one!"}</span>
-              </div>
-              <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
-                onClick={onCreateNewWorkout}>
-                <a>
-                  {"New Workout"}
-                </a>
-              </button>
-            </>
+              }
+            </> : <>
+              <div className="flex flex-col pb-[.6rem]">
+                <SummaryCardSkeleton />
+              </div></>
           }
-        </>
-      }
+        </ul>
+
+        {!isWorkoutOpen && !current_isFetching &&
+          <>
+            <div id='no-workout-notifier'
+              className="text-[1rem] font-light text-text.secondary"
+            >
+              <span>{"No Open Workouts Found"}</span>
+              <br />
+              <span>{"Start a new one!"}</span>
+            </div>
+            <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
+              onClick={onCreateNewWorkout}>
+              <a>
+                {"New Workout"}
+              </a>
+            </button>
+          </>
+        }
+      </>
+
     </>
   );
 };
@@ -202,7 +207,7 @@ const WorkoutSummaryCard = (props: {
   },
   is_current: boolean;
   onEndWorkout: (workout_id: string) => void
-  onDeleteWorkout: (workout: any) => void
+  onDeleteWorkout: (workout: any, ref: any) => void
 }) => {
   const { workout, onEndWorkout, onDeleteWorkout, is_current } = props;
   const router = useRouter();
@@ -219,7 +224,7 @@ const WorkoutSummaryCard = (props: {
             display: "none",
           }
         } as React.CSSProperties}
-        className="no-scrollbar relative flex h-[4rem] max-h-[4rem] snap-x snap-mandatory overflow-x-scroll scroll-smooth rounded-lg transition-all duration-[50]" >
+        className="no-scrollbar relative flex h-[4rem] max-h-[4rem] snap-x snap-mandatory overflow-x-scroll scroll-smooth rounded-lg transition-all duration-[50] z-10" >
 
         <Link id="summary-card-link"
           href={router.asPath + `/workout/${workout.id}`}>
@@ -278,15 +283,14 @@ const WorkoutSummaryCard = (props: {
           className="ml-2 flex min-w-full snap-start snap-always justify-between rounded-lg bg-secondary px-4 py-1">
           <button id="delete-workout"
             onClick={() => {
-              selfRef.current && (selfRef.current.scrollLeft = 0)
-              selfRef.current && selfRef.current.classList.add("-translate-x-[150%]")
-              onDeleteWorkout(workout)
+              onDeleteWorkout(workout, selfRef.current)
             }}
             className="flex items-center rounded-lg bg-red-700 px-2 text-[2.5rem]" >
             <DeleteIcon fontSize="inherit" /></button>
           <button id="end-workout"
             onClick={() => {
               selfRef.current && (selfRef.current.scrollLeft = 0)
+
               onEndWorkout(workout.id)
             }}
             type="button"
@@ -302,10 +306,6 @@ const WorkoutSummaryCard = (props: {
             Finish
 
           </button>
-          {/* <button id="end-exercise"
-            className="bg-green-900/20 rounded-full flex items-center px-2" >
-            <span className="text-[2rem] flex items-center text-green-600"><ArrowForwardIcon fontSize="inherit" /></span>
-          </button> */}
         </section>}
       </li>
     </>

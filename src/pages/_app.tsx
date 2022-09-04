@@ -1,8 +1,5 @@
 import React from "react";
 import Head from "next/head";
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import theme from "../../styles/theme";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
 import { loggerLink } from "@trpc/client/links/loggerLink";
 import { withTRPC } from "@trpc/next";
@@ -179,11 +176,10 @@ export default withTRPC<AppRouter>({
 
       queryClientConfig: {},
       headers: () => {
+        return {}
         //on ssr forward cookies to the server to check for auth sessions
         const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
-
-        // console.log("auth: ", client_headers?.authorization);
-
+        console.log("forwarding cookies headers", client_headers?.cookie);
         if (client_headers) {
           return {
             cookie: client_headers?.cookie,

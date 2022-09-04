@@ -9,7 +9,6 @@ export const authRouter = createRouter().
                     code: "UNAUTHORIZED",
                     message: "NO_SESSION. No auth session found for incoming request.",
                 });
-
             }
             return ctx.session;
         }

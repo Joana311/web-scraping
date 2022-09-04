@@ -57,3 +57,78 @@ C:\Users\Julio\Documents\REACT\Learning\progress-tracker2021-nextjs\node_modules
   name: 'DeleteSessionError',
   code: 'P2025'
 } 
+
+
+
+
+[next-auth][debug][CREATE_STATE] { state: 'WxwFDsKZA7ajtsr1YzWrEn8eAuzfv3EWn4ZBxH3kTVQ', maxAge: 900 }
+[next-auth][debug][GET_AUTHORIZATION_URL] {
+  url: 'https://discord.com/api/oauth2/authorize?client_id=986330071667183616&scope=identify%20email&response_type=code&redirect_uri=http%3A%2F%2F192.168.1.214%3A3000%2Fapi%2Fauth%2Fcallback%2Fdiscord&state=WxwFDsKZA7ajtsr1YzWrEn8eAuzfv3EWn4ZBxH3kTVQ',
+  cookies: [
+    {
+      name: 'next-auth.state',
+      value: 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..C4Vo-4TCeHOVxCMe.566QxCYcXOsOmYnLICfGA71nnBKcim9msn2msbkiK3eRu6FVmIxjuRQVzDgax_7PGBR8lGO2xVf7LNunqvAIiRj9ZHaAJ6bADnTZ7MlOd_RZjgtm9__DBmTdw71UlowfgkyWHR_bFmc9LHWkgMlldY6DFBYaJTuj8lEWtNrkQRjI8qFe9eA.7NubH7lJaGt2xXUIJwfdxg',
+      options: [Object]
+    }
+  ]
+}
+[next-auth][debug][PROFILE_DATA] {
+  OAuthProfile: {
+    id: '931631980779556894',
+    username: 'Yararamirez',
+    avatar: 'fb3e3d5e1e34117f8af75a21869acee2',
+    avatar_decoration: null,
+    discriminator: '3494',
+    public_flags: 0,
+    flags: 0,
+    banner: null,
+    banner_color: '#e9e4ed',
+    accent_color: 15328493,
+    locale: 'en-US',
+    mfa_enabled: false,
+    email: 'yaraviddr@gmail.com',
+    verified: true
+  }
+}
+[next-auth][debug][OAUTH_CALLBACK_RESPONSE] {
+  profile: {
+    id: '931631980779556894',
+    name: 'Yararamirez',
+    email: 'yaraviddr@gmail.com',
+    image: 'https://cdn.discordapp.com/avatars/931631980779556894/fb3e3d5e1e34117f8af75a21869acee2.png'
+  },
+  account: {
+    provider: 'discord',
+    type: 'oauth',
+    providerAccountId: '931631980779556894',
+    access_token: 'U0UwoFXyI9jNn8rFGizGZP5jWE2NAY',
+    expires_at: 1662847126,
+    refresh_token: '01tXnjKTXWro5K1A8VY8SGjJBCtOEq',
+    scope: 'email identify',
+    token_type: 'Bearer'
+  },
+  OAuthProfile: {
+    id: '931631980779556894',
+    username: 'Yararamirez',
+    avatar: 'fb3e3d5e1e34117f8af75a21869acee2',
+    avatar_decoration: null,
+    discriminator: '3494',
+    public_flags: 0,
+    flags: 0,
+    banner: null,
+    banner_color: '#e9e4ed',
+    accent_color: 15328493,
+    locale: 'en-US',
+    mfa_enabled: false,
+    email: 'yaraviddr@gmail.com',
+    verified: true,
+    image_url: 'https://cdn.discordapp.com/avatars/931631980779556894/fb3e3d5e1e34117f8af75a21869acee2.png'
+  }
+}
+[next-auth][debug][adapter_getUserByAccount] {
+  args: [ { providerAccountId: '931631980779556894', provider: 'discord' } ]
+}
+[next-auth][debug][adapter_getUserByAccount] {
+  args: [ { providerAccountId: '931631980779556894', provider: 'discord' } ]
+}
+[next-auth][debug][adapter_getUserByEmail] { args: [ 'yaraviddr@gmail.com' ] }

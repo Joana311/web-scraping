@@ -42,38 +42,37 @@ const AddNewExerciseModal = ({
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(new Map<string, boolean>());
   const [searchResults, setFilteredExercises] = React.useState(exercises);
-  const [isScrolledTop, setIsScrolledTop] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState<string | undefined>(
     undefined
   );
   const [checkedTags, setCheckedTags] = React.useState(new Map<string, boolean>());
-  const match_by_word = (search_term: string, exercise: Exercise): boolean => {
-    // split search term into words if there are spaces
-    const search_terms = search_term.split(" ");
-    // loop through each word in the search term
-    let is_match = false;
-    search_terms.forEach((search_term) => {
-      let search_term_lower = search_term.toLowerCase().trim();
-      switch (true) {
-        case exercise.name?.toLowerCase().includes(search_term_lower):
-          is_match = true;
-          break;
-        // case exercise.muscle_name
-        //   ?.toLowerCase()
-        //   .includes(search_term_lower):
-        //   is_match = true;
-        //   break;
-        case exercise.equipment_name?.toLowerCase().includes(search_term_lower):
-          is_match = true;
-          break;
-        // case exercise.force?.toLowerCase().includes(search_term_lower):
-        //   is_match = true;
-        //   break;
-      }
-    });
+  // const match_by_word = (search_term: string, exercise: Exercise): boolean => {
+  //   // split search term into words if there are spaces
+  //   const search_terms = search_term.split(" ");
+  //   // loop through each word in the search term
+  //   let is_match = false;
+  //   search_terms.forEach((search_term) => {
+  //     let search_term_lower = search_term.toLowerCase().trim();
+  //     switch (true) {
+  //       case exercise.name?.toLowerCase().includes(search_term_lower):
+  //         is_match = true;
+  //         break;
+  //       // case exercise.muscle_name
+  //       //   ?.toLowerCase()
+  //       //   .includes(search_term_lower):
+  //       //   is_match = true;
+  //       //   break;
+  //       case exercise.equipment_name?.toLowerCase().includes(search_term_lower):
+  //         is_match = true;
+  //         break;
+  //       // case exercise.force?.toLowerCase().includes(search_term_lower):
+  //       //   is_match = true;
+  //       //   break;
+  //     }
+  //   });
 
-    return is_match;
-  };
+  //   return is_match;
+  // };
   const query_context = trpc.useContext();
   const RESULT_RENDER_LIMIT = 25;
   React.useEffect(() => {
@@ -191,86 +190,84 @@ const AddNewExerciseModal = ({
     });
   };
 
-  const handleScroll = (event: SyntheticEvent) => {
-    const scrollPosition = (event.target as HTMLDivElement).scrollTop;
-    setIsScrolledTop(scrollPosition < 10);
-  };
   const [showFilters, setShowFilters] = React.useState(false);
   const ExerciseOverviewCard = (props: { exercise: Exercise }) => {
     const { exercise } = props;
     const isChecked = !!selectedExerciseMap.get(exercise.id);
     return (
-      <li id="exercise-container"
-        className="flex min-h-max rounded-md bg-secondary py-1 px-2"
-      >
-        <Checkbox
-          id={`exercise-checkbox-${exercise.id}`}
-          checked={isChecked}
-          onChange={(e) => handleCheckBox((e.target as HTMLInputElement).checked, exercise.id)}
-          sx={{ "&.Mui-checked": { color: "blue.main" }, borderRadius: "0px" }}
-        />
-        <label id="exercise-info"
-          className="ml-1 justify-between border-purple-500"
-          htmlFor={`exercise-checkbox-${exercise.id}`}
+      <>
+        <li id="exercise-container"
+          className="flex min-h-max rounded-md bg-secondary py-1 px-2 will-change-scroll snap-start"
         >
-          <span id="exercise-name"
-            className="w-max self-start text-[1.2rem] font-medium capitalize leading-tight"
+          <Checkbox
+            id={`exercise-checkbox-${exercise.id}`}
+            checked={isChecked}
+            onChange={(e) => handleCheckBox((e.target as HTMLInputElement).checked, exercise.id)}
+            sx={{ "&.Mui-checked": { color: "blue.main" }, borderRadius: "0px" }}
+          />
+          <label id="exercise-info"
+            className="ml-1 justify-between border-purple-500"
+            htmlFor={`exercise-checkbox-${exercise.id}`}
           >
-            {exercise.name}
-          </span>
-          <div id="exercise-details" className="flex space-x-2">
-            <div
-              id="target-muscle"
-              className="flex flex-col justify-between border-green-500"
+            <span id="exercise-name"
+              className="w-max self-start text-[1.2rem] font-medium capitalize leading-tight"
             >
-              <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
-                Target Muscle:
-              </h1>
-              <span
-                className='w-[14ch] truncate text-[.9rem] font-light capitalize leading-snug'
+              {exercise.name}
+            </span>
+            <div id="exercise-details" className="flex space-x-2">
+              <div
+                id="target-muscle"
+                className="flex flex-col justify-between border-green-500"
               >
-                {exercise.muscle_name ?? "N/A"}
-              </span>
-            </div>
+                <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
+                  Target Muscle:
+                </h1>
+                <span
+                  className='w-[14ch] truncate text-[.9rem] font-light capitalize leading-snug'
+                >
+                  {exercise.muscle_name ?? "N/A"}
+                </span>
+              </div>
 
-            <div
-              id="force"
-              className="flex flex-col justify-between border-orange-500"
-            >
-
-              <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
-                Mechanics:
-              </h1>
-              <span
-                className='max-w-[8ch] truncate text-[.9rem] font-light capitalize leading-snug'
+              <div
+                id="force"
+                className="flex flex-col justify-between border-orange-500"
               >
-                {exercise.force ?? "N/A"}
-              </span>
-            </div>
-            <div
-              id="equipment"
-              className="flex flex-col justify-between border-yellow-500"
-            >
 
-              <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
-                Equipment:
-              </h1>
-              <span
-                className='max-w-[10ch] truncate text-[.9rem] font-light capitalize leading-snug'
+                <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
+                  Mechanics:
+                </h1>
+                <span
+                  className='max-w-[8ch] truncate text-[.9rem] font-light capitalize leading-snug'
+                >
+                  {exercise.force ?? "N/A"}
+                </span>
+              </div>
+              <div
+                id="equipment"
+                className="flex flex-col justify-between border-yellow-500"
               >
-                {exercise.equipment_name ?? "N/A"}
-              </span>
+
+                <h1 className="text-[.6rem] font-bold leading-snug tracking-wider text-text.secondary">
+                  Equipment:
+                </h1>
+                <span
+                  className='max-w-[10ch] truncate text-[.9rem] font-light capitalize leading-snug'
+                >
+                  {exercise.equipment_name ?? "N/A"}
+                </span>
+              </div>
             </div>
-          </div>
-        </label>
-        <button id="more-info-button"
-          disabled={!exercise.href}
-          onClick={() => moreInfoHandler(exercise.href!)}
-          className="mr-2 ml-auto  rounded-lg disabled:text-gray-600"
-        >
-          <InfoOutlinedIcon />
-        </button>
-      </li>
+          </label>
+          <button id="more-info-button"
+            disabled={!exercise.href}
+            onClick={() => moreInfoHandler(exercise.href!)}
+            className="mr-1 ml-auto  rounded-lg disabled:text-gray-600"
+          >
+            <InfoOutlinedIcon />
+          </button>
+        </li>
+      </>
     );
   }
   const getFilterName = (filter_key: string) => {
@@ -284,8 +281,7 @@ const AddNewExerciseModal = ({
   const areFiltersEmpty = () => [...checkedTags.values()].filter(tag => true).length === 0;
 
   return (
-    <section id="new-exercise-modal"
-      className="flex grow flex-col overflow-y-clip //border-4 border-blue">
+    <>
       <div id="search-bar" className="relative h-max //border-2 border-violet-500">
         <input
           id="exercise-search-input"
@@ -377,9 +373,9 @@ const AddNewExerciseModal = ({
           </a>
         </Link>
       </div>
-      <div id="exercise-result-list"
-        className="max-h-screen flex flex-col space-y-[.7rem] overflow-y-scroll /border-2 border-red-600 pb-[4rem] pt-2"
-        onScroll={handleScroll}
+      <section id="exercise-result-list"
+        className="space-y-[.7rem] /border-2 border-dashed border-pink-600 pt-2 no-scrollbar relative flex grow snap-y snap-mandatory flex-col overflow-y-scroll"
+      // onScroll={handleScroll}
       // style={{
       //   maxHeight: "100dvh"
       // }}
@@ -390,18 +386,21 @@ const AddNewExerciseModal = ({
               return <ExerciseOverviewCard key={exercise.id} exercise={exercise} />;
             }
           })}
+        {/* <div className={`sticky border pointer-events-none bottom-0 min-h-[5rem] bg-gradient-to-t from-black to-transparent`}></div> */}
+
         <div id="bottom-fade"
-          className="h-[5rem] absolute -bottom-[.1rem] w-full from-black/90 bg-gradient-to-t to-transparent" />
-      </div>
-      <div id="add-button-container"
-        className="w-[100%] flex justify-center absolute bottom-5 z-[100]">
-        <button style={{ display: amountSelected ? '' : "none" }} onClick={() => onAddSelected()} className="ripple-bg-blue rounded-md w-[70%] px-2 py-[.2rem] items-center bg-[#2196f3]">
-          <span className={`h-max text-base font-bold`}>
-            Add {amountSelected ? `(${amountSelected})` : ""}
-          </span>
-        </button>
-      </div>
-    </section >
+          className="min-h-[5rem] sticky bottom-0 from-black bg-gradient-to-t to-transparent flex justify-center items-start pt-2">
+
+          <button style={{ display: amountSelected ? '' : "none" }}
+            onClick={() => onAddSelected()}
+            className="ripple-bg-blue rounded-md w-[70%] px-2 py-[.2rem] items-center bg-[#2196f3]">
+            <span className={`h-max text-base font-bold`}>
+              Add {amountSelected ? `(${amountSelected})` : ""}
+            </span>
+          </button>
+        </div>
+      </section>
+    </ >
 
   );
 };

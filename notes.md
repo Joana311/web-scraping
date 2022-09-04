@@ -34,7 +34,13 @@ mobile has a hard time displaying negative margins
 
 ## Big Bugs
 
+    [-] getServerSession is sometimes returning another users account info.
+
 ## Minor Bugs
+
+    [ ] the scroll notifiers elements are not hiding correctly when there is no area to scroll.
+
+    [ ] navigating forward from /[user] to /[user]/recent after recent was deleted takes you to a blank page because it cannot get the session i should handle this with a 404 page and then reroute. 
 
 ## Todo
 
@@ -73,7 +79,7 @@ mobile has a hard time displaying negative margins
             ** still need to fix the rendering logic a bit, especially on deletion of a workout **
 
     [-] finish the moving off of Mui to Tailwind
-        * mostly done. Just need to remove some buttons, and the mui table *
+        * mostly done. Just need to remove the mui table *
 
     [x] add muscle heat map inside of daily summary
 
