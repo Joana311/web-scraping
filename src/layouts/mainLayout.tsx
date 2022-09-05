@@ -70,7 +70,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 flex-col
                 overflow-hidden
                 /border-4
-                /rounded-b-[2.25rem]
+                rounded-b-[2.25rem]
                 border-emerald-500
                 overscroll-none
                 bg-primary px-[1rem]"
@@ -124,6 +124,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                     /overflow-y-hidden
                     z-0
                     border-orange-500
+                    md:mb-5 pb-2
                     pt-[2rem]"
             // style={{ height: "fill-available" }}
             >

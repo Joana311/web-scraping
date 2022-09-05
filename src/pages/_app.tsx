@@ -136,6 +136,7 @@ function getBaseUrl() {
 }
 export default withTRPC<AppRouter>({
   config({ ctx }) {
+    const host_url = ctx?.req?.headers?.host || '';
     if (typeof window !== "undefined") {
       return {
         transformer: superjson,
@@ -147,7 +148,8 @@ export default withTRPC<AppRouter>({
      * @link https://trpc.io/docs/ssr
      */
     return {
-      url: getBaseUrl() + "/api/trpc",
+      // url: getBaseUrl() + "/api/trpc",
+      url: host_url + "/api/trpc",
       /**
        * @link https://trpc.io/docs/links
        */
