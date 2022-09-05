@@ -79,12 +79,12 @@ export async function createContext(
   // const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
 
   // check first for public routes
-  // if (typeof opts.req.query.trpc === "string" && opts.req.query.trpc.includes(".public")) {
-  //   console.log("public route, no session needed");
-  //   return {
-  //     ...opts,
-  //   }
-  // }
+  if (typeof opts.req.query.trpc === "string" && opts.req.query.trpc.includes(".public")) {
+    console.log("public route, no session needed");
+    return {
+      ...opts,
+    }
+  }
   const session = await getServerSession(opts.req as NextApiRequest, opts.res as NextApiResponse, { ...nextAuthOptions })
   console.log("session returned from next-atuh", session);
   // console.log("Creating context from session: ", session)

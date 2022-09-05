@@ -7,9 +7,9 @@ import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 
 export const exerciseRouter = createRouter()
   .query("public.directory", {
-    async resolve() {
+    async resolve({ ctx }) {
       return await prisma.exercise.findMany();
-    },
+    }
   })
   .mutation("add_set", {
     input: z.object({

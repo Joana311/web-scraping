@@ -28,7 +28,8 @@ export const appRouter = createRouter()
         httpStatus: shape.data.httpStatus,
         code: shape.data.code,
         path: shape.data.path,
-        req_source: ctx?.req.url
+        req_source: ctx?.req.url,
+        session: ctx?.session,
       }
     }
   }
