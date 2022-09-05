@@ -32,13 +32,14 @@ const Workout = () => {
     }
   }, [add_new])
 
-  const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"],
-    {
-      ssr: false,
-      suspense: true,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false
-    });
+  // const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"],
+  //   {
+  //     ssr: false,
+  //     suspense: true,
+  //     refetchOnMount: false,
+  //     refetchOnWindowFocus: false
+  //   });
+  const exercise_directory = undefined;
 
   const onNewExercise = () => {
     router.push(`/${router.query.user}/workout/${workout_id}?add_new=1`);
