@@ -146,49 +146,43 @@ const RecentWorkouts = () => {
           </Link>
         )}
       </h1>
-
-
-      <>
-        <ul id='recent-workout-cards' className='flex flex-col space-y-[.6rem] pb-[.6rem]'>
-          {/* {console.log(todaysSessions, todaysSessions.length)} */}
-          {!!todaysSessions ?
-            <>
-              {create_workout.isLoading && current_isFetching && <SummaryCardSkeleton />}
-              {todaysSessions!.map((workout, index) => {
-                console.log(workout)
-                return <WorkoutSummaryCard
-                  is_current={workout.id == open_workout?.id}
-                  workout={workout}
-                  onEndWorkout={onEndWorkout}
-                  onDeleteWorkout={onDeleteWorkout}
-                  key={workout.id} />
-              })
-              }
-            </> : <>
-              <div className="flex flex-col pb-[.6rem]">
-                <SummaryCardSkeleton />
-              </div></>
-          }
-        </ul>
-
-        {!isWorkoutOpen && !current_isFetching &&
+      <ul id='recent-workout-cards' className='flex flex-col space-y-[.6rem] pb-[.6rem]'>
+        {/* {console.log(todaysSessions, todaysSessions.length)} */}
+        {!!todaysSessions ?
           <>
-            <div id='no-workout-notifier'
-              className="text-[1rem] font-light text-text.secondary"
-            >
-              <span>{"No Open Workouts Found"}</span>
-              <br />
-              <span>{"Start a new one!"}</span>
-            </div>
-            <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
-              onClick={onCreateNewWorkout}>
-              <a>
-                {"New Workout"}
-              </a>
-            </button>
-          </>
+            {create_workout.isLoading && current_isFetching && <SummaryCardSkeleton />}
+            {todaysSessions!.map((workout, index) => {
+              console.log(workout)
+              return <WorkoutSummaryCard
+                is_current={workout.id == open_workout?.id}
+                workout={workout}
+                onEndWorkout={onEndWorkout}
+                onDeleteWorkout={onDeleteWorkout}
+                key={workout.id} />
+            })
+            }
+          </> : <>
+            <div className="flex flex-col pb-[.6rem]">
+              <SummaryCardSkeleton />
+            </div></>
         }
-      </>
+      </ul>
+      {!isWorkoutOpen && !current_isFetching &&
+        <>
+          <div id='no-workout-notifier'
+            className="text-[1rem] font-light text-text.secondary">
+            <span>{"No Open Workouts Found"}</span>
+            <br />
+            <span>{"Start a new one!"}</span>
+          </div>
+          <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
+            onClick={onCreateNewWorkout}>
+            <a>
+              {"New Workout"}
+            </a>
+          </button>
+        </>
+      }
     </>
   );
 };
