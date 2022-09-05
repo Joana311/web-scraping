@@ -192,37 +192,37 @@ export default withTRPC<AppRouter>({
   /**
    * @link https://trpc.io/docs/ssr
    */
-  ssr: false,
+  ssr: true,
   /**
    * Set headers or status code when doing SSR
    */
-  // responseMeta(opts) {
-  //   const ctx = opts.ctx as SSRContext;
-  //   if (ctx.status) {
-  //     // If HTTP status set, propagate that
-  //     return {
-  //       status: ctx.status
-  //     };
-  //   }
-  //   const error = opts.clientErrors[0];
-  //   if (error) {
-  //     // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
-  //     // if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
-  //     //   console.log("No sessions found should reroute to: ", host_url);
-  //     //   return {
-  //     //     status: 303, //"SEE_OTHER"
-  //     //     headers: {
-  //     //       location: '/api/auth/signin'
-  //     //     }
-  //     //   };
-  //     // }
-  //     // Propagate http first error from API calls
-  //     return {
-  //       status: error.data?.httpStatus ?? 500
-  //     };
-  //   }
-  //   // For app caching with SSR see https://trpc.io/docs/caching
-  //   // if (opts.)
-  //   return {};
-  // }
+  responseMeta(opts) {
+    const ctx = opts.ctx as SSRContext;
+    if (ctx.status) {
+      // If HTTP status set, propagate that
+      return {
+        status: ctx.status
+      };
+    }
+    const error = opts.clientErrors[0];
+    if (error) {
+      // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
+      // if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
+      //   console.log("No sessions found should reroute to: ", host_url);
+      //   return {
+      //     status: 303, //"SEE_OTHER"
+      //     headers: {
+      //       location: '/api/auth/signin'
+      //     }
+      //   };
+      // }
+      // Propagate http first error from API calls
+      return {
+        status: error.data?.httpStatus ?? 500
+      };
+    }
+    // For app caching with SSR see https://trpc.io/docs/caching
+    // if (opts.)
+    return {};
+  }
 })(App);
