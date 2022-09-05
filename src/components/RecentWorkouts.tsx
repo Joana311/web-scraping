@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
-import { AnyMxRecord } from "dns";
 
 const RecentWorkouts = () => {
   const query_client = trpc.useContext();
@@ -95,7 +94,7 @@ const RecentWorkouts = () => {
   );
 
   const onCreateNewWorkout = async () => {
-    const data = await create_workout.mutateAsync();
+    await create_workout.mutateAsync();
     // router.push(router.asPath + `/workout/${data.id}`)
   }
   const onEndWorkout = (workout_id: string) => {

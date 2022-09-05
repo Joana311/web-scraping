@@ -8,7 +8,6 @@ const Workout = () => {
   const router = useRouter();
   const query_context = trpc.useContext()
   let { query: { workout_id, add_new } } = router;
-  // console.log(router)
 
   trpc.useQuery(["workout.get_current"], { enabled: !query_context.getQueryData(["workout.get_current"])?.id })
   const { data: workout, isLoading: workout_isLoading } = trpc.useQuery(["workout.get_by_id",

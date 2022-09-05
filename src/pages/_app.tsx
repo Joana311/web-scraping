@@ -177,13 +177,12 @@ export default withTRPC<AppRouter>({
       headers: () => {
         //on ssr forward cookies to the server to check for auth sessions
         const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
-        console.log("forwarding cookies headers", client_headers?.cookie);
-        if (client_headers) {
-          return {
-            cookie: client_headers?.cookie,
-            "x-ssr": "1"
-          };
-        } else return {};
+        console.log("forwarding headers", client_headers);
+        return {
+          ...client_headers,
+          "x-ssr": "1"
+        };
+
       }
     };
   },
@@ -192,6 +191,7 @@ export default withTRPC<AppRouter>({
    */
   ssr: false,
   // responseMeta(opts) {
+
   //   const error = opts.clientErrors[0];
   //   if (error) {
   //     // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
