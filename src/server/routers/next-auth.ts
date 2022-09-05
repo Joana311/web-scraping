@@ -10,8 +10,8 @@ export const authRouter = createRouter().
             //         message: "NO_SESSION. No auth session found for incoming request.",
             //     });
             // }
-            console.log("session in get_session", ctx.session);
-            console.log("req headers in get_session", ctx.req.headers);
+            // console.log("headers in req for get_session", ctx.req.headers);
+            console.log("get_session route response: ", ctx.session);
             return ctx.session;
         }
 

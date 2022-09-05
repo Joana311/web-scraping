@@ -46,7 +46,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     retryOnMount: false,
   });
   trpc.useQuery(["exercise.public.directory"], {
-    context: { skipBatch: false },
+    context: { skipBatch: true },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -147,6 +147,23 @@ export default withTRPC<AppRouter>({
       return {
         transformer: superjson,
         url: "/api/trpc",
+        links: [
+          loggerLink({
+            enabled: (opts) => true
+          }),
+          // adds opt-out support for batching
+          splitLink({
+            condition(operation) {
+              return operation.context.skipBatch === true;
+            },
+            false: httpBatchLink({
+              url: `${getBaseUrl()}/api/trpc`
+            }),
+            true: httpLink({
+              url: `${getBaseUrl()}/api/trpc`
+            })
+          })
+        ]
       }
     }
     /**
@@ -154,8 +171,8 @@ export default withTRPC<AppRouter>({
      * @link https://trpc.io/docs/ssr
      */
     return {
-      // url: getBaseUrl() + "/api/trpc",
-      url: host_url + "/api/trpc",
+      url: getBaseUrl() + "/api/trpc",
+      // url: host_url + "/api/trpc",
       /**
        * @link https://trpc.io/docs/links
        */

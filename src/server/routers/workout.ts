@@ -71,8 +71,6 @@ export const workoutRouter = createRouter()
       workout_id: z.string().cuid(),
     }),
     async resolve({ input: { workout_id }, ctx }) {
-      console.log("Incoming Request from session: ", ctx.session)
-      console.log("and from headers:", ctx.req.headers.cookie)
       return await prisma.userWorkout.findFirst({
         where: { id: workout_id },
         include: defaultWorkoutSelect,

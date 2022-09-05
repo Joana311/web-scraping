@@ -70,10 +70,10 @@ export async function createContext(
   opts: trpcNext.CreateNextContextOptions
 ): Promise<Context> {
   // for API-response caching see https://trpc.io/docs/caching
-  console.log("trpc route: ", opts.req.query.trpc)
+  // console.log("trpc route: ", opts.req.query.trpc)
   // opts.req.query['nextauth'] = " ";
-  console.log("req incomming", opts.req.query);
-  console.log("cookie info, ", opts.req.cookies);
+  console.log("Incoming query to server", opts.req.query);
+  console.log("Incoming cookie info, ", opts.req.cookies);
 
   // innerContext usefull for testing purposes to mock req/res
   // const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
@@ -86,7 +86,7 @@ export async function createContext(
     }
   }
   const session = await getServerSession(opts.req as NextApiRequest, opts.res as NextApiResponse, { ...nextAuthOptions })
-  console.log("session returned from next-atuh", session);
+  console.log("preparing server context: session returned from next-auth", session);
   // console.log("Creating context from session: ", session)
   if (!session) {
     throw new TRPCError({

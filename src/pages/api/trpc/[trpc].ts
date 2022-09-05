@@ -6,6 +6,7 @@ import { createContext } from "@server/trpc/context";
 import { appRouter } from "@server/routers/_app";
 import type { NodeHTTPHandlerOptions } from "@trpc/server/dist/declarations/src/adapters/node-http";
 import { NextApiRequest, NextApiResponse } from "next/types";
+import { LocalConvenienceStoreOutlined } from "@mui/icons-material";
 
 type TRPCHandlerOptions = NodeHTTPHandlerOptions<typeof appRouter, NextApiRequest, NextApiResponse>
 function getBaseUrl() {
@@ -22,7 +23,7 @@ function getBaseUrl() {
 }
 export default trpcNext.createNextApiHandler({
 
-  responseMeta: ({ paths, errors, ctx }) => {
+  responseMeta: ({ paths, errors, ctx, data }) => {
     // if (errors) {
     //   let error = errors[0];
     //   const host_url = ctx?.req?.headers?.host;
@@ -37,6 +38,9 @@ export default trpcNext.createNextApiHandler({
     //     };
     //   }
     // }
+    console.log("server response being sent")
+    console.log("current response set-cookies: ", ctx?.res?.getHeader("Set-Cookie"));
+    // console.log("current response cookies ", ctx?.res?.getHeader("cookie"));
     const safe_to_cache = paths && paths.every(path => path.includes(".public")) && errors.length === 0;
     const ONE_HOUR_IN_SECONDS = 60 * 60;
     const ONE_DAY_IN_SECONDS = ONE_HOUR_IN_SECONDS * 24;

@@ -23,8 +23,6 @@ export const nextAuthOptions: NextAuthOptions = {
         },
         signIn: async ({ user, isNewUser, account }) => {
             console.log("Signing in user")
-            console.log("isNewUser: ", isNewUser)
-            // delete expire sessions
             console.log("Cleaning up expired sessions")
             await prisma.session.deleteMany({
                 where: {
@@ -38,9 +36,6 @@ export const nextAuthOptions: NextAuthOptions = {
         updateUser({ user }) {
             console.log('updateUser', user);
         },
-        session({ session, }) {
-            console.log('session event: ', session);
-        },
     },
     callbacks: {
         // signIn(params) {
@@ -50,9 +45,8 @@ export const nextAuthOptions: NextAuthOptions = {
         //     return true
         // },
         async session({ session, user }) {
-            console.log("session callback")
-            console.log(session)
-            // console.log("user is: ", user)
+            console.log("session response from nextauth/prisma received")
+            console.log("created next-auth session user info: ", session.user.name, user.id)
             session.user = {
                 id: user.id,
                 name: user.name || null,
