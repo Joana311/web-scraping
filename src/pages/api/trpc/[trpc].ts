@@ -39,6 +39,7 @@ export default trpcNext.createNextApiHandler({
     //   }
     // }
     console.log("server response being sent")
+    console.log("user: ", ctx?.session?.user)
     console.log("current response set-cookies: ", ctx?.res?.getHeader("Set-Cookie"));
     // console.log("current response cookies ", ctx?.res?.getHeader("cookie"));
     const safe_to_cache = paths && paths.every(path => path.includes(".public")) && errors.length === 0;
