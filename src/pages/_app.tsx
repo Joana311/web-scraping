@@ -45,13 +45,14 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     staleTime: 5 * 60 * 1000,
     retryOnMount: false,
   });
-  // trpc.useQuery(["exercise.public.directory"], {
-  //   context: { skipBatch: true },
-  //   refetchOnWindowFocus: false,
-  //   refetchOnMount: false,
-  //   refetchOnReconnect: false,
-  //   retry: false,
-  // });
+  trpc.useQuery(["exercise.public.directory"], {
+    context: { skipBatch: false },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: false,
+    enabled: !pageProps.exercise_directory,
+  });
   const utils = trpc.useContext();
   const isInit = React.useRef(false)
   React.useEffect(() => {
@@ -113,15 +114,21 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
 
   )
 };
-// App.getInitialProps = async ({ ctx }) => {
-//   return {
-//     emotionCache: clientSideEmotionCache,
-//     pageProps: {
-//       session: await getSession(ctx)
-//     }
+App.getInitialProps = async ({ ctx }) => {
+  const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"], {
+    context: { skipBatch: false },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: false,
+  });
+  return {
+    pageProps: {
+      exercise_directory,
+    }
 
-//   }
-// }
+  }
+}
 function getBaseUrl() {
   if (typeof window !== "undefined") {
     // return `http://localhost:${process.env.PORT ?? 3000}`;

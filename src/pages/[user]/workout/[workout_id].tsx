@@ -39,7 +39,7 @@ const Workout = () => {
   //     refetchOnMount: false,
   //     refetchOnWindowFocus: false
   //   });
-  const exercise_directory = undefined;
+  const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
 
   const onNewExercise = () => {
     router.push(`/${router.query.user}/workout/${workout_id}?add_new=1`);
