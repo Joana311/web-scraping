@@ -17,7 +17,7 @@ const Workout = () => {
       onError(e) {
         query_context.invalidateQueries("workout.get_current");
         query_context.invalidateQueries("workout.get_recent");
-        if (!e.message.includes("NO_SESSION")) router.push(`/${router.query.user}`);
+        // if (!e.message.includes("NO_SESSION")) router.push(`/${router.query.user}`);
       },
     });
   const [showModal, setShowModal] = React.useState(false);
@@ -33,7 +33,13 @@ const Workout = () => {
     }
   }, [add_new])
 
-  const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"], { ssr: false, suspense: true, refetchOnMount: false, refetchOnWindowFocus: false });
+  const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"],
+    {
+      ssr: false,
+      suspense: true,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
+    });
 
   const onNewExercise = () => {
     router.push(`/${router.query.user}/workout/${workout_id}?add_new=1`);
@@ -48,7 +54,7 @@ const Workout = () => {
   const close_workout = trpc.useMutation("workout.close_by_id", {
     onSuccess: () => {
       query_context.invalidateQueries("workout.get_current");
-      query_context.invalidateQueries("workout.get_recent");
+      query_context.invalidateQueries("workout.get_daily_recent");
       query_context.invalidateQueries("workout.get_by_id");
       router.push(`/${router.query.user}`);
     }
