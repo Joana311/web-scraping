@@ -131,16 +131,17 @@ function getBaseUrl() {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
-  // // reference for render.com
-  // if (process.env.RENDER_INTERNAL_HOSTNAME) {
-  //   return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`;
-  // }
-
   // assume localhost
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 export default withTRPC<AppRouter>({
   config({ ctx }) {
+    if (typeof window !== "undefined") {
+      return {
+        transformer: superjson,
+        url: "/api/trpc",
+      }
+    }
     /**
      * If you want to use SSR, you need to use the server's full URL
      * @link https://trpc.io/docs/ssr
@@ -174,7 +175,6 @@ export default withTRPC<AppRouter>({
       transformer: superjson,
       queryClientConfig: {},
       headers: () => {
-        return {}
         //on ssr forward cookies to the server to check for auth sessions
         const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
         console.log("forwarding cookies headers", client_headers?.cookie);
@@ -191,17 +191,7 @@ export default withTRPC<AppRouter>({
    * @link https://trpc.io/docs/ssr
    */
   ssr: false,
-  /**
-   * Set headers or status code when doing SSR
-   */
   // responseMeta(opts) {
-  //   // return {}
-  //   const ctx = opts.ctx as SSRContext;
-  //   if (ctx.status) {
-  //     return {
-  //       status: ctx.status
-  //     };
-  //   }
   //   const error = opts.clientErrors[0];
   //   if (error) {
   //     // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
