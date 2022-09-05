@@ -21,7 +21,7 @@ function getBaseUrl() {
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 export default trpcNext.createNextApiHandler({
-
+  
   responseMeta: ({ paths, errors, ctx }) => {
     // if (errors) {
     //   let error = errors[0];
