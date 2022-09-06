@@ -1,8 +1,75 @@
 import React from "react";
 import musclemap from "../../public/musclemap.svg";
 import Image from "next/image";
+import trpc, { inferQueryOutput, inferUseTRPCQueryOptions } from "@client/trpc";
+const muscle_path_labels = [
+    "Sternocleidomastoid",
+    "Hands",
+    "Lateral_Delts",
+    "Front_Delts",
+    "Pecs",
+    "Biceps",
+    "Brachialis",
+    "Brachioradialis", //forearm
+    "Pronators",
+    "Wrist_Flexors",
+    "Trapezius",
+    "Abdominal",
+    "Obliques",
+    "Serratus_Anterior",
+    "Latissimus_Dorsi",
+    "Adductors",
+    "Quadriceps",
+    "Gastrocnemius",
+    "Feet",
+    "Popliteus",
+    "Knees",
+    "Proneus",
+    "Tibialis_Anterior",
+]
+type CurrentWorkout = inferQueryOutput<"workout.get_current">
+type Props = {
+    current_workout?: CurrentWorkout
+}
+const MuscleHeatMap = ({ current_workout }: Props) => {
+    // const { data: current_workout } = trpc.useQuery(["workout.get_current"])
+    const current_muscles = React.useMemo(() => {
+        if (!current_workout) return []
+        let muscles = current_workout.exercises.map((e) => {
+            let name = e.exercise.muscle_name || ""
 
-const MuscleHeatMap = () => {
+            if (name?.includes("pect")) {
+                name = "Pecs"
+            } else if (name?.includes("anterior delt")) {
+                name = "Front_Delts"
+            } else if (name?.includes("bicep")) {
+                name = "Biceps"
+            } else if (name?.includes("lateral delt")) {
+                name = "Lateral_Delts"
+            } else if (name?.includes("trapezius")) {
+                name = "Trapezius"
+            } else if (name.includes("latissimus dorsi")) {
+                name = "Latissimus_Dorsi"
+            } else if (name.includes("serratus")) {
+                name = "Serratus_Anterior"
+            } else if (name.includes("brachialis")) {
+                name = "Brachialis"
+            } else {
+                name = name?.split(" ").join("_");
+            }
+            // console.log(name)
+            let svg: SVGPathElement | null = document.querySelector(`#${name}`);
+            if (svg) {
+                // console.log(svg)
+                svg.style.fill = "#DC0000";
+                svg.style.opacity = "0.8";
+            }
+
+        })
+        console.log(muscles)
+        return muscles
+    }, [current_workout])
+    // console.log(current_muscles)
     return (
         <svg
             className="g-Front-Labeled-Artboard_1-body-img g-aiImg"
@@ -131,10 +198,9 @@ const MuscleHeatMap = () => {
                         d="M179.81,339.59
 			c0.47-1.9-2.1,20.11-2.05,22.07s-6.23,3.71-7.9,5.89c-0.22-1.6,1.13-5.79,1.48-7.29S177.5,349,179.81,339.59z"
                     />
-                    <path
-                        id="Sternocleidomastoid"
+                    <path id="Sternocleidomastoid"
                         data-name="Sternocleidomastoid"
-                        fill="red"
+                        fill="#fff"
                         // stroke="#fff"
                         strokeWidth="1.5"
                         strokeMiterlimit="10"
@@ -142,8 +208,7 @@ const MuscleHeatMap = () => {
 			c3.62,1.25-0.35,10.07-0.56,11.59s-9.78,19.12-10.43,20.43s-1.74-7.82-0.66-9.56S156.77,62.54,157.59,62.82z M128.94,64.64
 			c-1.3,0-0.44,8.25-0.22,9.77s9.78,19.12,10.43,20.43s1.74-7.82,0.65-9.56S129.81,64.64,128.94,64.64z"
                     />
-                    <path
-                        id="Hands"
+                    <path id="Hands"
                         data-name="Hands"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -166,8 +231,7 @@ const MuscleHeatMap = () => {
 			 M17.69,273.5c-0.34,1-2.93,5.47-0.45,5.9s7.65-15,7.56-16.08c-0.09-0.97-0.745-1.794-1.67-2.1c-0.51-0.17-5.13,11.3-5.51,12.28
 			L17.69,273.5z M30.08,263.5c0.15-0.89-2.26,0.83-2.72,1.72s-3.73,9.39-3,9.63c2.55,0.82,5.03-7.48,5.64-11.36L30.08,263.5z"
                     />
-                    <path
-                        id="Lateral_Delts"
+                    <path id="Lateral_Delts"
                         data-name="Lateral_Delts"
                         fill="white"
                         // stroke="#fff"
@@ -177,10 +241,9 @@ const MuscleHeatMap = () => {
 			c5.21,0.21,15.86-0.92,21.94,4.51c3.87,3.46,4.25,14.92,1.75,25.67C211.07,108.63,200,94.31,189.77,87.14z M97.26,87.14
 			c-5.22,0.21-15.87-0.92-22,4.51c-3.87,3.46-4.25,14.92-1.75,25.67C76,108.63,87,94.31,97.26,87.14z"
                     />
-                    <path
-                        id="Front_Delts"
+                    <path id="Front_Delts"
                         data-name="Front_Delts"
-                        fill="#a00"
+                        fill="#fff"
                         // stroke="#fff"
                         strokeWidth="1.5"
                         strokeMiterlimit="10"
@@ -188,10 +251,9 @@ const MuscleHeatMap = () => {
 			c8.92,1.25,25.06,13.42,25.51,28.83C195.26,117.23,182.6,99.61,182.19,88.61z M104.83,88.61c-8.92,1.25-25.06,13.39-25.51,28.83
 			C91.76,117.23,104.42,99.61,104.83,88.61z"
                     />
-                    <path
-                        id="Pecs"
+                    <path id="Pecs"
                         data-name="Pecs"
-                        fill="#b60"
+                        fill="#fff"
                         // stroke="#fff"
                         strokeWidth="1.5"
                         strokeMiterlimit="10"
@@ -201,8 +263,7 @@ const MuscleHeatMap = () => {
 			c-12.17,6.2-21.49,25.5-21.33,26c0.22,0.67,27.08,16.62,37.51,16.62c6.09,0,10.65-4.36,10.65-6.15
 			C140.47,126.67,141.12,98.27,139.81,97.37L139.81,97.37z"
                     />
-                    <path
-                        id="Biceps"
+                    <path id="Biceps"
                         data-name="Biceps"
                         fill="#fff"
                         // stroke="#fff"
@@ -213,8 +274,7 @@ const MuscleHeatMap = () => {
 			S196.4,121,200.94,120.1z M86.08,120.1c-1.78-0.35-14.41,1.28-18,3.47c-11.38,6.87-11.25,18.25-8.13,26.62
 			c1.51,4,1.1,16.15,7,16.15s19.34-19.56,20.7-25.69S90.62,121,86.08,120.1z"
                     />
-                    <path
-                        id="Brachialis"
+                    <path id="Brachialis"
                         data-name="Brachialis"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -228,8 +288,7 @@ const MuscleHeatMap = () => {
 			c0.35-0.37,1.48-4.91,1-5.22c-0.455-0.312-1.066-0.266-1.47,0.11l-0.45,0.49c-2.66,2.87-8.47,16.21-16.9,19.25
 			c-0.422,0.11-0.675,0.542-0.565,0.964c0.017,0.065,0.042,0.128,0.075,0.186C73.24,167.62,73.18,169.19,74.83,169.15z"
                     />
-                    <path
-                        id="Brachioradialis"
+                    <path id="Brachioradialis"
                         data-name="Brachioradialis"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -240,8 +299,7 @@ const MuscleHeatMap = () => {
 			C247.84,180,246.41,201.43,249.09,208.36z M36.93,208.36c-0.64,1.66-7.36,21.24-6.08,21s5.5-10.74,9.35-16.2
 			C43.53,208.5,55,197,56.64,191.32c0.78-2.72,6.92-9.21,5.67-22.08C38.18,180,39.61,201.43,36.93,208.36z"
                     />
-                    <path
-                        id="Pronators"
+                    <path id="Pronators"
                         data-name="Pronators"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -251,10 +309,9 @@ const MuscleHeatMap = () => {
 			c1.39,0,15.19,17.3,14.89,20.44s-6.47-0.52-10.44-2.83s-6.18-4.48-6-5.82S209,171,211,171z M76.05,171
 			c-1.39,0-15.19,17.3-14.89,20.44s6.47-0.52,10.44-2.83s6.18-4.48,6.05-5.82S78,171,76.05,171z"
                     />
-                    <path
-                        id="Wrist_Flexors"
+                    <path id="Wrist_Flexors"
                         data-name="Wrist_Flexors"
-                        fill="red"
+                        fill="#fff"
                         // stroke="#fff"
                         strokeWidth="1.5"
                         strokeMiterlimit="10"
@@ -275,8 +332,7 @@ const MuscleHeatMap = () => {
 			c1.08-1.08,2-2.29,3-3.41s2-2.24,2.76-3.42c1.244-2.089,2.292-4.288,3.13-6.57c0.817-1.689,1.486-3.446,2-5.25
 			c0.192-0.687,0.319-1.39,0.38-2.1c0.001-0.078-0.053-0.145-0.13-0.16c-0.051-0.005-0.101,0.018-0.13,0.06L73.57,189.29z"
                     />
-                    <path
-                        id="Trapezius"
+                    <path id="Trapezius"
                         data-name="Trapezius"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -294,8 +350,7 @@ const MuscleHeatMap = () => {
                         d="M128.33,80c-1.07,2.13-7,6.48-4.47,7.6
 			s8.09,1,8.09-0.08S128.89,78.87,128.33,80z"
                     />
-                    <path
-                        id="Abominals"
+                    <path id="Abdominal"
                         data-name="Abominals"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -315,8 +370,7 @@ const MuscleHeatMap = () => {
 			s1.13,33.79,1.13,36.06c0.079,2.296-1.719,4.221-4.015,4.3c-0.095,0.003-0.19,0.003-0.285,0c-2.72,0-5.45-6.8-6.58-10.43
 			s-3.63-14.51-4.08-17.69s-4.08-17.91-2-19.27S128.85,188.45,131.12,190.26L131.12,190.26z"
                     />
-                    <path
-                        id="Obliques"
+                    <path id="Obliques"
                         data-name="Obliques"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -327,8 +381,7 @@ const MuscleHeatMap = () => {
 			C169.57,181.45,176.36,172.33,177.38,172.65z M108.64,172.65c-6.37,2,0.67,20.18,0.67,23s1,16.66,1.37,19s7.44,6.08,8.63,6.3
 			s1.17-5.83,0.66-8s-3.19-26.11-3.35-28.71C116.45,181.45,109.67,172.33,108.64,172.65z"
                     />
-                    <path
-                        id="Serratus_Anterior"
+                    <path id="Serratus_Anterior"
                         data-name="Serratus_Anterior"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -344,9 +397,8 @@ const MuscleHeatMap = () => {
 			 M104.45,139.02c-0.38,2.34,6.29,9.73,9.37,10.25s1.75-6.39,1.06-7.78c-0.52-1.01-10-5.14-10.43-2.49L104.45,139.02z
 			 M104.51,130.08c-0.69,2.75,9.65,8.46,11,8.87c1.55,0.46,4.1-4.34,2.75-5.67c-0.26-0.28-13.16-5.55-13.75-3.18L104.51,130.08z"
                     />
-                    <path
-                        id="Lastissimus_Dorsi"
-                        data-name="Lastissimus_Dorsi"
+                    <path id="Latissimus_Dorsi"
+                        data-name="Latissimus_Dorsi"
                         fill="#FFFFFF"
                         // stroke="#fff"
                         strokeWidth="1.5"
@@ -356,8 +408,7 @@ const MuscleHeatMap = () => {
 			C190.59,129.52,191.42,134.55,191,142.16z M95,142.16c0.29,5.15,3.85,12.16,6.18,14.68c1.68,1.82,1.76-15.37,1.76-17.19
 			c0-2.18-5.74-13.73-8.2-16.67C95.43,129.52,94.6,134.55,95,142.16z"
                     />
-                    <path
-                        id="Adductors"
+                    <path id="Adductors"
                         data-name="Adductors"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -385,8 +436,7 @@ const MuscleHeatMap = () => {
                         d="M109.46,221.57
 			c-1.78,19.32,23.18,73.67,28.18,91.42C143.85,263.78,113.35,239.94,109.46,221.57z"
                     />
-                    <path
-                        id="Quadriceps"
+                    <path id="Quadriceps"
                         data-name="Quadriceps"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -402,8 +452,7 @@ const MuscleHeatMap = () => {
 			s-0.64-15-1.87-20.87c-1.4-6.67-10.75-42.9-13.34-59.5C97.76,272.62,89,298.43,94.06,313.94z M127.6,291.37
 			c-1.72-1-0.11,22.12-0.37,25.16s-5.13,29.35,0.75,28.56c5.88-0.79,8.63-19.47,8.7-24.9S129.11,292.26,127.6,291.37z"
                     />
-                    <path
-                        id="Gastrocnemius"
+                    <path id="Gastrocnemius"
                         data-name="Gastrocnemius"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -414,8 +463,7 @@ const MuscleHeatMap = () => {
 			C164.19,393.78,159.43,440,159.25,442.82z M126.78,442.82c0.18,2.83,2.39,15.49,2.43,12.45s9.65-37.82,9.85-51.33
 			c0.06-4.26-6.66-29.84-7.42-30.62C121.83,393.78,126.6,440,126.78,442.82z"
                     />
-                    <path
-                        id="Feet"
+                    <path id="Feet"
                         data-name="Feet"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -432,8 +480,7 @@ const MuscleHeatMap = () => {
 			 M125.43,505.74c0.19,2.17,3.47,1.13,4.55,1.14s0.7-2.23,0.72-3.54s-2-5.23-3.19-5.47c-2.21-0.46-2.3,5.7-2.12,7.88L125.43,505.74
 			z M130,466.91c-0.74-0.45-3.15-2.48-4.49-3.29s-2.71,2.72-1.59,3.54s6.1,10.62,6.58,11.69S131.32,467.72,130,466.91z"
                     />
-                    <path
-                        id="Popliteus"
+                    <path id="Popliteus"
                         data-name="Popliteus"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -443,16 +490,14 @@ const MuscleHeatMap = () => {
 			c0.31,14.55,17.51,23.73,6.17,49.1C162.72,385.91,152.07,371.46,156.54,346.59z M129.48,346.59c-0.31,14.55-17.51,23.73-6.17,49.1
 			C123.3,385.91,134,371.46,129.48,346.59z"
                     />
-                    <path
-                        fill="#FFFFFF"
+                    <path fill="#FFFFFF"
                         // stroke="#fff"
                         strokeWidth="1.5"
                         strokeMiterlimit="10"
                         d="M106.21,339.59
 			c-0.47-1.9,2.11,20.11,2.05,22.07s6.23,3.71,7.9,5.89c0.22-1.6-1.13-5.79-1.48-7.29S108.52,349,106.21,339.59z"
                     />
-                    <path
-                        id="Knees"
+                    <path id="Knees"
                         data-name="Knees"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -463,8 +508,7 @@ const MuscleHeatMap = () => {
 			C161.294,352.792,161.057,351.78,161,350.75z M125.06,350.75c0-2.76-2.33-3.66-5-3.69s-4.55,0.81-4.59,3.57
 			c0,2.32,4.92,14.27,5.8,13s2.61-6.95,3.09-9.89c0.385-0.952,0.602-1.964,0.64-2.99H125.06z"
                     />
-                    <path
-                        id="Proneus"
+                    <path id="Proneus"
                         data-name="Proneus"
                         fill="#FFFFFF"
                         // stroke="#fff"
@@ -475,8 +519,7 @@ const MuscleHeatMap = () => {
 			S115,411.9,115.59,415z M170.43,415c-0.61,3.05-5,30.71-5.43,32.89s-2.05,9.57-1.79,12.6s5.47-13.28,5.88-15.25
 			s12.75-29.08,15.29-43.87c0.51-3-2.42-25.38-2.42-25.38S171,411.9,170.43,415z"
                     />
-                    <path
-                        id="Tibialis_Anterior"
+                    <path id="Tibialis_Anterior"
                         data-name="Tibialis_Anterior"
                         fill="#FFFFFF"
                         // stroke="#fff"

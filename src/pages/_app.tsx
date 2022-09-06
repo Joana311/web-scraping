@@ -32,7 +32,7 @@ const AuthContext = React.createContext<AuthCtx>({
 export function useSession() {
   return React.useContext(AuthContext);
 }
-const App: AppType = ({ pageProps, Component }): JSX.Element => {
+const App: AppType = ({ pageProps,  Component }): JSX.Element => {
   const {
     data: auth_data,
     error,
@@ -128,7 +128,7 @@ const getStaticProps: GetStaticProps = async (ctx: GetStaticPropsContext) => {
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      // exerciseDirectory: ssg.queryClient.getQueryData("exercise.public.directory"),
+      exerciseDirectory: ssg.queryClient.getQueryData("exercise.public.directory"),
     },
     // 1 hour in seconds
     revalidate: 60 * 60,

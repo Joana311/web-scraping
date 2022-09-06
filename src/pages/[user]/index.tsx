@@ -1,10 +1,7 @@
 import DailyActivitySummary from "../../components/DailyActivitySummary";
 import RecentWorkouts from "../../components/RecentWorkouts";
-import React from "react";
-import trpc from "@client/trpc";
+import React from "react";;
 import type { NextPage } from "next";
-import Link from "next/link";
-import { useRouter } from "next/router";
 
 // React Functional Component
 const UserPage: NextPage = () => {

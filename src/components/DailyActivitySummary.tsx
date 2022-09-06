@@ -1,12 +1,21 @@
+import trpc from "@client/trpc";
 import React from "react";
 import MuscleHeatMap from "./MuscleHeatMap";
 
 const DailyActivitySummary = () => {
-  const summary_info = {
-    "Weight Moved": undefined,
-    "Calories Burned": undefined,
-    "Personal Bests": undefined,
-  }
+  const { data: current_workout } = trpc.useQuery(["workout.get_current"]);
+  const summary_info = React.useMemo(() => {
+    let weight_moved = 0
+    current_workout?.exercises.forEach(e => {
+      weight_moved += e.sets.reduce((acc, set) => acc + (set.weight ?? 0), 0);
+    })
+    return {
+      "Weight Moved": weight_moved,
+      "Calories Burned": undefined,
+      "Personal Bests": undefined,
+    }
+  }, [])
+
   Object.entries
   return (
     <>
@@ -30,14 +39,14 @@ const DailyActivitySummary = () => {
                 <h1 id="info-name" className='text-[.9rem] font-light'>
                   {info_key}
                 </h1>
-                <span id="info-value"> {amount ?? '-'} </span>
+                <span id="info-value"> {amount || '-'} </span>
               </article>
             )
           })}
 
         </div>
         <div id='heatmap' className="w-[38%] p-[.5rem]">
-          <MuscleHeatMap />
+          <MuscleHeatMap current_workout={current_workout} />
         </div>
       </div>
     </>
