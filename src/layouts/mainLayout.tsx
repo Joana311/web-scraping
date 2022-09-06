@@ -2,7 +2,7 @@
 import dayjs from "dayjs";
 import { type Session } from "next-auth";
 import React from "react";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { UserCircle } from "src/components/SvgIcons";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSession } from "src/pages/_app";
@@ -33,7 +33,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             )
         } else {
             return (
-                <AccountCircleIcon fontSize='inherit' />
+                <UserCircle className="h-[3rem] w-[3rem]" />
             )
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,9 +70,10 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 flex-col
                 overflow-hidden
                 /border-4
-                rounded-b-[2.25rem]
+                /rounded-b-[2.25rem]
                 border-emerald-500
                 overscroll-none
+                md:pb-5
                 bg-primary px-[1rem]"
             style={{
                 // height: "100dvh",
@@ -124,7 +125,6 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                     /overflow-y-hidden
                     z-0
                     border-orange-500
-                    md:mb-5 pb-2
                     pt-[2rem]"
             // style={{ height: "fill-available" }}
             >

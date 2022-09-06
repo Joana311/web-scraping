@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import trpc from "@client/trpc";
 import CurrentExercises from "src/components/ExerciseSummary/CurrentExercises";
 import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
-import CancelIcon from '@mui/icons-material/Cancel';
+import { CancelIcon } from "src/components/SvgIcons";
 const Workout = () => {
   const router = useRouter();
   const query_context = trpc.useContext()
@@ -32,13 +32,6 @@ const Workout = () => {
     }
   }, [add_new])
 
-  // const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"],
-  //   {
-  //     ssr: false,
-  //     suspense: true,
-  //     refetchOnMount: false,
-  //     refetchOnWindowFocus: false
-  //   });
   const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
 
   const onNewExercise = () => {
@@ -80,7 +73,7 @@ const Workout = () => {
           <span className="flex leading-none  ">
             close
           </span>
-          <CancelIcon className="pl-1 pt-0.5" fontSize="inherit" color="inherit" />
+          <CancelIcon className="pl-1 pt-0.5 h-[.9rem] w-[.9rem]" type="solid" />
         </button>
         <AddNewExerciseModal
           exercises={exercise_directory}

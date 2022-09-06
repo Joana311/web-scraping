@@ -1,23 +1,6 @@
 import trpc from "@client/trpc";
-import { ExpandMoreRounded, IndeterminateCheckBoxRounded } from "@mui/icons-material";
-import {
-  Box,
-  ButtonBase,
-  SxProps,
-  Divider,
-  Collapse,
-  TableCell,
-  Table,
-  TableBody,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-} from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useRouter } from "next/router";
 import React from "react";
-import CancelIcon from '@mui/icons-material/Cancel';
+import { TrashIcon, BackSpaceIcon, ChevronRight } from "src/components/SvgIcons";
 
 //create a props interface for exercises that will be passed in from ExerciseSummary.tsx
 export interface SummaryCardProps {
@@ -39,6 +22,7 @@ export interface SummaryCardProps {
   is_current: boolean;
   setCurrentFocus: React.Dispatch<React.SetStateAction<number>>;
 }
+
 export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocused, setCurrentFocus, index, workout_id, is_current: is_open }) => {
   const [expanded, setExpanded] = React.useState(false);
   const onExpand = () => {
@@ -55,7 +39,6 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
     setExpanded(isFocused);
   }, [isFocused]);
 
-  const router = useRouter();
   const selfRef = React.useRef<HTMLLIElement>(null);
   const query_context = trpc.useContext();
   const useAddSet = trpc.useMutation("exercise.add_set", {
@@ -121,6 +104,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dbRemove]);
+  const dividerRef = React.useRef<HTMLDivElement>(null);
   return (
     <>
       <li id={`card-container-${exercise.user_exercise_id}`}
@@ -186,125 +170,77 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
             </div>
             <div id="expand-icon-container"
               className="flex items-center border-violet-700">
-              <div className={`flex -rotate-90 ease-in transition-all duration-[450] ${expanded && "rotate-0"}`}
+              <div className={`flex`}
               >
-                <ExpandMoreRounded />
+                <ChevronRight className={`rotate 0 ${expanded && "rotate-90"} transition-all ease-in duration-[450]  h-6`} />
               </div>
             </div>
           </section>
-          <Collapse id="exercise-set-details" style={{ height: 'max' }} className="text-white" in={expanded}>
+          <div ref={dividerRef} id="exercise-set-details"
+            className={` text-white  ${expanded ? `max-h-[25rem]` : "max-h-0"} transition-all  duration-900`}>
             <div className="h-[1px] bg-text.secondary" />
-            <TableContainer
-              sx={{
-                minHeight: "fit-content",
-                py: ".25rem",
-                px: ".5rem",
-                "& .MuiTableCell-root": {
-                  color: "inherit",
-                  border: "0",
-                  py: "0.1rem",
-                },
-                "& .MuiTableBody-root": {
-                  "& .MuiTableCell-root": {
-                    // border: { borders } && "1px solid pink",
-                    color: "inherit",
-                    borderColor: "white",
-                    fontWeight: 100,
-                    fontSize: "1rem",
-                  },
-                },
-              }}
-            >
-              <Table padding="none">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center">Set</TableCell>
-                    <TableCell align="center">Weight</TableCell>
-                    <TableCell align="center">Reps</TableCell>
-                    <TableCell align="center">RPE</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
+            <div className="mx-2 max-h-min">
+              <table className='w-full /border-4 border-lime-500 overflow-y-scroll'>
+                <thead>
+                  <tr>
+                    <th className="/border text-center">Set</th>
+                    <th className="/border text-center">Weight</th>
+                    <th className="/border text-center">Reps</th>
+                    <th className="/border text-center">RPE</th>
+                    <th className="" />
+                  </tr>
+                </thead>
+                <tbody className="relative /border-2 border-dashed border-blue mx-4">
                   {exercise.sets.map((set, index) => (
-                    <TableRow
-                      sx={{
-                        "& .MuiTableCell-root": {
-                          maxWidth: "min-content",
-                        }
-                      }}
-                      key={index}>
-                      <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell align="center">{set.weight}</TableCell>
-                      <TableCell align="center">{set.reps}</TableCell>
-                      <TableCell align="center">{set.rpe}</TableCell>
+                    <tr className={`z-0 /border border-y-[8px] border-transparent font-semibold text-[1rem] ${"odd:bg-secondary-dark"}`} key={index}>
+                      <td className="text-center ">{index + 1}</td>
+                      <td className="text-center ">{set.weight}</td>
+                      <td className="text-center ">{set.reps}</td>
+                      <td className="text-center ">{set.rpe}</td>
                       {is_open &&
-                        <td className="absolute right-[1rem] overflow-visible ">
-                          <button className="relative   m-0 flex items-center  justify-center border-blue p-0">
-                            <CancelIcon
-                              onClick={() => onDeleteSet(set.id)}
-                              className="relative"
-                              fontSize="inherit" />
-                          </button>
-                        </td>}
-                    </TableRow>
+                        <button disabled={useDeleteSet.isLoading && useDeleteSet.variables?.set_id === set.id} onClick={() => { onDeleteSet(set.id) }} className="absolute h-min right-3 md:right-10 px-1 py-[.1rem] align-middle  md:px-4 items-center /border border-blue group">
+                          <BackSpaceIcon
+                            className="relative h-5 w-5 text-red-700/70 group-disabled:text-gray-600/60" />
+                        </button>
+                      }
+                    </tr>
                   ))}
-                  <TableRow
-                    sx={{
-                      height: ".2rem",
-                    }}
-                  ></TableRow>
-                  {(
+                  <tr className="h-[6px]">
+                    <td />
+                    <td />
+                    <td />
+                    <td />
+                    <td />
+                  </tr>
+                </tbody>
+                <tfoot className="border-t-text.secondary border border-x-0 border-b-0">
+                  {is_open &&
                     <>
-                      {is_open && <TableRow
-                        sx={{
-                          "& .MuiTableCell-root": {
-                            pt: "0.6rem",
-                            borderTop: "1px solid",
-                            borderColor: "text.secondary",
-                          },
-                        }}
-                      >
-                        <TableCell
-                          align="center"
-                          sx={{
-                            fontWeight: "bold",
-                          }}
-                        >
+                      <tr className="h-[6px]">
+                        <td />
+                        <td />
+                        <td />
+                        <td />
+                        <td />
+                      </tr>
+                      <tr className="">
+                        <td className="text-center font-extrabold">
                           {exercise.sets.length + 1}
-                        </TableCell>
-                        <TableCell align="center">
-                          {/* <TextField
-                            variant="outlined"
-                            label="Weight"
-                            type="number"
-                            // className="text-white border-white"
-                            color="primary"
-                            onChange={(e) =>
-                              (set.current.weight = parseInt(e.target.value))
-                            }
-                            inputProps={{
-                              inputMode: "decimal",
-                            }}
-                            InputLabelProps={{
-                              shrink: true,
-                              disableAnimation: true,
-                            }}
-                            sx={{ ...inputBox }}
-                          /> */}
-
+                        </td>
+                        <td className="items-center">
                           <fieldset id='input-field' className="relative mx-auto mb-1 flex w-max">
                             <input id='weight-input'
                               className='peer
-                              font-[400]
-                              pb-1
-                              outline-none
-                              focus:border-white
-                              border-2 border-text.secondary
-                              bg-secondary
-                              pt-1.5
-                              pl-2
-                              rounded-md
-                              mt-1.5 w-[8.5ch]'
+                                  font-semibold
+                                  pb-1
+                                  outline-none
+                                  focus:border-white
+                                  border-2 border-text.secondary
+                                  bg-secondary
+                                  pt-1.5
+                                  pl-2
+                                  rounded-md
+                                  mt-1.5 w-[8.5ch]'
                               maxLength={5}
                               type="number"
                               inputMode="decimal"
@@ -313,107 +249,62 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                               } />
                             <label htmlFor="weight-input"
                               className="absolute 
-                                text-[.75rem] 
-                                tracking-[.01rem] leading-none
-                                text-text.secondary
-                                pl-1
-                                left-[9px]
-                                pr-1
-                                font-[300]
-                                focus:text-text.primary
-                                active:text-text.primary
-                              bg-secondary peer-focus:text-text.primary">
+                                    text-[.75rem] 
+                                    tracking-[.01rem] leading-none
+                                    text-text.secondary
+                                    pl-1
+                                    left-[9px]
+                                    pr-1
+                                    font-[300]
+                                    focus:text-text.primary
+                                    active:text-text.primary
+                                  bg-secondary peer-focus:text-text.primary">
                               Weight(s)
                             </label>
                           </fieldset>
-                        </TableCell>
-                        <TableCell align="center">
-                          {/* <TextField
-                            variant="outlined"
-                            label="Reps"
-                            type="number"
-                            // className="text-white border-white"
-                            color="info"
-                            onChange={(e) =>
-                              (set.current.reps = parseInt(e.target.value))
-                            }
-                            inputProps={{
-                              inputMode: "numeric",
-                            }}
-                            InputLabelProps={{
-                              shrink: true,
-                              disableAnimation: true,
-                            }}
-                            sx={{ ...inputBox }}
-                          /> */}
+                        </td>
+                        <td className="items-center">
                           <fieldset id='input-field' className="relative mx-auto mb-1 flex w-max">
                             <input id='rep-input'
-                              className='peer
-                              font-[400]
-                              outline-none
-                              pb-1
-                              focus:border-white
-                              border-2 border-text.secondary
-                              bg-secondary
-                              pt-1.5
-                              pl-2
-                              rounded-md
-                              mt-1.5 w-[8.5ch]'
+                              className='peer font-semibold outline-none pb-1 focus:border-white border-2 border-text.secondary bg-secondary pt-1.5 pl-2 rounded-md mt-1.5 w-[8.5ch]'
                               maxLength={5}
                               type="number"
                               inputMode="numeric"
                               onChange={(e) =>
                                 (set.current.reps = parseInt(e.target.value))
                               } />
-                            <label htmlFor="rep-input"
+                            <label
+                              htmlFor="rep-input"
                               className="absolute 
-                                text-[.75rem] 
-                                tracking-[.01rem] leading-none
-                                text-text.secondary
-                                pl-1
-                                left-[9px]
-                                pr-1
-                                font-[300]
-                                focus:text-text.primary
-                                active:text-text.primary
-                              bg-secondary peer-focus:text-text.primary">
+                                    text-[.75rem] 
+                                    tracking-[.01rem] leading-none
+                                    text-text.secondary
+                                    pl-1
+                                    left-[9px]
+                                    pr-1
+                                    font-[300]
+                                    focus:text-text.primary
+                                    active:text-text.primary
+                                  bg-secondary peer-focus:text-text.primary">
                               Reps
                             </label>
                           </fieldset>
 
-                        </TableCell>
-                        <TableCell align="center">
-                          {/* <TextField
-                            variant="outlined"
-                            label="RPE"
-                            type="number"
-                            // className="text-white border-white"
-                            color="info"
-                            onChange={(e) =>
-                              (set.current.rpe = parseInt(e.target.value))
-                            }
-                            inputProps={{
-                              inputMode: "numeric",
-                            }}
-                            InputLabelProps={{
-                              shrink: true,
-                              disableAnimation: true,
-                            }}
-                            sx={{ ...inputBox }}
-                          /> */}
+                        </td>
+                        <td className="items-center">
                           <fieldset id='input-field' className="relative mx-auto mb-1 flex w-max">
                             <input id='rpe-input'
                               className='peer
-                              font-[400]
-                              pb-1
-                              outline-none
-                              focus:border-white
-                              border-2 border-text.secondary
-                              bg-secondary
-                              pt-1.5
-                              pl-2
-                              rounded-md
-                              mt-1.5 w-[8.5ch]'
+                                  font-semibold
+                                  pb-1
+                                  outline-none
+                                  focus:border-white
+                                  border-2 border-text.secondary
+                                  bg-secondary
+                                  pt-1.5
+                                  pl-2
+                                  rounded-md
+                                  mt-1.5 w-[8.5ch]'
                               type="number"
                               inputMode="numeric"
                               maxLength={5}
@@ -422,83 +313,47 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                               } />
                             <label htmlFor="rpe-input"
                               className="absolute 
-                                text-[.75rem] 
-                                tracking-[.01rem] leading-none
-                                text-text.secondary
-                                pl-1
-                                left-[9px]
-                                pr-1
-                                font-[300]
-                                focus:text-text.primary
-                                active:text-text.primary
-                              bg-secondary peer-focus:text-text.primary">
+                                    text-[.75rem] 
+                                    tracking-[.01rem] leading-none
+                                    text-text.secondary
+                                    pl-1
+                                    left-[9px]
+                                    pr-1
+                                    font-[300]
+                                    focus:text-text.primary
+                                    active:text-text.primary
+                                  bg-secondary peer-focus:text-text.primary">
                               RPE
                             </label>
                           </fieldset>
-                        </TableCell>
-                      </TableRow>}
-                    </>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                        </td>
+                        <td />
+                      </tr>
+                    </>}
+                </tfoot>
+              </table>
+
+            </div>
             {is_open &&
-              <ButtonBase className='rounded-b-lg' sx={{
-                border: "1px solid white", width: "100%", py: ".2rem",
-                borderRadius: "0 0 .5rem .5rem",
-              }} onClick={() => {
-                onAddSet()
-              }}>
-                <span className="text-[1rem] font-bold">
-                  Add Set
-                </span>
-              </ButtonBase>}
-          </Collapse>
+              <button id="add-set-button" disabled={exercise.sets.length == 8 || useAddSet.isLoading} className='rounded-b-lg w-full border-2 border-white py-1 text-[1rem] font-bold h-min disabled:bg-gray-500 disabled:text-gray-400 disabled:border-0'
+                onClick={() => {
+                  onAddSet()
+                }}>
+                Add Set
+              </button>}
+          </div>
         </div>
         {is_open &&
-          <div id="remove-exercise-button"
-            className={`my-2 flex snap-end items-stretch rounded-lg bg-red-700 transition-all ${(expanded) && "hidden"}`}>
-            <ButtonBase className="text-[2.5rem]"
-
-              onClick={onDeleteExercise}
-              sx={{
-                minHeight: "fill",
-                px: ".5rem",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-              <DeleteIcon fontSize="inherit" />
-            </ButtonBase>
+          <div id="button-container"
+            className={`my-2 flex snap-end items-stretch rounded-lg bg-red-700/70 transition-all /border border-white ${(expanded) && "hidden"}`}>
+            <button id="remove-exercise-button"
+              className="text-[2.5rem] px-2 items-center justify-center flex"
+              onClick={onDeleteExercise}>
+              <TrashIcon className="w-[2.5rem] h-[2.5rem] text-red-600" />
+            </button>
           </div>}
       </li>
     </>
   );
 };
-const inputBox: SxProps = {
-  borderRadius: 1,
-  // border: "1px solid white",
-  borderColor: "white",
-  fontSize: "1.2rem",
-  width: "7ch",
-  fontWeight: "semi-bold",
-  fontFamily: "monospace",
-  "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "text.secondary",
-  },
-
-  "& .Mui-focused": {
-    borderColor: "#fff",
-  },
-
-  "& .MuiTextField-root": {},
-  "& .MuiInputBase-input": {
-    pl: "0.6rem",
-    py: "0.2rem",
-    "& .MuiInputLabel-root": {
-      margin: 0,
-      color: "#fff"
-    },
-  },
-};
-
 

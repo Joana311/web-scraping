@@ -27,8 +27,10 @@ import { NextAuthHandlerParams } from "next-auth/core";
 // type a = ReturnType<typeof useSession>;
 // type b = Pick<a, "data">;
 // type session = NonNullable<b["data"]>;
-interface CreateContextOptions extends CreateNextContextOptions {
-  session?: Session
+interface CreateContextOptions {
+  session?: Session,
+  req?: NextApiRequest,
+  res?: NextApiResponse<any>
 }
 
 /**
@@ -38,7 +40,7 @@ interface CreateContextOptions extends CreateNextContextOptions {
 export async function createContextInner(_opts: CreateContextOptions) {
   let session = _opts.session;
 
-  if (typeof _opts.req.query.trpc === "string" && _opts.req.query.trpc.includes(".public")) {
+  if (typeof _opts.req?.query.trpc === "string" && _opts.req?.query.trpc.includes(".public")) {
     return {
       ..._opts,
     }

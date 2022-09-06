@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { UserExerciseCard } from "./components/UserExerciseCard";
 
 import trpc from "@client/trpc";
-import { ChevronLeftRounded, ExpandRounded } from "@mui/icons-material";
 interface ExerciseSummaryProps {
   onNewExerciseClick: () => void;
   workout_id: string;

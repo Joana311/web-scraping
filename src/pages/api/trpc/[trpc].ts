@@ -6,7 +6,6 @@ import { createContext } from "@server/trpc/context";
 import { appRouter } from "@server/routers/_app";
 import type { NodeHTTPHandlerOptions } from "@trpc/server/dist/declarations/src/adapters/node-http";
 import { NextApiRequest, NextApiResponse } from "next/types";
-import { LocalConvenienceStoreOutlined } from "@mui/icons-material";
 
 type TRPCHandlerOptions = NodeHTTPHandlerOptions<typeof appRouter, NextApiRequest, NextApiResponse>
 function getBaseUrl() {

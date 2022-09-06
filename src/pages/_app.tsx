@@ -6,7 +6,7 @@ import { withTRPC } from "@trpc/next";
 import { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import { MainLayout } from "../layouts/mainLayout";
-import { AppRouter } from "@server/routers/_app";
+import { appRouter, AppRouter } from "@server/routers/_app";
 import trpc, { SSRContext } from "src/client/trpc";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { SessionProvider } from "next-auth/react";
@@ -16,6 +16,8 @@ import "../../styles/globals.css";
 import { useRouter } from "next/router";
 import { IncomingHttpHeaders } from "http2";
 import { Session } from "next-auth/core/types";
+import { GetStaticProps, GetStaticPropsContext } from "next";
+import { createSSGHelpers } from "@trpc/react/ssg";
 
 // interface MyAppProps extends AppProps {
 //   emotionCache?: EmotionCache;
@@ -45,13 +47,13 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     staleTime: 5 * 60 * 1000,
     retryOnMount: false,
   });
-  trpc.useQuery(["exercise.public.directory"], {
-    context: { skipBatch: true },
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: false,
-  });
+  // trpc.useQuery(["exercise.public.directory"], {
+  //   context: { skipBatch: true },
+  //   refetchOnWindowFocus: false,
+  //   refetchOnMount: false,
+  //   refetchOnReconnect: false,
+  //   retry: false,
+  // });
   const utils = trpc.useContext();
   const isInit = React.useRef(false)
   React.useEffect(() => {
@@ -113,6 +115,26 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
 
   )
 };
+const getStaticProps: GetStaticProps = async (ctx: GetStaticPropsContext) => {
+  // create a dummy request and response to pass to the server;
+
+  const ssg = await createSSGHelpers({
+    router: appRouter,
+    ctx: { session: undefined, },
+    transformer: superjson,
+  })
+
+  await ssg.fetchQuery("exercise.public.directory");
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      // exerciseDirectory: ssg.queryClient.getQueryData("exercise.public.directory"),
+    },
+    // 1 hour in seconds
+    revalidate: 60 * 60,
+  }
+
+}
 // App.getInitialProps = async ({ ctx }) => {
 //   const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"], {
 //     context: { skipBatch: false },

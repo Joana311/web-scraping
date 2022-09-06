@@ -1,10 +1,7 @@
-import { ExpandMoreRounded } from "@mui/icons-material";
-import CancelIcon from "@mui/icons-material/Cancel";
-import { Checkbox } from "@mui/material";
+import { ChevronRight, CancelIcon, InfoIcon } from "../../SvgIcons"
 import Link from "next/link";
 import React, { SyntheticEvent } from "react";
 import { Exercise } from "@prisma/client";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import trpc from "@client/trpc";
@@ -199,14 +196,21 @@ const AddNewExerciseModal = ({
         <li id="exercise-container"
           className="flex min-h-max rounded-md bg-secondary py-1 px-2 will-change-scroll snap-start"
         >
-          <Checkbox
-            id={`exercise-checkbox-${exercise.id}`}
-            checked={isChecked}
-            onChange={(e) => handleCheckBox((e.target as HTMLInputElement).checked, exercise.id)}
-            sx={{ "&.Mui-checked": { color: "blue.main" }, borderRadius: "0px" }}
-          />
+
+          <div id="checkbox-container"
+            className="/border w-5 h-5 self-center mx-2 rounded-md relative text-blue-light">
+            <input type="checkbox"
+              id={`exercise-checkbox-${exercise.id}`}
+              checked={isChecked}
+              onChange={(e) => handleCheckBox((e.target as HTMLInputElement).checked, exercise.id)}
+              className="/appearance-none peer rounded-md ring-blue-light absolute w-full h-full cursor-pointer text-blue-dark"
+            >
+            </input>
+            {/* <div className="flex h-full peer-checked:ring-2"></div> */}
+
+          </div>
           <label id="exercise-info"
-            className="ml-1 justify-between border-purple-500"
+            className="ml-1 justify-between border-purple-500 /border flex flex-col grow mr-2"
             htmlFor={`exercise-checkbox-${exercise.id}`}
           >
             <span id="exercise-name"
@@ -264,7 +268,7 @@ const AddNewExerciseModal = ({
             onClick={() => moreInfoHandler(exercise.href!)}
             className="mr-1 ml-auto  rounded-lg disabled:text-gray-600"
           >
-            <InfoOutlinedIcon />
+            <InfoIcon />
           </button>
         </li>
       </>
@@ -316,11 +320,10 @@ const AddNewExerciseModal = ({
           <CancelIcon />
         </button>
         <div id="show-filter-toggle"
-          onClick={() => setShowFilters(prev => !prev)} className="-mt-2 flex w-max pr-2 text-[.9rem] underlineww">
-          <span id="expand-icon-container"
-            className={`flex -rotate-90 items-center rounded-full border-violet-700 ${showFilters && "rotate-0"} transition-all duration-200`}>
-            <ExpandMoreRounded fontSize="inherit" />
-          </span>
+          onClick={() => setShowFilters(prev => !prev)} className="-mt-1 flex w-max pr-2 text-[.9rem] items-center">
+
+          <ChevronRight className={`rotate 0 ${showFilters && "rotate-90"} transition-all ease-in duration-[450] h-4 font-bold rounded-lg`} />
+
           <span>{!showFilters ? "show" : "hide"} filters</span>
         </div>
         <div id='filters'
@@ -393,7 +396,8 @@ const AddNewExerciseModal = ({
 
           <button style={{ display: amountSelected ? '' : "none" }}
             onClick={() => onAddSelected()}
-            className="ripple-bg-blue rounded-md w-[70%] px-2 py-[.2rem] items-center bg-[#2196f3]">
+            disabled={add_exercises.isLoading}
+            className="ripple-bg-blue rounded-md w-[70%] px-2 py-[.2rem] items-center bg-[#2196f3] disabled:bg-gray-600 disabled:text-gray-400">
             <span className={`h-max text-base font-bold`}>
               Add {amountSelected ? `(${amountSelected})` : ""}
             </span>

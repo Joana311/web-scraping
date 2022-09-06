@@ -34,7 +34,8 @@ mobile has a hard time displaying negative margins
 
 ## Big Bugs
 
-    [-] getServerSession is sometimes returning another users account info.
+    [x] getServerSession is sometimes returning another users account info.
+        * seems to be caused by turning on ssr for trpc. *
 
 ## Minor Bugs
 
@@ -49,6 +50,7 @@ mobile has a hard time displaying negative margins
 ## Todo
 
     [ ] find a better way to request the 4mb data used in AddNewExerciseModal, look into streaming.
+        [ ] try to export it as pageprops for a static page with getStaticProps.
 
     [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
 
@@ -82,9 +84,6 @@ mobile has a hard time displaying negative margins
         [x] add skeletons for loading states on the daily workouts elements in /[user] router
             ** still need to fix the rendering logic a bit, especially on deletion of a workout **
 
-    [-] finish the moving off of Mui to Tailwind
-        * mostly done. Just need to remove the mui table *
-
     [x] add muscle heat map inside of daily summary
 
         [ ] make it dynamic based on the muscles of selected exercises using RPE to determine the color of differnet muscles on the heatmap.
@@ -97,6 +96,8 @@ mobile has a hard time displaying negative margins
         [ ] improve re-routing logic whenever a session is expired and the user is redirected to `/` (currently does not log you out or clear app info about user)
 
 ## Done Recently
+
+    [x] finish the moving off of Mui to Tailwind
 
     [x] iOS display is super wonky. need too look up better ways to display vh. __need to update my iphone to latest iOS version__.
         ** this has mostly been fixed since adding the pwa support since that should be the primary way to use the app on mobile. **
