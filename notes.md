@@ -49,8 +49,7 @@ mobile has a hard time displaying negative margins
 
 ## Todo
 
-    [ ] find a better way to request the 4mb data used in AddNewExerciseModal, look into streaming.
-        [ ] try to export it as pageprops for a static page with getStaticProps.
+    [ ] add additional Oauth providers 
 
     [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
 
@@ -60,7 +59,7 @@ mobile has a hard time displaying negative margins
 
     [ ] optimize api functions to not make so many prisma calls.
 
-    [ ] make the muscle map actually reflect the current workout of a user
+    [ ] finished scraping exrx.net for the rest of exercise directory
 
     [ ] save the `selected` state in AddNewExerciseModal via query params. and reset it  when the add button is pressed
 
@@ -69,6 +68,9 @@ mobile has a hard time displaying negative margins
     [ ] create a UserExercise page with better details `../user/workout/exercise/:id`
 
 ## In Progress
+
+    [-] find a better way to request the 4mb data used in AddNewExerciseModal, look into streaming.
+        [-] try to export it as pageprops for a static page with getStaticProps.
 
     [-] implement searching & filtering for AddExercises.
 
@@ -91,11 +93,14 @@ mobile has a hard time displaying negative margins
     [-] setup middleware for pulling user data from the db to use id as a context for requests.
         * currently doing it inside trpc's createContext instead of using the middleware option, might wait for trpc v10 to do any big trpc refactors *
 
-    [-] fixed messy rerouting logic for deAuthentication.
-
-        [ ] improve re-routing logic whenever a session is expired and the user is redirected to `/` (currently does not log you out or clear app info about user)
-
 ## Done Recently
+
+    [x] fixed messy rerouting logic for deAuthentication.
+
+        [x] improve re-routing logic whenever a session is expired and the user is redirected to `/` (currently does not log you out or clear app info about user)
+
+    [x] make the muscle map actually reflect the current workout of a user
+        * need to implement the back side image as well*
 
     [x] finish the moving off of Mui to Tailwind
 
