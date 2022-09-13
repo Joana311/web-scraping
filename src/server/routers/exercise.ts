@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
 import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
+import { Exercise } from "@prisma/client";
 
 export const exerciseRouter = createRouter()
   .query("public.directory", {
@@ -41,16 +42,24 @@ export const exerciseRouter = createRouter()
           }
         }
       })
-      // console.log(`unique exercise id's for ${session!.user.name}: `, recent_exercise_ids)
-      const exercises = await prisma.exercise.findMany({
-        where: {
-          id: {
-            in: recent_exercise_ids.reverse().map(e => e.exercise_id)
+      //sort by most recent
+      // recent_exercise_ids.sort((a, b) => { return b.Workout!.created_at.getTime() - a.Workout!.created_at.getTime() })
+      // reverse in place
+      recent_exercise_ids.reverse()
+      console.log(`unique exercise id's for ${session!.user.name}: `, recent_exercise_ids)
+      // create a promise for each exercise, preserving order of recent_exercise_ids, and return the result in a promise.all
+      let exercises = await Promise.all(recent_exercise_ids.map(async (ue) => {
+        let res = await prisma.exercise.findUnique({
+          where: {
+            id: ue.exercise_id
           }
-        }
-      })
-      // console.log(`unique exercises for ${session!.user.name}: `, exercises)
-      return exercises
+        })
+        return res
+      }))
+
+      exercises = (exercises.filter(e => e !== null))
+      console.log(`unique exercises for ${session!.user.name}: `, exercises)
+      return exercises as Exercise[]
     }
 
   })
