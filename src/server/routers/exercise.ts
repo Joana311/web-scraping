@@ -46,7 +46,7 @@ export const exerciseRouter = createRouter()
       // recent_exercise_ids.sort((a, b) => { return b.Workout!.created_at.getTime() - a.Workout!.created_at.getTime() })
       // reverse in place
       recent_exercise_ids.reverse()
-      console.log(`unique exercise id's for ${session!.user.name}: `, recent_exercise_ids)
+      // console.log(`unique exercise id's for ${session!.user.name}: `, recent_exercise_ids)
       // create a promise for each exercise, preserving order of recent_exercise_ids, and return the result in a promise.all
       let exercises = await Promise.all(recent_exercise_ids.map(async (ue) => {
         let res = await prisma.exercise.findUnique({
@@ -58,7 +58,7 @@ export const exerciseRouter = createRouter()
       }))
 
       exercises = (exercises.filter(e => e !== null))
-      console.log(`unique exercises for ${session!.user.name}: `, exercises)
+      // console.log(`unique exercises for ${session!.user.name}: `, exercises)
       return exercises as Exercise[]
     }
 

@@ -47,13 +47,13 @@ const App: AppType = ({ pageProps,  Component }): JSX.Element => {
     staleTime: 5 * 60 * 1000,
     retryOnMount: false,
   });
-  trpc.useQuery(["exercise.public.directory"], {
-    context: { skipBatch: true },
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: false,
-  });
+  // trpc.useQuery(["exercise.public.directory"], {
+  //   context: { skipBatch: true },
+  //   refetchOnWindowFocus: false,
+  //   refetchOnMount: false,
+  //   refetchOnReconnect: false,
+  //   retry: false,
+  // });
   const utils = trpc.useContext();
   const isInit = React.useRef(false)
   React.useEffect(() => {
