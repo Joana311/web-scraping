@@ -4,12 +4,64 @@ import { z } from "zod";
 import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
 import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
+import { Exercise } from "@prisma/client";
 
 export const exerciseRouter = createRouter()
   .query("public.directory", {
     async resolve({ ctx }) {
       return await prisma.exercise.findMany();
     }
+  })
+  .query("me.recent_unique", {
+    input: z.object({
+      limit: z.number().optional().default(25),
+    }),
+    async resolve({ input, ctx }) {
+      const { session } = ctx
+      const { limit } = input
+      // get the most recent unique exercises from userExercise
+      const recent_exercise_ids = await prisma.userExercise.findMany({
+        where: {
+          Workout: {
+            owner_id: session!.user.id
+          }
+        },
+        distinct: ["exercise_id"],
+        take: -limit,
+        orderBy: {
+          Workout: {
+            created_at: "asc",
+          }
+        },
+        select: {
+          exercise_id: true,
+          Workout: {
+            select: {
+              created_at: true
+            }
+          }
+        }
+      })
+      //sort by most recent
+      // recent_exercise_ids.sort((a, b) => { return b.Workout!.created_at.getTime() - a.Workout!.created_at.getTime() })
+      // reverse in place
+      recent_exercise_ids.reverse()
+      // console.log(`unique exercise id's for ${session!.user.name}: `, recent_exercise_ids)
+      // create a promise for each exercise, preserving order of recent_exercise_ids, and return the result in a promise.all
+      let exercises = await Promise.all(recent_exercise_ids.map(async (ue) => {
+        let res = await prisma.exercise.findUnique({
+          where: {
+            id: ue.exercise_id
+          }
+        })
+        return res
+      }))
+
+      exercises = (exercises.filter(e => e !== null))
+      // console.log(`unique exercises for ${session!.user.name}: `, exercises)
+      return exercises as Exercise[]
+    }
+
   })
   .mutation("add_set", {
     input: z.object({
