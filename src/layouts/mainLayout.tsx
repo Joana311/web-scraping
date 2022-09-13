@@ -33,7 +33,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             )
         } else {
             return (
-                <UserCircle className="h-[3rem] w-[3rem]" />
+                <UserCircle className="max-w-fit max-h-fit" />
             )
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,9 +104,10 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                     onClick={onHomeClick}
                     className="my-1 mr-4 
                     flex 
-                    h-[4rem] w-[4rem] 
+                    h-[4rem] w-[4rem]
                     items-center justify-center 
-                    text-[4rem]">
+                    text-[4rem]
+                    active:translate-y-[-2px] sm:pointer-events-none ">
 
                     {avatar()}
 

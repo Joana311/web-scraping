@@ -11,6 +11,49 @@ export const exerciseRouter = createRouter()
       return await prisma.exercise.findMany();
     }
   })
+  .query("me.recent_unique", {
+    input: z.object({
+      limit: z.number().optional().default(25),
+    }),
+    async resolve({ input, ctx }) {
+      const { session } = ctx
+      const { limit } = input
+      // get the most recent unique exercises from userExercise
+      const recent_exercise_ids = await prisma.userExercise.findMany({
+        where: {
+          Workout: {
+            owner_id: session!.user.id
+          }
+        },
+        distinct: ["exercise_id"],
+        take: -limit,
+        orderBy: {
+          Workout: {
+            created_at: "asc",
+          }
+        },
+        select: {
+          exercise_id: true,
+          Workout: {
+            select: {
+              created_at: true
+            }
+          }
+        }
+      })
+      // console.log(`unique exercise id's for ${session!.user.name}: `, recent_exercise_ids)
+      const exercises = await prisma.exercise.findMany({
+        where: {
+          id: {
+            in: recent_exercise_ids.reverse().map(e => e.exercise_id)
+          }
+        }
+      })
+      // console.log(`unique exercises for ${session!.user.name}: `, exercises)
+      return exercises
+    }
+
+  })
   .mutation("add_set", {
     input: z.object({
       user_exercise_id: z.number().gte(0),

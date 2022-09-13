@@ -20,6 +20,9 @@ Push raw table changes:
 
 `prisma db push`
 
+Analyze Build:
+`ANALYZE=true npm run build`
+
 ## Actual notes
 
 Client is like a little worker dude that executes queries you give it and stuff
@@ -39,6 +42,8 @@ mobile has a hard time displaying negative margins
 
 ## Minor Bugs
 
+    [ ] the daily recap is only being rendered by the current workout and not daily workouts. It should take into account the daily total not just the currently open total.
+
     [ ] the scroll notifiers elements are not hiding correctly when there is no area to scroll.
         * disabled for now *
 
@@ -49,7 +54,7 @@ mobile has a hard time displaying negative margins
 
 ## Todo
 
-    [ ] add additional Oauth providers 
+    [ ] add additional Oauth providers
 
     [ ] close workouts automatically in a smart way. (or maybe just prompt when they open the app)
 

@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
 import CurrentExercises from "src/components/ExerciseSummary/CurrentExercises";
-import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
+import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal.test";
 import { CancelIcon } from "src/components/SvgIcons";
 const Workout = () => {
   const router = useRouter();

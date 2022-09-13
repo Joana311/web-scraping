@@ -1,3 +1,5 @@
+const plugin = require("tailwindcss/plugin");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -33,5 +35,11 @@ module.exports = {
   variants: {
     animation: ({ after }) => after(["motion-safe", "motion-reduce"])
   },
-  plugins: [require("tailwindcss-ripple")()]
+  plugins: [
+    require("tailwindcss-ripple")(),
+    plugin(function ({ addVariant }) {
+      // html selector
+      addVariant("child-checked", "[&:has(>input[type=radio]:checked)]");
+    })
+  ]
 };
