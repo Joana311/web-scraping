@@ -167,12 +167,12 @@ const RecentWorkouts = () => {
       {!isWorkoutOpen && !current_isFetching &&
         <>
           <div id='no-workout-notifier'
-            className="text-[1rem] font-light text-text.secondary">
+            className="text-[1rem] font-light text-text.secondary mb-2">
             <span>{"No Open Workouts Found"}</span>
             <br />
             <span>{"Start a new one!"}</span>
           </div>
-          <button className="border py-1 px-2 w-full bg-secondary text-[1rem] font-semibold rounded-md"
+          <button className="py-1 px-2 w-full bg-theme text-[1rem] font-semibold rounded-lg"
             onClick={onCreateNewWorkout}>
             <a>
               {"New Workout"}
