@@ -41,18 +41,19 @@ model UserWorkout {
 }
 
 model UserExercise {
-  exercise    Exercise     @relation(fields: [exercise_id], references: [id])
+  exercise    Exercise    @relation(fields: [exercise_id], references: [id])
   exercise_id String
-  id          Int          @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   sets        Set[]
-  Workout     UserWorkout? @relation(fields: [workout_id], references: [id])
-  workout_id  String?
+  Workout     UserWorkout @relation(fields: [workout_id], references: [id], onDelete: Cascade)
+  workout_id  String
 
   @@unique([exercise_id, workout_id, id])
 }
 
 model Set {
   id               Int          @id @default(autoincrement())
+  updated_at       DateTime     @default(now()) @updatedAt
   weight           Int?
   reps             Int          @default(0)
   rpe              Int          @default(0)

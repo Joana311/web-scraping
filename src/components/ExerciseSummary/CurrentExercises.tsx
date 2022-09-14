@@ -20,6 +20,7 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
     workout?.exercises.map((exercise) => {
       return {
         user_exercise_id: exercise.id,
+        exercise_id: exercise.exercise_id,
         name: exercise.exercise.name,
         muscle: exercise.exercise.muscle_name,
         variant: exercise.exercise.equipment_name,
@@ -45,7 +46,7 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   return (
     <>
       {is_current &&
-        <button className="border rounded-lg ripple-bg-white min-h-max text-black text-[1rem] font-extrabold w-[90%] mx-auto"
+        <button className=" rounded-lg bg-theme min-h-max text-white text-[1rem] font-extrabold w-[90%] mx-auto"
           onClick={onNewExerciseClick}>
           {"+ New Exercise"}
         </button>}

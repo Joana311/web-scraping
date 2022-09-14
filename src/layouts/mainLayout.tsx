@@ -28,7 +28,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
         if (img_src) {
             return (
                 <Image src={img_src as string}
-                    width="90%" height="90%"
+                    width="100%" height="100%"
                     className="rounded-full" />
             )
         } else {
@@ -49,6 +49,8 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 return "Workout Report";
             case "/[user]/workout/history":
                 return "Workout History";
+            case "/[user]/exercise/[exercise_id]":
+                return "Exercise Info";
             default:
                 return router.pathname
         }
@@ -74,7 +76,8 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 border-emerald-500
                 overscroll-none
                 md:pb-5
-                bg-primary px-[1rem]"
+                from-black bg-gradient-to-t 
+                to-bg.primary px-[1rem]"
             style={{
                 // height: "100dvh",
                 // maxHeight: "100vh",
@@ -102,12 +105,14 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 </div>
                 <div id="avatar-container"
                     onClick={onHomeClick}
-                    className="my-1 mr-4 
+                    className={`my-1 mr-4 
+                     rounded-full
+                    p-0
                     flex 
                     h-[4rem] w-[4rem]
                     items-center justify-center 
                     text-[4rem]
-                    active:translate-y-[-2px] sm:pointer-events-none ">
+                    active:translate-y-[-2px] sm:pointer-events-none ${!!img_src && "border border-theme"}`}>
 
                     {avatar()}
 

@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
 import CurrentExercises from "src/components/ExerciseSummary/CurrentExercises";
-import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal.test";
+import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
 import { CancelIcon } from "src/components/SvgIcons";
 const Workout = () => {
   const router = useRouter();
@@ -32,7 +32,7 @@ const Workout = () => {
     }
   }, [add_new])
 
-  const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
+  // const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
 
   const onNewExercise = () => {
     router.push(`/${router.query.user}/workout/${workout_id}?add_new=1`);
@@ -76,7 +76,7 @@ const Workout = () => {
           <CancelIcon className="pl-1 pt-0.5 h-[.9rem] w-[.9rem]" type="solid" />
         </button>
         <AddNewExerciseModal
-          exercises={exercise_directory}
+          // exercises={exercise_directory}
           workout_id={workout_id as string}
           close_modal={onCloseModal}
         />
@@ -95,7 +95,7 @@ const Workout = () => {
             <button id="end-workout-button"
               disabled={workout?.exercises.length === 0}
               onClick={() => onEndWorkout()}
-              className="flex h-min rounded-lg border-2 bg-secondary px-2 text-[.825rem] font-[1000] text-white disabled:border-none disabled:bg-gray-400 disabled:text-gray-500 disabled:opacity-50">
+              className="flex h-min rounded-lg border-2 bg-card px-2 text-[.825rem] font-[1000] text-white disabled:border-none disabled:bg-gray-400 disabled:text-gray-500 disabled:opacity-50">
               {"End Workout"}
             </button>}
         </div>

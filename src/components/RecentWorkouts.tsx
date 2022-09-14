@@ -222,7 +222,7 @@ const WorkoutSummaryCard = (props: {
                 selfRef.current!.classList.add("pulse-size")
               }
             }}
-            className={`flex min-w-full snap-start space-x-[1.25rem] rounded-lg bg-secondary px-2 ${is_current && "pulse-weak"}`}>
+            className={`flex min-w-full snap-start space-x-[1.25rem] rounded-lg bg-card  border-theme border-2 px-2 ${is_current && "pulse-weak"}`}>
             <section id="workout-duration"
               className="flex items-center justify-center  border-pink-700">
 
@@ -307,28 +307,28 @@ const WorkoutSummaryCard = (props: {
 }
 const SummaryCardSkeleton = () => {
   return (
-    <div className="h-[4rem] animate-pulse bg-secondary rounded-lg">
+    <div className="h-[4rem] animate-pulse bg-card rounded-lg">
       <section
         className={`flex min-w-full snap-start items-center space-x-[1.25rem] rounded-lg  px-2 h-full`}>
         <section id="workout-duration"
           className="flex self-center items-center justify-center">
           <div id='start-time' className="flex w-[5.5rem] flex-col items-center justify-between h-12 py-1" >
-            <span className="bg-secondary-dark rounded-lg w-[6ch] h-[.65rem]" />
-            <span className="bg-secondary-dark rounded-lg w-[8ch] h-[1.25rem]" />
+            <span className="bg-card-dark rounded-lg w-[6ch] h-[.65rem]" />
+            <span className="bg-card-dark rounded-lg w-[8ch] h-[1.25rem]" />
           </div>
           <span className="mx-[.7rem] mt-3 text-2xl">
           </span>
           <div id='end-time' className="flex w-[5.5rem] flex-col items-center justify-between h-12 py-1" >
-            <span className="bg-secondary-dark rounded-lg w-[6ch] h-[.65rem]" />
-            <span className="bg-secondary-dark rounded-lg w-[8ch] h-[1.25rem]" />
+            <span className="bg-card-dark rounded-lg w-[6ch] h-[.65rem]" />
+            <span className="bg-card-dark rounded-lg w-[8ch] h-[1.25rem]" />
           </div>
         </section>
 
         <section id='workout-info'
           className="flex flex-col items-start justify-center text-[.85rem] space-y-1 leading-4">
-          <span className="w-[10ch] h-[.85rem] bg-secondary-dark rounded-lg " />
-          <span className="w-[8ch]  h-[.85rem] bg-secondary-dark rounded-lg" />
-          <span className="w-[12ch] h-[.85rem] bg-secondary-dark rounded-lg" />
+          <span className="w-[10ch] h-[.85rem] bg-card-dark rounded-lg " />
+          <span className="w-[8ch]  h-[.85rem] bg-card-dark rounded-lg" />
+          <span className="w-[12ch] h-[.85rem] bg-card-dark rounded-lg" />
         </section>
       </section>
     </div >

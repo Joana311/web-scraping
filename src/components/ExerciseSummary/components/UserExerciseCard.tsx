@@ -1,4 +1,8 @@
 import trpc from "@client/trpc";
+import { router } from "@trpc/server";
+import { debug } from "console";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { TrashIcon, BackSpaceIcon, ChevronRight } from "src/components/SvgIcons";
 
@@ -6,6 +10,7 @@ import { TrashIcon, BackSpaceIcon, ChevronRight } from "src/components/SvgIcons"
 export interface SummaryCardProps {
   exercise: {
     user_exercise_id: number;
+    exercise_id: string;
     name: string;
     variant: string | null;
     muscle: string | null;
@@ -38,7 +43,9 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
   React.useMemo(() => {
     setExpanded(isFocused);
   }, [isFocused]);
-
+  const userName = trpc.useContext().getQueryData(["next-auth.get_session"])?.user.name;
+  const router = useRouter();
+  // debugger;
   const selfRef = React.useRef<HTMLLIElement>(null);
   const query_context = trpc.useContext();
   const useAddSet = trpc.useMutation("exercise.add_set", {
@@ -129,7 +136,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
           snap-start 
           flex-col
           rounded-lg
-        bg-secondary">
+        bg-card">
 
           <section id="overview-container"
             onClick={onExpand}
@@ -139,9 +146,12 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                 id="exercise-name"
                 className="flex flex-col border-red-500">
                 <label className="text-[.8rem] leading-none text-text.secondary">Exercise</label>
-                <span className='text-xl leading-none'>
-                  {exercise.name}
-                </span>
+                {/* <Link href={`../..//pages/${userName}/exercise/${exercise.exercise_id}`} > */}
+                <Link href={`../../${userName}/exercise/${exercise.exercise_id}`}>
+                  <span className='text-xl leading-none text-theme w-min whitespace-nowrap'>
+                    {exercise.name}
+                  </span>
+                </Link>
               </div>
               <div id="additional-info" className="flex justify-between pt-[.2rem]">
                 <div
