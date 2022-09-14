@@ -22,7 +22,7 @@ const DailyActivitySummary = () => {
       <h1 className="font-light">Today's Activity</h1>
       <div
         id="summary-container"
-        className='flex flex-row rounded-md bg-secondary'
+        className='flex flex-row rounded-md bg-card'
       >
         <div id='summary-info'
           className="flex w-[62%] flex-col 

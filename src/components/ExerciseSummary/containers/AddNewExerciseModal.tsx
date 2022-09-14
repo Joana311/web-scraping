@@ -1,6 +1,6 @@
 import { ChevronRight, CancelIcon, InfoIcon } from "../../SvgIcons"
 import Link from "next/link";
-import React, { SyntheticEvent } from "react";
+import React, { SyntheticEvent, useMemo } from "react";
 import { Exercise } from "@prisma/client";
 import { withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
@@ -29,20 +29,30 @@ const filters = {
   ]
 }
 const AddNewExerciseModal = ({
-  exercises,
+
   close_modal,
   router,
 }: AddExerciseProps & WithRouterProps) => {
   const formRef = React.useRef<HTMLFormElement>(null);
+  const query_context = trpc.useContext()
+  const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
   const onClose = close_modal;
   const workout_id = router.query.workout_id! as string;
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(new Map<string, boolean>());
-  const [searchResults, setFilteredExercises] = React.useState(exercises);
   const [searchTerm, setSearchTerm] = React.useState<string | undefined>(
     undefined
   );
   const [checkedTags, setCheckedTags] = React.useState(new Map<string, boolean>());
+  const [resultsTab, setResultsTab] = React.useState<"all" | "recent">("all");
+  const recent_exercises = trpc.useQuery(["exercise.me.recent_unique", {}], { enabled: resultsTab == "recent" });
+  const exercises = React.useMemo(() => {
+    if (resultsTab == "recent") {
+      return recent_exercises.data
+    }
+    return query_context.getQueryData(["exercise.public.directory"]);
+  }, [resultsTab, exercise_directory, recent_exercises.data])
+  const [searchResults, setFilteredExercises] = React.useState(exercises);
   // const match_by_word = (search_term: string, exercise: Exercise): boolean => {
   //   // split search term into words if there are spaces
   //   const search_terms = search_term.split(" ");
@@ -70,7 +80,6 @@ const AddNewExerciseModal = ({
 
   //   return is_match;
   // };
-  const query_context = trpc.useContext();
   const RESULT_RENDER_LIMIT = 25;
   React.useEffect(() => {
     // console.log(checkedTags);
@@ -194,27 +203,27 @@ const AddNewExerciseModal = ({
     return (
       <>
         <li id="exercise-container"
-          className="flex min-h-max rounded-md bg-secondary py-1 px-2 will-change-scroll snap-start"
+          className="flex min-h-max rounded-md bg-card py-1 px-2 will-change-scroll snap-start"
         >
 
-          <div id="checkbox-container"
-            className="/border w-5 h-5 self-center mx-2 rounded-md relative text-blue-light">
+
+          <div className="flex items-center">
             <input type="checkbox"
               id={`exercise-checkbox-${exercise.id}`}
               checked={isChecked}
               onChange={(e) => handleCheckBox((e.target as HTMLInputElement).checked, exercise.id)}
-              className="/appearance-none peer rounded-md ring-blue-light absolute w-full h-full cursor-pointer text-blue-dark"
-            >
-            </input>
-            {/* <div className="flex h-full peer-checked:ring-2"></div> */}
-
+              className="rounded-sm  min-w-5 min-h-5 cursor-pointer mx-2"
+            />
           </div>
+
+          {/* <div className="flex h-full peer-checked:ring-2"></div> */}
+
           <label id="exercise-info"
             className="ml-1 justify-between border-purple-500 /border flex flex-col grow mr-2"
             htmlFor={`exercise-checkbox-${exercise.id}`}
           >
             <span id="exercise-name"
-              className="w-max self-start text-[1.2rem] font-medium capitalize leading-tight"
+              className="w-max self-start text-[1.2rem] font-medium capitalize leading-tight max-w-[20ch] overflow-ellipsis overflow-hidden whitespace-nowrap"
             >
               {exercise.name}
             </span>
@@ -306,7 +315,7 @@ const AddNewExerciseModal = ({
             setSearchTerm(e.target.value);
           }}
           placeholder="Search..."
-          className="mb-3 w-full rounded-2xl border transition-all duration-400 bg-black px-2 py-1 text-base focus:rounded-md focus:outline-none "
+          className="mb-3 w-full rounded-2xl border transition-all duration-400 bg-transparent px-2 py-1 text-base focus:rounded-md focus:outline-none "
         />
         <button
           onClick={() => {
@@ -349,7 +358,7 @@ const AddNewExerciseModal = ({
                             // console.log(checkedTags)
                             setCheckedTags(prev => new Map([...prev, [filter_name, !checkedTags.get(filter_name)]]))
                           }} />
-                        <span className="whitespace-nowrap rounded-md bg-white/90 px-2 text-xs font-bold capitalize text-black peer-checked:bg-blue peer-checked:text-white">{filter_name}</span>
+                        <span className="whitespace-nowrap rounded-md bg-white/90 px-2 text-xs font-bold capitalize text-black peer-checked:bg-theme peer-checked:text-white">{filter_name}</span>
                       </label>)
                   }
 
@@ -361,49 +370,81 @@ const AddNewExerciseModal = ({
         </div>
         <div className={`border-b w-full transition-all duration-300 my-1 mx-auto ease-out ${showFilters ? "w-full" : "w-[10%]"}`} />
       </div>
-      <div id="title-bar" className="flex min-h-max w-full justify-between  border-green-600">
-        <span className="text-[1rem]">
-          Exercises:
-        </span>
-        <span
-          className="self-center text-[.7rem] font-bold text-text.secondary"
-        >
-          {`Only first ${RESULT_RENDER_LIMIT} results shown.`}
-        </span>
-        <Link href="#" className="peer">
-          <a className="text-text.secondary underline font-semibold pr-3 text-[.9rem] pointer-events-none appearance-none">
-            view all
-          </a>
-        </Link>
-      </div>
-      <section id="exercise-result-list"
-        className="space-y-[.7rem] /border-2 border-dashed border-pink-600 pt-2 no-scrollbar relative flex grow snap-y snap-mandatory flex-col overflow-y-scroll"
-      // onScroll={handleScroll}
-      // style={{
-      //   maxHeight: "100dvh"
-      // }}
-      >
-        {searchResults &&
-          searchResults.map((exercise, key) => {
-            if (key < RESULT_RENDER_LIMIT) {
-              return <ExerciseOverviewCard key={exercise.id} exercise={exercise} />;
-            }
-          })}
-        {/* <div className={`sticky border pointer-events-none bottom-0 min-h-[5rem] bg-gradient-to-t from-black to-transparent`}></div> */}
 
-        <div id="bottom-fade"
-          className="min-h-[5rem] sticky bottom-0 from-black bg-gradient-to-t to-transparent flex justify-center items-start pt-2">
-
-          <button style={{ display: amountSelected ? '' : "none" }}
-            onClick={() => onAddSelected()}
-            disabled={add_exercises.isLoading}
-            className="ripple-bg-blue rounded-md w-[70%] px-2 py-[.2rem] items-center bg-[#2196f3] disabled:bg-gray-600 disabled:text-gray-400">
-            <span className={`h-max text-base font-bold`}>
-              Add {amountSelected ? `(${amountSelected})` : ""}
-            </span>
-          </button>
+      <fieldset id="tab-selection" className="max-h-min w-full">
+        <legend className="hidden" />
+        <div className="inline-block ">
+          <input type="radio" id="all-option"
+            className="hidden appearance-none h-0  group peer w-0"
+            value="all"
+            checked={resultsTab === 'all'}
+            onClick={() => setResultsTab("all")} />
+          <label
+            htmlFor="all-option"
+            className="rounded-br-md  rounded full flex peer-checked:rounded-b-none /underline text-theme/70 bg-primary peer-checked:no-underline peer-checked:text-theme peer-checked:bg-primary">
+            <span className="text-[.85rem] pt-1 px-2 whitespace-nowrap">All Exercises</span>
+          </label>
         </div>
-      </section>
+        <div className="inline-block ">
+          <input type="radio"
+            id="recent-option"
+            className="hidden peer w-0"
+            value="recent"
+            checked={resultsTab === 'recent'}
+            onClick={() => setResultsTab("recent")} />
+          <label htmlFor="recent-option"
+            className="rounded-bl-md rounded full flex peer-checked:rounded-b-none bg-primary /underline peer-checked:no-underline text-theme/70 peer-checked:text-theme peer-checked:bg-primary">
+            <span className="text-[.85rem] pt-1  rounded-full px-2">Recent</span>
+          </label>
+        </div>
+        {/* <div className="w-full bg-black rounded-bl-md" /> */}
+      </fieldset>
+      <>
+        <div id="title-bar" className="px-2 flex min-h-max w-full justify-between  border-green-600 bg-primary rounded-tr-md pt-1">
+          <span className="text-[1rem] opacity-0">
+            Exercises:
+          </span>
+          <span
+            className="self-center text-[.7rem] font-bold text-text.secondary"
+          >
+            {`Only first ${RESULT_RENDER_LIMIT} results shown.`}
+          </span>
+          <Link href="#" className="peer">
+            <a className="text-text.secondary underline font-semibold pr-3 text-[.9rem] pointer-events-none appearance-none">
+              view all
+            </a>
+          </Link>
+        </div>
+        <section id="exercise-result-list"
+          className="px-2 space-y-[.7rem] /pb-[6rem] /border-2  rounded-b-md border-dashed border-pink-600 pt-2 no-scrollbar relative flex grow snap-y snap-mandatory flex-col overflow-y-scroll overflow-x-hidden from:bg-primary to:bg-black bg-gradient-to-b"
+        // onScroll={handleScroll}
+        // style={{
+        //   maxHeight: "100dvh"
+        // }}
+        >
+          {searchResults &&
+            searchResults!.map((exercise, key) => {
+              if (key < RESULT_RENDER_LIMIT) {
+                return <ExerciseOverviewCard key={exercise.id} exercise={exercise} />;
+              }
+            })}
+          {/* <div className={`sticky border pointer-events-none bottom-0 min-h-[5rem] bg-gradient-to-t from-black to-transparent`}></div> */}
+
+          <div id="bottom-fade"
+            className="min-h-[5rem] sticky bottom-0 self-center z-30  min-w-[105%] from-bg.primary bg-gradient-to-t to-transparent flex justify-center items-start pt-2 ">
+
+            <button style={{ display: amountSelected ? '' : "none" }}
+              onClick={() => onAddSelected()}
+              disabled={add_exercises.isLoading}
+              className="rounded-md w-[70%] px-2 py-[.2rem] items-center bg-theme disabled:bg-gray-500 disabled:text-gray-300">
+              <span className={`h-max text-base font-bold`}>
+                Add {amountSelected ? `(${amountSelected})` : ""}
+              </span>
+            </button>
+          </div>
+        </section>
+      </>
+
     </ >
 
   );

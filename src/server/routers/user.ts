@@ -45,6 +45,35 @@ export const userRouter = createRouter()
       return user;
     },
   })
+  .query("me.get_exercise_data_by_id", {
+    input: z.object({
+      exercise_id: z.string().uuid()
+    }),
+    async resolve({ input: { exercise_id }, ctx }) {
+      const me = ctx.session!.user;
+      let exercise_history = await prisma.userExercise.findMany({
+        where: {
+
+          AND: [{ Workout: { owner_id: me.id } }, { exercise: { id: exercise_id, } }]
+
+        },
+        include: {
+          sets: true,
+          exercise: true,
+        }
+      });
+      // we have an array of exercises with a created_at date. for the workout that the exercise was seen in
+      // we also have an array of sets for that exercise in that workout
+      // really what we want is the list of sets. sorted by set.updated_at
+      // flatten into a single object with 1 exercise and 1 array of sets
+      let ex_data = {
+        exercise: exercise_history[0].exercise,
+        sets: exercise_history.flatMap(ex => ex.sets).sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime())
+      }
+      console.log(ex_data)
+      return ex_data;
+    }
+  })
   .query("get_by_name", {
     input: z.object({
       name: z.string(),

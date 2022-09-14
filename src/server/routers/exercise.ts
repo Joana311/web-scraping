@@ -12,6 +12,7 @@ export const exerciseRouter = createRouter()
       return await prisma.exercise.findMany();
     }
   })
+  
   .query("me.recent_unique", {
     input: z.object({
       limit: z.number().optional().default(25),
