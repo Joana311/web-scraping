@@ -6,6 +6,7 @@ import { UserCircle } from "src/components/SvgIcons";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSession } from "src/pages/_app";
+import trpc from "@client/trpc";
 
 type LayoutProps = {
     children: React.ReactNode;
@@ -59,6 +60,14 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
         // router.push(`/${session?.user.name || ""}`);
         router.push('/');
     }
+
+    trpc.useQuery(["exercise.public.directory"], {
+        context: { skipBatch: true },
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        retry: false,
+    })
 
     return (
         <div id="app-container"

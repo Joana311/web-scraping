@@ -172,7 +172,9 @@ const RecentWorkouts = () => {
             <br />
             <span>{"Start a new one!"}</span>
           </div>
-          <button className="py-1 px-2 w-full bg-theme text-[1rem] font-semibold rounded-lg"
+          <button className="py-1 px-2 w-full bg-theme text-[1rem] font-semibold rounded-lg
+          disabled:button-disabled"
+            disabled={create_workout.isLoading}
             onClick={onCreateNewWorkout}>
             <a>
               {"New Workout"}
@@ -199,6 +201,8 @@ const WorkoutSummaryCard = (props: {
 }) => {
   const { workout, onEndWorkout, onDeleteWorkout, is_current } = props;
   const router = useRouter();
+  const query_client = trpc.useContext();
+  query_client.queryClient.getQueryState("workout.delete_by_id")?.isFetching
   const selfRef = React.useRef<HTMLLIElement>(null);
   return (
     <>
@@ -222,7 +226,7 @@ const WorkoutSummaryCard = (props: {
                 selfRef.current!.classList.add("pulse-size")
               }
             }}
-            className={`flex min-w-full snap-start space-x-[1.25rem] rounded-lg bg-card  border-theme border-2 px-2 ${is_current && "pulse-weak"}`}>
+            className={`flex min-w-full snap-start space-x-[1.25rem] rounded-lg bg-card  border-theme  px-2 ${is_current && "pulse-weak border"}`}>
             <section id="workout-duration"
               className="flex items-center justify-center  border-pink-700">
 
@@ -274,12 +278,13 @@ const WorkoutSummaryCard = (props: {
           </section>
         </Link>
         {is_current && <section id="additional-actions"
-          className="ml-2 flex min-w-full snap-start snap-always justify-between rounded-lg bg-secondary px-4 py-1">
+          className="ml-2 flex min-w-full snap-start snap-always justify-between rounded-lg bg-secondary px-4 py-1 ">
           <button id="delete-workout"
             onClick={() => {
               onDeleteWorkout(workout, selfRef.current)
             }}
-            className="flex items-center rounded-lg bg-red-700 px-2 text-[2.5rem]" >
+            disabled={query_client.queryClient.getQueryState("workout.delete_by_id")?.isFetching}
+            className="flex items-center rounded-lg bg-red-700 px-2 text-[2.5rem] disabled:button-disabled" >
             <TrashIcon className="w-[2.5rem] h-[2.5rem]" /></button>
           <button id="end-workout"
             onClick={() => {
