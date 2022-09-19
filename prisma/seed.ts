@@ -47,7 +47,7 @@ const exercise_data: [BodyParts] = JSON.parse(
 );
 
 const prisma = new PrismaClient();
-export function seedExercisesData() {
+export async function seedExercisesData() {
     const chosen_data = exercise_data
         .filter((muscle_group) =>
             testMuscleGroups.includes(muscle_group.name.toLowerCase())
@@ -125,17 +125,18 @@ const insertNestedExercises = async (root_exercise: ExrxExercise,
     muscle_name: string,
     bodypart_name: string,
     bodypart_href: string): Promise<void> => {
-    let nestedHelper = async (exercise: ExrxExercise, root_id?: string) => {
-        const { name: exercise_name, href: exercise_href, data: exercise_data } = exercise;
+    let nestedHelper = async (exercise: ExrxExercise, root_id?: string, root_name?: string) => {
+        const { href: exercise_href, data: exercise_data } = exercise;
         const { classification, muscles, instructions, mp4, vimeoUrl, comments } = exercise_data;
 
         const { force, mechanics, utility } = classification;
         const { target, synergist } = muscles;
         const { preparation, execution } = instructions;
 
-
+        let exercise_name = exercise.name;
         let base_exercise: Prisma.ExerciseCreateNestedOneWithoutVariationsInput | undefined = undefined;
         if (exercise.is_variant) {
+            exercise_name = exercise_name + " " + root_name;
             base_exercise = {
                 connect: {
                     id: root_id,
@@ -159,11 +160,11 @@ const insertNestedExercises = async (root_exercise: ExrxExercise,
                 },
             },
         }
-        let root_exercise_id: string;
+        let parent: { id: string, name: string } | undefined = undefined;
         try {
-            root_exercise_id = (await prisma.exercise.create({
+            parent = (await prisma.exercise.create({
                 data: CreateExerciseArgs
-            })).id;
+            }));
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 console.log(exercise_name, equipment_name, exercise_href, muscle_name)
@@ -177,7 +178,7 @@ const insertNestedExercises = async (root_exercise: ExrxExercise,
         let results = [] as Promise<void>[];
         if (exercise.variants) {
             exercise.variants.forEach((variant) => {
-                results.push(nestedHelper(variant, root_exercise_id));
+                results.push(nestedHelper(variant, parent!.id, parent!.name));
             });
         }
         await Promise.all(results);
@@ -187,6 +188,31 @@ const insertNestedExercises = async (root_exercise: ExrxExercise,
 
 async function main() {
     await seedExercisesData();
+    // let exercises = await prisma.exercise.findMany({
+    //     select: {
+    //         id: true,
+    //         name: true,
+    //         base_exercise_id: true,
+    //         base_exercise: {
+    //             select: {
+    //                 name: true,
+    //             }
+    //         }
+    //     }
+    // })
+    // exercises.forEach(async (exercise) => {
+    //     if (exercise.base_exercise_id) {
+    //         let ex = await prisma.exercise.update({
+    //             where: {
+    //                 id: exercise.id,
+    //             },
+    //             data: {
+    //                 name: exercise.base_exercise!.name + " " + exercise.name,
+    //             }
+    //         })
+    //         console.log(ex.name);
+    //     }
+    // })
 }
 
 main()

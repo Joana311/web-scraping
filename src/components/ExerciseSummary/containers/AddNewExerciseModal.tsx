@@ -223,7 +223,7 @@ const AddNewExerciseModal = ({
             htmlFor={`exercise-checkbox-${exercise.id}`}
           >
             <span id="exercise-name"
-              className="w-max self-start text-[1.2rem] font-medium capitalize leading-tight max-w-[20ch] overflow-ellipsis overflow-hidden whitespace-nowrap"
+              className="w-max self-start text-[1.2rem] font-medium capitalize leading-tight max-w-[18ch] overflow-ellipsis overflow-hidden whitespace-nowrap"
             >
               {exercise.name}
             </span>
@@ -236,7 +236,7 @@ const AddNewExerciseModal = ({
                   Target Muscle:
                 </h1>
                 <span
-                  className='w-[14ch] truncate text-[.9rem] font-light capitalize leading-snug'
+                  className='w-[13ch] truncate text-[.9rem] font-light capitalize leading-snug'
                 >
                   {exercise.muscle_name ?? "N/A"}
                 </span>
