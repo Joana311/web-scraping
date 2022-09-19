@@ -9,16 +9,19 @@ generator client {
 }
 
 model Exercise {
-  id             String         @id @default(uuid())
-  UserExercise   UserExercise[] @relation(name: "ExerciseToUserExercise")
-  name           String
-  href           String?
-  force          String?
-  equipment      Equipment?     @relation(name: "EquipmentToExercise", fields: [equipment_name], references: [name])
-  equipment_name String?
-  muscle         Muscle?        @relation(name: "ExerciseToMuscle", fields: [muscle_name], references: [name])
-  muscle_name    String?
-  video_url      String?
+  id               String         @id @default(uuid())
+  UserExercise     UserExercise[] @relation(name: "ExerciseToUserExercise")
+  name             String
+  href             String?
+  force            String?
+  equipment        Equipment?     @relation(name: "EquipmentToExercise", fields: [equipment_name], references: [name])
+  equipment_name   String?
+  muscle           Muscle?        @relation(name: "ExerciseToMuscle", fields: [muscle_name], references: [name])
+  muscle_name      String?
+  video_url        String?
+  variations       Exercise[]     @relation(name: "ExerciseVariation")
+  base_exercise    Exercise?      @relation(name: "ExerciseVariation", fields: [base_exercise_id], references: [id])
+  base_exercise_id String?
 
   @@unique([href, name, equipment_name, muscle_name])
 }

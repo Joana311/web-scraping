@@ -45,3 +45,9 @@ yarn-error.log*
 **/public/sw.js.map
 **/public/workbox-*.js.map
 **/public/worker-*.js.map
+
+# Random Scripts
+/prisma/scripts/savemydata.ts
+/prisma/scripts/dev.sh
+exrxData/my_exercise_data.json
+exrxData/error.json

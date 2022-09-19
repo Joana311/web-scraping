@@ -49,6 +49,12 @@
       transform: scale(1.025);
     }
   }
+  .button-disabled {
+    background-color: #6b7280;
+    color: #d1d5db;
+    border: 0;
+    pointer-events: none;
+  }
   /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;

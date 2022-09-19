@@ -50,7 +50,7 @@ const AddNewExerciseModal = ({
     if (resultsTab == "recent") {
       return recent_exercises.data
     }
-    return query_context.getQueryData(["exercise.public.directory"]);
+    return exercise_directory
   }, [resultsTab, exercise_directory, recent_exercises.data])
   const [searchResults, setFilteredExercises] = React.useState(exercises);
   // const match_by_word = (search_term: string, exercise: Exercise): boolean => {
@@ -436,7 +436,7 @@ const AddNewExerciseModal = ({
             <button style={{ display: amountSelected ? '' : "none" }}
               onClick={() => onAddSelected()}
               disabled={add_exercises.isLoading}
-              className="rounded-md w-[70%] px-2 py-[.2rem] items-center bg-theme disabled:bg-gray-500 disabled:text-gray-300">
+              className="rounded-md w-[70%] px-2 py-[.2rem] items-center bg-theme disabled:button-disabled">
               <span className={`h-max text-base font-bold`}>
                 Add {amountSelected ? `(${amountSelected})` : ""}
               </span>

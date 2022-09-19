@@ -6,13 +6,6 @@ import trpc from "@client/trpc";
 
 // React Functional Component
 const UserPage: NextPage = () => {
-  trpc.useQuery(["exercise.public.directory"], {
-    context: { skipBatch: true },
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: false,
-  });
   return (
     <div id="daily-summary" className="space-y-[2em] overflow-x-visible border-blue">
       <section id="activity-summary-and-heatmap"

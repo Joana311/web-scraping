@@ -147,8 +147,8 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                 className="flex flex-col border-red-500">
                 <label className="text-[.8rem] leading-none text-text.secondary">Exercise</label>
                 {/* <Link href={`../..//pages/${userName}/exercise/${exercise.exercise_id}`} > */}
-                <Link href={`../../${userName}/exercise/${exercise.exercise_id}`}>
-                  <span className='text-xl leading-none text-theme w-min whitespace-nowrap'>
+                <Link href={expanded ? `../../${userName}/exercise/${exercise.exercise_id}` : '#'} >
+                  <span className={`text-xl leading-none text-theme w-min whitespace-nowrap ${expanded && "underline"}`} >
                     {exercise.name}
                   </span>
                 </Link>
@@ -345,7 +345,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
 
             </div>
             {is_open &&
-              <button id="add-set-button" disabled={exercise.sets.length == 8 || useAddSet.isLoading} className='rounded-b-lg w-full border-2 border-white py-1 text-[1rem] font-bold h-min disabled:bg-gray-500 disabled:text-gray-400 disabled:border-0'
+              <button id="add-set-button" disabled={exercise.sets.length == 8 || useAddSet.isLoading} className='rounded-b-lg w-full border-2 border-white py-1 text-[1rem] font-bold h-min disabled:button-disabled'
                 onClick={() => {
                   onAddSet()
                 }}>
