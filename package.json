@@ -9,7 +9,7 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "ts-node": "ts-node --compiler-options={\\\"module\\\":\\\"commonjs\\\"}",
+        "ts-node": "ts-node -r esm",
         "prismix": "npx prismix && prisma format",
         "test-seed": "ts-node -r esm ./prisma/scripts/seedExercisesData.ts"
     },
