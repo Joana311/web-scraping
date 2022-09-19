@@ -50,3 +50,4 @@ yarn-error.log*
 /prisma/scripts/savemydata.ts
 /prisma/scripts/dev.sh
 exrxData/my_exercise_data.json
+exrxData/error.json

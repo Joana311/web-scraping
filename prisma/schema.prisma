@@ -58,12 +58,12 @@ model UserWorkout {
 }
 
 model UserExercise {
-  exercise    Exercise     @relation(name: "ExerciseToUserExercise", fields: [exercise_id], references: [id])
+  exercise    Exercise    @relation(name: "ExerciseToUserExercise", fields: [exercise_id], references: [id])
   exercise_id String
-  id          Int          @id @default(autoincrement())
-  sets        Set[]        @relation(name: "SetToUserExercise")
-  Workout     UserWorkout? @relation(name: "UserExerciseToUserWorkout", fields: [workout_id], references: [id], onDelete: Cascade)
-  workout_id  String?
+  id          Int         @id @default(autoincrement())
+  sets        Set[]       @relation(name: "SetToUserExercise")
+  Workout     UserWorkout @relation(name: "UserExerciseToUserWorkout", fields: [workout_id], references: [id], onDelete: Cascade)
+  workout_id  String
 
   @@unique([exercise_id, workout_id, id])
 }
