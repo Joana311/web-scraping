@@ -144,11 +144,16 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
             <div id="overview-info" className="w-min">
               <div
                 id="exercise-name"
-                className="flex flex-col border-red-500">
+                className="flex flex-col border-red-500 ">
                 <label className="text-[.8rem] leading-none text-text.secondary">Exercise</label>
                 {/* <Link href={`../..//pages/${userName}/exercise/${exercise.exercise_id}`} > */}
                 <Link href={expanded ? `../../${userName}/exercise/${exercise.exercise_id}` : '#'} >
-                  <span className={`text-xl leading-none text-theme w-min whitespace-nowrap ${expanded && "underline"}`} >
+                  <span className={`text-xl leading-none text-theme max-w-[21ch] underline ${!expanded && "no-underline truncate"}`}
+                    onClick={(e) => {
+                      if (expanded) {
+                        e.stopPropagation();
+                      }
+                    }} >
                     {exercise.name}
                   </span>
                 </Link>

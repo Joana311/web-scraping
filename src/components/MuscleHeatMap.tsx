@@ -58,7 +58,7 @@ const MuscleHeatMap = ({ current_workout }: Props) => {
                 name = name?.split(" ").join("_");
             }
             // console.log(name)
-            let svg: SVGPathElement | null = document.querySelector(`#${name}`);
+            let svg = document.getElementById(`${name}`) as SVGPathElement | null;
             if (svg) {
                 // console.log(svg)
                 svg.style.fill = "#DC0000";

@@ -47,11 +47,19 @@ const LandingPageMenu = (props: { session: any }) => {
         "
 
           onClick={(e) => {
-            if (!!session) signOut(); else {
-              signIn("discord");
+            if (!!session) {
               e.currentTarget.disabled = true;
-
-
+              signOut().then(() => {
+                e && (e.currentTarget.disabled = false);
+              });
+            }
+            else {
+              // wait 100ms to prevent double click
+              e && e.currentTarget.classList.add("opacity-50");
+              setTimeout(() => {
+                e.currentTarget && e.currentTarget.classList.add("opacity-100");
+                signIn("discord")
+              }, 10);
             }
           }}>
           <img

@@ -65,23 +65,26 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
           }
         }}
       >
-        {formatted_exercises.sort((a, b) => {
-          let _a = typeof a === "number" ? a : 0;
-          let _b = typeof b === "number" ? b : 0;
-          return _b - _a;
-        }).map((exercise, index) => {
-          return (
-            <UserExerciseCard
-              index={index}
-              key={exercise.user_exercise_id}
-              workout_id={workout_id}
-              exercise={exercise}
-              isFocused={index === currentFocus}
-              is_current={is_current}
-              setCurrentFocus={setCurrentFocus}
-            />
-          );
-        })}
+        {formatted_exercises
+          // .sort((a, b) => {
+          //   let _a = typeof a === "number" ? a : 0;
+          //   let _b = typeof b === "number" ? b : 0;
+          //   return _b - _a;
+          // })
+          .reverse()
+          .map((exercise, index) => {
+            return (
+              <UserExerciseCard
+                index={index}
+                key={exercise.user_exercise_id}
+                workout_id={workout_id}
+                exercise={exercise}
+                isFocused={index === currentFocus}
+                is_current={is_current}
+                setCurrentFocus={setCurrentFocus}
+              />
+            );
+          })}
         <div className={`sticky ${formatted_exercises.length == 0 && "hidden"} pointer-events-none bottom-0 min-h-[5rem] bg-gradient-to-t from-black to-transparent flex items-center justify-center`}>
           {/* <div id='scroll-notifier'
             hidden={!!scrollListRef.current && scrollListRef.current?.scrollHeight <= scrollListRef.current?.clientHeight}
