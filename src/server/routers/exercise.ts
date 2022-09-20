@@ -7,12 +7,21 @@ import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 import { Exercise } from "@prisma/client";
 
 export const exerciseRouter = createRouter()
+  .query("public.search_exercises", {
+    input: z.object({
+      query: z.string(),
+    }),
+    resolve: async ({ input }) => {
+      if (!input.query) {
+        return await prisma.exercise.findMany({});
+      }
+    }
+  })
   .query("public.directory", {
     async resolve({ ctx }) {
       return await prisma.exercise.findMany();
     }
   })
-
   .query("me.recent_unique", {
     input: z.object({
       limit: z.number().optional().default(25),

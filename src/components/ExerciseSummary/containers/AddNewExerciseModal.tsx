@@ -1,3 +1,4 @@
+import { debounce } from 'lodash';
 import { ChevronRight, CancelIcon, InfoIcon } from "../../SvgIcons"
 import Link from "next/link";
 import React, { SyntheticEvent, useMemo } from "react";
@@ -5,6 +6,7 @@ import { Exercise } from "@prisma/client";
 import { withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import trpc from "@client/trpc";
+import SearchBar from 'src/components/SearchBar';
 
 interface AddExerciseProps {
   exercises?: Exercise[];
@@ -295,6 +297,7 @@ const AddNewExerciseModal = ({
 
   return (
     <>
+      <SearchBar className="relative h-max //border-2 border-violet-500"/>
       <div id="search-bar" className="relative h-max //border-2 border-violet-500">
         <input
           id="exercise-search-input"

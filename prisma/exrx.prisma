@@ -1,18 +1,20 @@
 model Exercise {
-    id               String     @id @default(uuid())
+    id               String                   @id @default(uuid())
     name             String
     href             String?
     force            String?
-    equipment        Equipment? @relation(fields: [equipment_name], references: [name])
+    equipment        Equipment?               @relation(fields: [equipment_name], references: [name])
     equipment_name   String?
-    muscle           Muscle?    @relation(fields: [muscle_name], references: [name])
+    muscle           Muscle?                  @relation(fields: [muscle_name], references: [name])
     muscle_name      String?
     video_url        String?
-    variations       Exercise[] @relation("ExerciseVariation")
-    base_exercise    Exercise?  @relation("ExerciseVariation", fields: [base_exercise_id], references: [id])
+    variations       Exercise[]               @relation("ExerciseVariation")
+    base_exercise    Exercise?                @relation("ExerciseVariation", fields: [base_exercise_id], references: [id])
     base_exercise_id String?
+    document         Unsupported("TSVECTOR")?
 
     @@unique([href, name, equipment_name, muscle_name])
+    @@index([document], name: "document_idx")
 }
 
 model Equipment {
