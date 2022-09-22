@@ -121,7 +121,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                     h-[4rem] w-[4rem]
                     items-center justify-center 
                     text-[4rem]
-                    active:translate-y-[-2px] sm:pointer-events-none ${!!img_src && "border border-theme"}`}>
+                    active:translate-y-[-2px]  ${!!img_src && "border border-theme"}`}>
 
                     {avatar()}
 

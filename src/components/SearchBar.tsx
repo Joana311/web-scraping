@@ -2,6 +2,9 @@ import { ChevronRight, CancelIcon, InfoIcon } from "./SvgIcons"
 import { WithRouterProps } from 'next/dist/client/with-router'
 import { withRouter } from 'next/router'
 import React, { HTMLAttributes } from 'react'
+import trpc from "@client/trpc"
+import debounce from "lodash/debounce"
+import { useDebounce } from "@client/hooks"
 type SearchBarProps = {
     className: HTMLAttributes<HTMLDivElement>['className']
 }
@@ -21,6 +24,7 @@ const filter_labels = {
         'smith',
     ]
 }
+
 const SearchBar = ({ className, router }: SearchBarProps & WithRouterProps) => {
     let inputRef = React.useRef<HTMLInputElement>(null)
     const [filters, setFilters] = React.useState(new Map<string, boolean>());
@@ -31,17 +35,20 @@ const SearchBar = ({ className, router }: SearchBarProps & WithRouterProps) => {
             query: { ...router.query, tags }
         })
     }, [filters])
-    const onTermChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+    const onTermChange = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
         const text = event.target.value
         if (text.length === 0) {
             clearSearch(event)
         }
+        // console.log(text)
         router.replace({ query: { ...router.query, term: text } })
 
-    }
+    }, 500)
+
     const clearSearch = (event?: React.ChangeEvent<HTMLInputElement>) => {
         delete router.query["term"]
-        console.log(router.query)
+        // console.log(router.query)
         event ? (event.target.value = "") : (inputRef.current && (inputRef.current.value = ""))
         router.replace({ query: { ...router.query } })
     }
@@ -59,6 +66,23 @@ const SearchBar = ({ className, router }: SearchBarProps & WithRouterProps) => {
                 return "Mechanics"
         }
     };
+
+    // let res = trpc.useQuery(['exercise.public.search_exercises', {
+    //     query: useDebounce<string>((router.query.term as string)?.trim(), 500)
+    // }],
+    //     {
+    //         enabled: !!router.query.term,
+    //         staleTime: Infinity,
+    //     }
+
+
+    // )
+
+    // const getSearchResults = React.useCallback((query: string) => {
+    //     console.log(query)
+    //     let res = trpc.useQuery(['exercise.public.search_exercises', { query }])
+    //     console.log(res)
+    // }, [])
     return (
         <div id="search-bar" className={className}>
             <span> {router.asPath}</span>
@@ -75,6 +99,7 @@ const SearchBar = ({ className, router }: SearchBarProps & WithRouterProps) => {
                         // e.target?.blur();
                     };
                 }}
+                defaultValue={router.query.term as string || ''}
                 ref={inputRef}
                 onChange={onTermChange}
                 placeholder="Search..."

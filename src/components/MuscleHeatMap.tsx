@@ -72,7 +72,7 @@ const MuscleHeatMap = ({ current_workout }: Props) => {
     // console.log(current_muscles)
     return (
         <svg
-            className="g-Front-Labeled-Artboard_1-body-img g-aiImg"
+            className="border-white"
             version="1.2"
             baseProfile="tiny"
             id="g-Front-Labeled-Artboard_1-body-img"

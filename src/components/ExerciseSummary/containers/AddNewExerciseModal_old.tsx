@@ -7,8 +7,6 @@ import { useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import trpc from "@client/trpc";
 import SearchBar from 'src/components/SearchBar';
-import { useDebounce } from '@client/hooks';
-import { TypeOf } from 'zod';
 
 interface AddExerciseProps {
   exercises?: Exercise[];
@@ -36,72 +34,58 @@ const AddNewExerciseModal = ({
 
   close_modal,
 }: AddExerciseProps & WithRouterProps) => {
+  const formRef = React.useRef<HTMLFormElement>(null);
   const query_context = trpc.useContext()
   const router = useRouter()
-  console.log(router.query.term)
-  const workout_id = router.query.workout_id! as string;
-
-
+  const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
+  trpc.useQuery(["exercise.public.directory"], { enabled: !exercise_directory })
   const onClose = close_modal;
+  const workout_id = router.query.workout_id! as string;
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(new Map<string, boolean>());
+  const [searchTerm, setSearchTerm] = React.useState<string | undefined>(
+    router.query.term as string
+  );
+  console.log(searchTerm)
+  const serverSearchResults = query_context.getQueryData(["exercise.public.search_exercises", { query: searchTerm }]);
+  const [checkedTags, setCheckedTags] = React.useState(new Map<string, boolean>());
   const [resultsTab, setResultsTab] = React.useState<"all" | "recent">("all");
-
   const recent_exercises = trpc.useQuery(["exercise.me.recent_unique", {}], { enabled: resultsTab == "recent" });
-  const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
-  trpc.useQuery(["exercise.public.directory"], { enabled: !exercise_directory?.length })
-  // const serverSearchResults = query_context.getQueryData(["exercise.public.search_exercises", { query: searchTerm }]);
-
   const exercises = React.useMemo(() => {
     if (resultsTab == "recent") {
       return recent_exercises.data
     }
     return exercise_directory
   }, [resultsTab, exercise_directory, recent_exercises.data])
-  const [searchResults, setSearchResults] = React.useState(exercises);
+  const [searchResults, setFilteredExercises] = React.useState(exercises);
+  // const match_by_word = (search_term: string, exercise: Exercise): boolean => {
+  //   // split search term into words if there are spaces
+  //   const search_terms = search_term.split(" ");
+  //   // loop through each word in the search term
+  //   let is_match = false;
+  //   search_terms.forEach((search_term) => {
+  //     let search_term_lower = search_term.toLowerCase().trim();
+  //     switch (true) {
+  //       case exercise.name?.toLowerCase().includes(search_term_lower):
+  //         is_match = true;
+  //         break;
+  //       // case exercise.muscle_name
+  //       //   ?.toLowerCase()
+  //       //   .includes(search_term_lower):
+  //       //   is_match = true;
+  //       //   break;
+  //       case exercise.equipment_name?.toLowerCase().includes(search_term_lower):
+  //         is_match = true;
+  //         break;
+  //       // case exercise.force?.toLowerCase().includes(search_term_lower):
+  //       //   is_match = true;
+  //       //   break;
+  //     }
+  //   });
+
+  //   return is_match;
+  // };
   const RESULT_RENDER_LIMIT = 25;
-
-  const search_query = trpc.useQuery(['exercise.public.search_exercises', {
-    query: (router.query.term as string)?.trim(),
-  }],
-    {
-      enabled: !!router.query.term,
-      staleTime: Infinity,
-      onSuccess: (data) => {
-        let current = query_context.getQueryData(["exercise.public.directory"])
-        if (current) {
-          query_context.setQueryData(["exercise.public.directory"], [...current, ...data])
-        }
-        query_context.setQueryData(["exercise.public.directory"], data)
-      }
-    }
-  )
-
-  React.useEffect(() => {
-    // debugger
-    console.log(exercises)
-    // console.log(exercise_directory)
-
-    let term = router.query.term as string;
-    const current_filtered = exercises?.filter((exercise) => {
-      if (!term) return false
-      return exercise.name.toLowerCase().includes(term.toLowerCase())
-    }) || [];
-    term = term?.trim()
-    if (!term) {
-      setSearchResults(exercises)
-    } else {
-      const query_results = query_context.getQueryData(['exercise.public.search_exercises', { query: term }]) || [];
-      // console.log(query_results)
-
-
-      // merge the two arrays with no duplicates
-      const merged = [...new Set([...query_results, ...current_filtered])];
-      // console.log(merged)
-      setSearchResults(merged)
-    }
-  }, [router.query.term, search_query.data, exercises])
-
   // React.useEffect(() => {
   //   // console.log(checkedTags);
   //   // if (!searchTerm && checkedTags.size === 0) { setFilteredExercises(exercises); return };
@@ -163,6 +147,7 @@ const AddNewExerciseModal = ({
   // }, [serverSearchResults, exercises, checkedTags, router]);
 
 
+  // console.log(router.query.term)
   const add_exercises = trpc.useMutation("exercise.add_to_current_workout", {
     onSuccess(updated_workout) {
       query_context.invalidateQueries("workout.get_by_id");
@@ -174,6 +159,7 @@ const AddNewExerciseModal = ({
       }
     },
   });
+  // const inputRef = React.useRef<HTMLInputElement>(null);
   const onAddSelected = React.useCallback(async () => {
     console.group("Adding Selected Exercises");
     const selected = [...selectedExerciseMap.entries()].filter(
@@ -198,9 +184,13 @@ const AddNewExerciseModal = ({
     console.groupEnd();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExerciseMap]);
+
   const moreInfoHandler = (href: string) => {
     window.open(href, "_blank");
   };
+
+
+
   const handleCheckBox = (
     checked: boolean,
     exercise_id: string
@@ -217,6 +207,7 @@ const AddNewExerciseModal = ({
     });
   };
 
+  // const [showFilters, setShowFilters] = React.useState(false);
   const ExerciseOverviewCard = (props: { exercise: Exercise }) => {
     const { exercise } = props;
     const isChecked = !!selectedExerciseMap.get(exercise.id);
@@ -303,10 +294,94 @@ const AddNewExerciseModal = ({
       </>
     );
   }
+  // const getFilterName = (filter_key: string) => {
+  //   switch (filter_key) {
+  //     case "exercise_equipment":
+  //       return "Equipment"
+  //     case "exercise_mechanics":
+  //       return "Mechanics"
+  //   }
+  // };
+  // const areFiltersEmpty = () => [...checkedTags.values()].filter(tag => true).length === 0;
 
   return (
     <>
       <SearchBar className="relative h-max //border-2 border-violet-500" />
+      {/* <div id="search-bar" className="relative h-max //border-2 border-violet-500">
+        <input
+          id="exercise-search-input"
+          type="text"
+          inputMode="search"
+          onFocus={(e) => {
+
+            searchTerm && e.target.select();
+          }}
+          onKeyUp={(e) => {
+            if (e.key == "Enter") {
+              (document.activeElement as HTMLElement).blur();
+              // e.target?.blur();
+            };
+          }}
+          ref={inputRef}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+          placeholder="Search..."
+          className="mb-3 w-full rounded-2xl border transition-all duration-400 bg-transparent px-2 py-1 text-base focus:rounded-md focus:outline-none "
+        />
+        <button
+          onClick={() => {
+            setSearchTerm('')
+            setCheckedTags(new Map())
+            if (inputRef?.current) {
+              inputRef.current!.value = '';
+            }
+          }}
+          className={`absolute top-1 right-2 ${!searchTerm && areFiltersEmpty() && "hidden"}`}>
+          <CancelIcon />
+        </button>
+        <div id="show-filter-toggle"
+          onClick={() => setShowFilters(prev => !prev)} className="-mt-1 flex w-max pr-2 text-[.9rem] items-center">
+
+          <ChevronRight className={`rotate 0 ${showFilters && "rotate-90"} transition-all ease-in duration-[450] h-4 font-bold rounded-lg`} />
+
+          <span>{!showFilters ? "show" : "hide"} filters</span>
+        </div>
+        <div id='filters'
+          className={`flex flex-col space-y-0 /border border-rose-600 transition-all duration-[500] ease-out overflow-hidden ${!showFilters ? 'max-h-0' : 'max-h-24'}`}>
+          {Object.entries(filters).map((filter, index) => {
+            const [filter_key, filter_value] = filter;
+            return (
+              <form className="flex //border items-start" key={index}>
+                <span id='filter-category' className="text-sm text-text.secondary mr-4 mt-[.2rem]">
+                  {getFilterName(filter_key)}:
+                </span>
+                <ul id="tag-list" className="flex flex-wrap gap-x-1">
+                  {filter_value.map((filter_name, index) => {
+                    let isChecked = !!checkedTags.get(filter_name);
+                    return (
+                      <label htmlFor={filter_name.replace(' ', '-')} key={index}>
+                        <input id={filter_name.replace(' ', '-')}
+                          className="peer appearance-none"
+                          type="checkbox"
+                          checked={!!checkedTags.get(filter_name)}
+                          onChange={() => {
+                            // console.log(filter_name + " selected")
+                            // console.log(checkedTags)
+                            setCheckedTags(prev => new Map([...prev, [filter_name, !checkedTags.get(filter_name)]]))
+                          }} />
+                        <span className="whitespace-nowrap rounded-md bg-white/90 px-2 text-xs font-bold capitalize text-black peer-checked:bg-theme peer-checked:text-white">{filter_name}</span>
+                      </label>)
+                  }
+
+                  )}
+                </ul>
+              </form>
+            );
+          })}
+        </div>
+        <div className={`border-b w-full transition-all duration-300 my-1 mx-auto ease-out ${showFilters ? "w-full" : "w-[10%]"}`} />
+      </div> */}
 
       <fieldset id="tab-selection" className="max-h-min w-full">
         <legend className="hidden" />
@@ -360,7 +435,7 @@ const AddNewExerciseModal = ({
         // }}
         >
           {searchResults &&
-            searchResults.map((exercise, key) => {
+            searchResults!.map((exercise, key) => {
               if (key < RESULT_RENDER_LIMIT) {
                 return <ExerciseOverviewCard key={exercise.id} exercise={exercise} />;
               }

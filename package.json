@@ -41,7 +41,8 @@
         "tailwindcss-ripple": "^0.7.1",
         "ts-node": "^10.4.0",
         "webpack": ">=5.9.0 <6.0.0",
-        "zod": "^3.17.3"
+        "zod": "^3.17.3",
+        "zustand": "^4.1.1"
     },
     "devDependencies": {
         "@emotion/babel-plugin": "^11.9.2",
