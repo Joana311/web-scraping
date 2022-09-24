@@ -5,8 +5,10 @@ import React, { HTMLAttributes } from 'react'
 import trpc from "@client/trpc"
 import debounce from "lodash/debounce"
 import { useDebounce } from "@client/hooks"
+import { useUpdateSearchQuery } from "@client/providers/SearchContext"
 type SearchBarProps = {
     className: HTMLAttributes<HTMLDivElement>['className']
+    selectedTab: "all" | "recent"
 }
 const filter_labels = {
     exercise_mechanics: [
@@ -25,9 +27,10 @@ const filter_labels = {
     ]
 }
 
-const SearchBar = ({ className, router }: SearchBarProps & WithRouterProps) => {
+const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRouterProps) => {
     let inputRef = React.useRef<HTMLInputElement>(null)
     const [filters, setFilters] = React.useState(new Map<string, boolean>());
+    const updateSearchQuery = useUpdateSearchQuery()
     React.useEffect(() => {
         // store filters in a tags param in router
         const tags = Array.from(filters.entries()).filter(([_, v]) => v).map(([k, _]) => k)
@@ -36,21 +39,22 @@ const SearchBar = ({ className, router }: SearchBarProps & WithRouterProps) => {
         })
     }, [filters])
 
-    const onTermChange = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
+    const onTermChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const text = event.target.value
+        const should_debounce = selectedTab === "all"
         if (text.length === 0) {
             clearSearch(event)
         }
         // console.log(text)
-        router.replace({ query: { ...router.query, term: text } })
-
-    }, 500)
+        updateSearchQuery(text, should_debounce)
+        // router.replace({ query: { ...router.query, term: text } })
+    }
 
     const clearSearch = (event?: React.ChangeEvent<HTMLInputElement>) => {
+        updateSearchQuery('', false)
         delete router.query["term"]
-        // console.log(router.query)
         event ? (event.target.value = "") : (inputRef.current && (inputRef.current.value = ""))
-        router.replace({ query: { ...router.query } })
+        // router.replace({ query: { ...router.query } })
     }
 
     // const searchTerm = React.useMemo(() => router.query.term as string, [router.query.term])
@@ -101,7 +105,9 @@ const SearchBar = ({ className, router }: SearchBarProps & WithRouterProps) => {
                 }}
                 defaultValue={router.query.term as string || ''}
                 ref={inputRef}
-                onChange={onTermChange}
+                onChange={(e) => {
+                    onTermChange(e)
+                }}
                 placeholder="Search..."
                 className="mb-3 w-full rounded-2xl border transition-all duration-400 bg-transparent px-2 py-1 text-base focus:rounded-md focus:outline-none "
             />

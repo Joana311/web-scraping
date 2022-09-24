@@ -63,9 +63,10 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
 
     trpc.useQuery(["exercise.public.directory"], {
         context: { skipBatch: true },
+        staleTime: Infinity,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        refetchOnReconnect: false,
+        refetchOnReconnect: true,
         retry: false,
     })
 

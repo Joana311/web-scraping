@@ -7,8 +7,8 @@ import { useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import trpc from "@client/trpc";
 import SearchBar from 'src/components/SearchBar';
-import { useDebounce } from '@client/hooks';
-import { TypeOf } from 'zod';
+import { useExerciseDirectory, useSearchQuery } from '@client/providers/SearchContext';
+
 
 interface AddExerciseProps {
   exercises?: Exercise[];
@@ -32,136 +32,36 @@ const filters = {
     'smith',
   ]
 }
+
 const AddNewExerciseModal = ({
 
   close_modal,
 }: AddExerciseProps & WithRouterProps) => {
   const query_context = trpc.useContext()
   const router = useRouter()
-  console.log(router.query.term)
   const workout_id = router.query.workout_id! as string;
-
 
   const onClose = close_modal;
   const [amountSelected, setAmountSelected] = React.useState(0);
   const [selectedExerciseMap, setExerciseSelected] = React.useState(new Map<string, boolean>());
-  const [resultsTab, setResultsTab] = React.useState<"all" | "recent">("all");
+  const [selectedTab, setSelectedTab] = React.useState<"all" | "recent">("all");
 
-  const recent_exercises = trpc.useQuery(["exercise.me.recent_unique", {}], { enabled: resultsTab == "recent" });
-  const exercise_directory = query_context.getQueryData(["exercise.public.directory"]);
-  trpc.useQuery(["exercise.public.directory"], { enabled: !exercise_directory?.length })
-  // const serverSearchResults = query_context.getQueryData(["exercise.public.search_exercises", { query: searchTerm }]);
+  const recent_exercises = trpc.useQuery(["exercise.me.recent_unique", {}], { enabled: selectedTab == "recent" });
 
-  const exercises = React.useMemo(() => {
-    if (resultsTab == "recent") {
-      return recent_exercises.data
+  const directory = useExerciseDirectory()
+  const currentSearchQuery = useSearchQuery()
+
+  const searchResults = React.useMemo(() => {
+    if (selectedTab == "recent") {
+      return recent_exercises.data?.filter(exercise => {
+        if (!currentSearchQuery) return true;
+        return exercise.name.toLowerCase().includes(currentSearchQuery.toLowerCase())
+      })
     }
-    return exercise_directory
-  }, [resultsTab, exercise_directory, recent_exercises.data])
-  const [searchResults, setSearchResults] = React.useState(exercises);
+    return directory
+  }, [directory, recent_exercises.data, selectedTab, currentSearchQuery])
+
   const RESULT_RENDER_LIMIT = 25;
-
-  const search_query = trpc.useQuery(['exercise.public.search_exercises', {
-    query: (router.query.term as string)?.trim(),
-  }],
-    {
-      enabled: !!router.query.term,
-      staleTime: Infinity,
-      onSuccess: (data) => {
-        let current = query_context.getQueryData(["exercise.public.directory"])
-        if (current) {
-          query_context.setQueryData(["exercise.public.directory"], [...current, ...data])
-        }
-        query_context.setQueryData(["exercise.public.directory"], data)
-      }
-    }
-  )
-
-  React.useEffect(() => {
-    // debugger
-    console.log(exercises)
-    // console.log(exercise_directory)
-
-    let term = router.query.term as string;
-    const current_filtered = exercises?.filter((exercise) => {
-      if (!term) return false
-      return exercise.name.toLowerCase().includes(term.toLowerCase())
-    }) || [];
-    term = term?.trim()
-    if (!term) {
-      setSearchResults(exercises)
-    } else {
-      const query_results = query_context.getQueryData(['exercise.public.search_exercises', { query: term }]) || [];
-      // console.log(query_results)
-
-
-      // merge the two arrays with no duplicates
-      const merged = [...new Set([...query_results, ...current_filtered])];
-      // console.log(merged)
-      setSearchResults(merged)
-    }
-  }, [router.query.term, search_query.data, exercises])
-
-  // React.useEffect(() => {
-  //   // console.log(checkedTags);
-  //   // if (!searchTerm && checkedTags.size === 0) { setFilteredExercises(exercises); return };
-  //   let n = 0
-  //   // setFilteredExercises(
-  //   //   exercises!.filter((exercise) => {
-  //   //     if (n === RESULT_RENDER_LIMIT) return false;
-  //   //     // console.log(n)
-  //   //     // console.log(exercise.equipment_name, exercise.force, exercise.name)
-  //   //     let term_exists = !!searchTerm;
-  //   //     let filters_exist = checkedTags.size > 0;
-  //   //     // console.log(term_exists, filters_exist);
-  //   //     let tag_match = false;
-  //   //     // set to flase if there are no true filters
-  //   //     let checked_tags = ![...checkedTags.values()].every(tag => tag === false);
-  //   //     // console.log(checkedTags, checked_tags);
-
-  //   //     if (filters_exist && checked_tags) {
-  //   //       let i = 0
-  //   //       checkedTags.forEach((is_checked, tag) => {
-  //   //         // pull and barbell
-
-  //   //         if (i > 0 && tag_match === false) {
-  //   //           // console.log(i, tag_match);
-  //   //           return;
-  //   //         }
-
-  //   //         else {
-  //   //           if (exercise.force?.includes(tag) && is_checked) {
-  //   //             // console.log("force: ", tag, " = ", is_checked);
-  //   //             tag_match = true
-  //   //           }
-  //   //           else if (exercise.equipment_name?.includes(tag) && is_checked) {
-  //   //             // console.log("equipment: ", tag, " = ", is_checked);
-  //   //             tag_match = true
-  //   //           }
-
-  //   //           else {
-  //   //             // console.log("no match index ", i, " : ", tag);
-  //   //             // tag_match = false
-  //   //           };
-  //   //         };
-  //   //         //  i++;
-  //   //       })
-  //   //     }
-  //   //     else tag_match = true; // if map is empty then tag_match is true
-  //   //     // console.log("term exist", term_exists)
-  //   //     let term_match = term_exists ? exercise.name?.toLowerCase().includes(searchTerm!.toLowerCase()) : true;
-  //   //     // console.log("term, tag =>", term_match, tag_match);
-
-  //   //     return tag_match && term_match && n++;
-  //   //     // return match_by_word(searchTerm, exercise) ;
-  //   //   })
-  //   // );
-  //   console.log(searchTerm)
-  //   console.log(router.query.term)
-  //   let filtered = query_context.getQueryData(["exercise.public.search_exercises", { query: (router.query.term as string)?.trim() }])
-  //   filtered && filtered.length > 0 && setFilteredExercises(filtered)
-  // }, [serverSearchResults, exercises, checkedTags, router]);
-
 
   const add_exercises = trpc.useMutation("exercise.add_to_current_workout", {
     onSuccess(updated_workout) {
@@ -216,24 +116,19 @@ const AddNewExerciseModal = ({
       return exerciseMap;
     });
   };
-
   const ExerciseOverviewCard = (props: { exercise: Exercise }) => {
     const { exercise } = props;
     const isChecked = !!selectedExerciseMap.get(exercise.id);
     return (
       <>
         <li id="exercise-container"
-          className="flex min-h-max rounded-md bg-card py-1 px-2 will-change-scroll snap-start"
-        >
-
-
+          className="flex min-h-max rounded-md bg-card py-1 px-2 will-change-scroll snap-start">
           <div className="flex items-center">
             <input type="checkbox"
               id={`exercise-checkbox-${exercise.id}`}
               checked={isChecked}
               onChange={(e) => handleCheckBox((e.target as HTMLInputElement).checked, exercise.id)}
-              className="rounded-sm  min-w-5 min-h-5 cursor-pointer mx-2"
-            />
+              className="rounded-sm  min-w-5 min-h-5 cursor-pointer mx-2" />
           </div>
 
           {/* <div className="flex h-full peer-checked:ring-2"></div> */}
@@ -303,19 +198,18 @@ const AddNewExerciseModal = ({
       </>
     );
   }
-
   return (
     <>
-      <SearchBar className="relative h-max //border-2 border-violet-500" />
-
+      <SearchBar className="relative h-max //border-2 border-violet-500" selectedTab={selectedTab} />
+    
       <fieldset id="tab-selection" className="max-h-min w-full">
         <legend className="hidden" />
         <div className="inline-block ">
           <input type="radio" id="all-option"
             className="hidden appearance-none h-0  group peer w-0"
             value="all"
-            checked={resultsTab === 'all'}
-            onClick={() => setResultsTab("all")} />
+            checked={selectedTab === 'all'}
+            onClick={() => setSelectedTab("all")} />
           <label
             htmlFor="all-option"
             className="rounded-br-md  rounded full flex peer-checked:rounded-b-none /underline text-theme/70 bg-primary peer-checked:no-underline peer-checked:text-theme peer-checked:bg-primary">
@@ -327,8 +221,8 @@ const AddNewExerciseModal = ({
             id="recent-option"
             className="hidden peer w-0"
             value="recent"
-            checked={resultsTab === 'recent'}
-            onClick={() => setResultsTab("recent")} />
+            checked={selectedTab === 'recent'}
+            onClick={() => setSelectedTab("recent")} />
           <label htmlFor="recent-option"
             className="rounded-bl-md rounded full flex peer-checked:rounded-b-none bg-primary /underline peer-checked:no-underline text-theme/70 peer-checked:text-theme peer-checked:bg-primary">
             <span className="text-[.85rem] pt-1  rounded-full px-2">Recent</span>

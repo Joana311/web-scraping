@@ -4,6 +4,7 @@ import trpc from "@client/trpc";
 import CurrentExercises from "src/components/ExerciseSummary/CurrentExercises";
 import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
 import { CancelIcon } from "src/components/SvgIcons";
+import { ExerciseProvider } from "@client/providers/SearchContext";
 const Workout = () => {
   const router = useRouter();
   const query_context = trpc.useContext()
@@ -75,11 +76,12 @@ const Workout = () => {
           </span>
           <CancelIcon className="pl-1 pt-0.5 h-[.9rem] w-[.9rem]" type="solid" />
         </button>
-        <AddNewExerciseModal
-          // exercises={exercise_directory}
-          workout_id={workout_id as string}
-          close_modal={onCloseModal}
-        />
+        <ExerciseProvider>
+          <AddNewExerciseModal
+            // exercises={exercise_directory}
+            workout_id={workout_id as string}
+            close_modal={onCloseModal} />
+        </ExerciseProvider>
       </section>
     );
   }

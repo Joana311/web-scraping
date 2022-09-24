@@ -306,7 +306,7 @@ const AddNewExerciseModal = ({
 
   return (
     <>
-      <SearchBar className="relative h-max //border-2 border-violet-500" />
+      {/* <SearchBar className="relative h-max //border-2 border-violet-500" /> */}
       {/* <div id="search-bar" className="relative h-max //border-2 border-violet-500">
         <input
           id="exercise-search-input"
