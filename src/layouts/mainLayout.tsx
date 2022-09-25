@@ -80,7 +80,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 h-screen
                 flex-col
                 overflow-hidden
-                border-4
+                /border-4
                 border-emerald-500
                 overscroll-none
                 md:pb-5
@@ -118,7 +118,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                     flex
                     flex-1
                     flex-col
-                    border
+                    /border
                     overflow-y-hidden
                     z-0
                     border-orange-500
