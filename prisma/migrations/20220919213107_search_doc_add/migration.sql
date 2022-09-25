@@ -24,7 +24,7 @@ BEGIN foo := websearch_to_tsquery('simple', search_term);
 RETURN QUERY
 SELECT *
 FROM "Exercise"
-WHERE foo @@ document::text
+WHERE foo @@ document
 ORDER BY ts_rank("document", foo) DESC;
 END;
 $$ language plpgsql;
