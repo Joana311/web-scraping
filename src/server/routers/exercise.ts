@@ -7,12 +7,94 @@ import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 import { Exercise } from "@prisma/client";
 
 export const exerciseRouter = createRouter()
+  .query("public.search_exercises", {
+    input: z.object({
+      query: z.string().optional(),
+    }),
+    resolve: async ({ input }) => {
+      if (!input.query || input.query.length === 0) return [];
+      const found_ids: [{ id: string }] = await prisma.$queryRaw`SELECT id FROM search_exercises(${input.query});`
+      // async function usingFindMany() {
+      //   let start = Date.now();
+      //   const found_exercises = await prisma.exercise.findMany({
+      //     where: {
+      //       id: {
+      //         in: found_ids.map((x) => x.id),
+      //       }
+      //     },
+      //   })
+      //   console.log(`found ${found_exercises.length} exercises in ${Date.now() - start}ms using findMany`)
+      // }
+
+      // async function usingPromiseAll() {
+      //   let start = Date.now();
+      //   const _exercises = found_ids.map(x => prisma.exercise.findUnique({ where: { id: x.id } }))
+      //   const found_exercises = await Promise.all(_exercises)
+
+      //   console.log(`found ${found_exercises.length} exercises in ${Date.now() - start}ms using Promise.all`)
+      // }
+
+      // async function usingAwaitUnique() {
+      //   let start = Date.now();
+      //   const found_exercises = []
+      //   for (const id of found_ids) {
+      //     const exercise = await prisma.exercise.findUnique({ where: { id: id.id } })
+      //     found_exercises.push(exercise)
+      //   }
+      //   console.log(`found ${found_exercises.length} exercises in ${Date.now() - start}ms using await unique`)
+      // }
+
+      let start = Date.now();
+      const unstable_found = await prisma.exercise.findMany({
+        where: {
+          id: {
+            in: found_ids.map((x) => x.id),
+          }
+        },
+      })
+      // match the order of the ids
+      const found_exercises = found_ids.map((x) => unstable_found.find((y) => y.id === x.id)) as Exercise[]
+      console.log(`found ${found_exercises.length} exercises in ${Date.now() - start}ms using findMany then matching order`)
+
+
+
+      // console.log("results from FTS (ranked)")
+      // console.log("total found: ", found_ids.length)
+      // console.log(found_ids.slice(0, 15))
+      // console.log("results from findMany() using 'in' ")
+      // console.log('total found: ', found_exercises.length);
+      // console.log(found_exercises.map(e => e?.id).slice(0, 15))
+
+      function doesOrderMatch() {
+        if (found_exercises.length !== found_ids.length) {
+          console.log("lengths don't match")
+          return false;
+        }
+        for (let i = 0; i < found_exercises.length; i++) {
+          if (found_exercises[i]?.id !== found_ids[i].id) {
+            console.log('order does not match at index: ', i);
+            return false;
+          }
+        }
+        return true
+      }
+      // await usingFindMany()
+      // await usingPromiseAll()
+      // await usingAwaitUnique()
+      // await usingFindManySort()
+
+      console.log("order matches?: ", doesOrderMatch())
+      return found_exercises;
+    }
+  })
   .query("public.directory", {
+    // input: z.object({
+    //   take: z.number().optional().default(100),
+    // }),
     async resolve({ ctx }) {
       return await prisma.exercise.findMany();
     }
   })
-
   .query("me.recent_unique", {
     input: z.object({
       limit: z.number().optional().default(25),

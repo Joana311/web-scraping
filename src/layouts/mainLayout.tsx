@@ -63,9 +63,10 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
 
     trpc.useQuery(["exercise.public.directory"], {
         context: { skipBatch: true },
+        staleTime: Infinity,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        refetchOnReconnect: false,
+        refetchOnReconnect: true,
         retry: false,
     })
 
@@ -121,7 +122,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                     h-[4rem] w-[4rem]
                     items-center justify-center 
                     text-[4rem]
-                    active:translate-y-[-2px] sm:pointer-events-none ${!!img_src && "border border-theme"}`}>
+                    active:translate-y-[-2px]  ${!!img_src && "border border-theme"}`}>
 
                     {avatar()}
 

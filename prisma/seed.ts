@@ -88,9 +88,9 @@ export async function seedExercisesData() {
 
                 muscle.exercises.forEach(async (equipment) => {
                     let equipment_name = equipment.equipment;
-
+                    if (!equipment_name) debugger;
                     // create equipment in DB
-                    await prisma.equipment.upsert({
+                    let res = await prisma.equipment.upsert({
                         where: {
                             name: equipment_name.toLowerCase(),
                         },
@@ -99,7 +99,7 @@ export async function seedExercisesData() {
                             name: equipment_name.toLowerCase(),
                         }
                     });
-
+                    console.log(res)
                     equipment.exercises.forEach(async (exercise) => {
                         try {
                             insertNestedExercises(exercise, equipment_name, muscle.name, bodypart_name, bodypart_href)

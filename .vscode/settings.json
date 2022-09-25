@@ -11,6 +11,9 @@
     "**/.settings": true,
     "**/.factorypath": true
   },
+  // DATABASE_URL = "postgresql://postgres:iforgotit0220@localhost:5432/localDev"
+  "plpgsqlLanguageServer.database": "localDev",
+  
   "hide-files.files": [],
   "cSpell.words": [
     "bgcolor",
