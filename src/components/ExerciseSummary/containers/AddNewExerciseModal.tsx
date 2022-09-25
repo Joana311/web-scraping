@@ -201,7 +201,6 @@ const AddNewExerciseModal = ({
   return (
     <>
       <SearchBar className="relative h-max //border-2 border-violet-500" selectedTab={selectedTab} />
-    
       <fieldset id="tab-selection" className="max-h-min w-full">
         <legend className="hidden" />
         <div className="inline-block ">

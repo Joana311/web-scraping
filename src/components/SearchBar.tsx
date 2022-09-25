@@ -5,7 +5,7 @@ import React, { HTMLAttributes } from 'react'
 import trpc from "@client/trpc"
 import debounce from "lodash/debounce"
 import { useDebounce } from "@client/hooks"
-import { useUpdateSearchQuery } from "@client/providers/SearchContext"
+import { useSearchQuery, useUpdateSearchQuery } from "@client/providers/SearchContext"
 type SearchBarProps = {
     className: HTMLAttributes<HTMLDivElement>['className']
     selectedTab: "all" | "recent"
@@ -31,6 +31,7 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
     let inputRef = React.useRef<HTMLInputElement>(null)
     const [filters, setFilters] = React.useState(new Map<string, boolean>());
     const updateSearchQuery = useUpdateSearchQuery()
+    const currentQuery = useSearchQuery()
     React.useEffect(() => {
         // store filters in a tags param in router
         const tags = Array.from(filters.entries()).filter(([_, v]) => v).map(([k, _]) => k)
@@ -45,19 +46,15 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
         if (text.length === 0) {
             clearSearch(event)
         }
-        // console.log(text)
         updateSearchQuery(text, should_debounce)
-        // router.replace({ query: { ...router.query, term: text } })
     }
 
     const clearSearch = (event?: React.ChangeEvent<HTMLInputElement>) => {
         updateSearchQuery('', false)
         delete router.query["term"]
         event ? (event.target.value = "") : (inputRef.current && (inputRef.current.value = ""))
-        // router.replace({ query: { ...router.query } })
     }
 
-    // const searchTerm = React.useMemo(() => router.query.term as string, [router.query.term])
 
     const [showFilters, setShowFilters] = React.useState(false);
     const areFiltersEmpty = () => [...filters.values()].filter(tag => true).length === 0;
@@ -71,54 +68,40 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
         }
     };
 
-    // let res = trpc.useQuery(['exercise.public.search_exercises', {
-    //     query: useDebounce<string>((router.query.term as string)?.trim(), 500)
-    // }],
-    //     {
-    //         enabled: !!router.query.term,
-    //         staleTime: Infinity,
-    //     }
-
-
-    // )
-
-    // const getSearchResults = React.useCallback((query: string) => {
-    //     console.log(query)
-    //     let res = trpc.useQuery(['exercise.public.search_exercises', { query }])
-    //     console.log(res)
-    // }, [])
     return (
         <div id="search-bar" className={className}>
-            <span> {router.asPath}</span>
-            < input
-                id="exercise-search-input"
-                type="text"
-                inputMode="search"
-                // onFocus={(e) => {
-                //     searchTerm && e.target.select();
-                // }}
-                onKeyUp={(e) => {
-                    if (e.key == "Enter") {
-                        (document.activeElement as HTMLElement).blur();
-                        // e.target?.blur();
-                    };
-                }}
-                defaultValue={router.query.term as string || ''}
-                ref={inputRef}
-                onChange={(e) => {
-                    onTermChange(e)
-                }}
-                placeholder="Search..."
-                className="mb-3 w-full rounded-2xl border transition-all duration-400 bg-transparent px-2 py-1 text-base focus:rounded-md focus:outline-none "
-            />
-            <button
-                onClick={(e) => {
-                    clearSearch()
-                    setFilters(new Map())
-                }}
-                className={`absolute top-1 right-2 ${!router.query.term && areFiltersEmpty() && "hidden"}`}>
-                <CancelIcon />
-            </button>
+            {/* <span> {router.asPath}</span> */}
+            <fieldset className="relative max-h-10 flex flex-col items-center justify-center mb-3">
+                < input
+                    id="exercise-search-input"
+                    type="text"
+                    inputMode="search"
+                    onFocus={(e) => {
+                        e.target.value && e.target.select();
+                    }}
+                    onKeyUp={(e) => {
+                        if (e.key == "Enter") {
+                            (document.activeElement as HTMLElement).blur();
+                        };
+                    }}
+                    defaultValue={router.query.term as string || ''}
+                    ref={inputRef}
+                    onChange={(e) => {
+                        onTermChange(e)
+                    }}
+                    placeholder="Search..."
+                    className="w-full rounded-2xl border transition-all duration-400 bg-transparent px-2 py-1 text-base focus:rounded-md focus:outline-none"
+                />
+                <button
+                    id="clear-search-button"
+                    onClick={(e) => {
+                        clearSearch()
+                        setFilters(new Map())
+                    }}
+                    className={`absolute  right-3 ${!currentQuery && areFiltersEmpty() && "hidden"}`}>
+                    <CancelIcon/>
+                </button>
+            </fieldset>
             <div id="show-filter-toggle"
                 onClick={() => setShowFilters(prev => !prev)} className="-mt-1 flex w-max pr-2 text-[.9rem] items-center">
 

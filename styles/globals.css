@@ -3,6 +3,9 @@
 @tailwind components;
 
 @layer base {
+  button {
+    @apply touch-none select-none
+  }
   html {
     height: 100%;
     height: -webkit-fill-available;

@@ -64,13 +64,11 @@ mobile has a hard time displaying negative margins
 
     [ ] optimize api functions to not make so many prisma calls.
 
-    [ ] finished scraping exrx.net for the rest of exercise directory
-
     [ ] save the `selected` state in AddNewExerciseModal via query params. and reset it  when the add button is pressed
 
     [ ] add notes feature to exercises in workout
 
-    [ ] create a UserExercise page with better details `../user/workout/exercise/:id`
+    [ ] remove the ability to add duplicate exercises to a workout.
 
 ## In Progress
 
@@ -81,10 +79,11 @@ mobile has a hard time displaying negative margins
 
         [x] added support for force and equipment tag filters
 
-        [/] filter on server side.
-          * currently filtering on client side *
+        [x] filter by term on server side.
 
-        [ ] remove the ability to add exercises that are already in the workout.
+        [-] implement tag filtering on server-side as well
+
+    [ ] modify the "all exercises" tab in the addNewExerciseModal to show cards with different categories. instead of just displaying the full directory
 
     [-] alot of ui jitters/jumps caused by conditional renders. Clean up with use of skeletons or better load state logic.
 
@@ -99,6 +98,10 @@ mobile has a hard time displaying negative margins
         * currently doing it inside trpc's createContext instead of using the middleware option, might wait for trpc v10 to do any big trpc refactors *
 
 ## Done Recently
+
+    [x] create a UserExercise page with better details `../user/workout/exercise/:id`
+
+    [x] finished scraping exrx.net for the rest of exercise directory
 
     [x] fixed messy rerouting logic for deAuthentication.
 
