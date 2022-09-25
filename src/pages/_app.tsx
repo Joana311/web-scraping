@@ -32,12 +32,10 @@ const AuthContext = React.createContext<AuthCtx>({
 export function useSession() {
   return React.useContext(AuthContext);
 }
-const App: AppType = ({ pageProps,  Component }): JSX.Element => {
+const App: AppType = ({ pageProps, Component }): JSX.Element => {
   const {
     data: auth_data,
-    error,
-    isError,
-    isLoading
+    error
   } = trpc.useQuery(["next-auth.get_session"], {
     context: { skipBatch: true },
     refetchOnWindowFocus: true,
@@ -47,15 +45,10 @@ const App: AppType = ({ pageProps,  Component }): JSX.Element => {
     staleTime: 5 * 60 * 1000,
     retryOnMount: false,
   });
-  // trpc.useQuery(["exercise.public.directory"], {
-  //   context: { skipBatch: true },
-  //   refetchOnWindowFocus: false,
-  //   refetchOnMount: false,
-  //   refetchOnReconnect: false,
-  //   retry: false,
-  // });
   const utils = trpc.useContext();
   const isInit = React.useRef(false)
+  const router = useRouter();
+
   React.useEffect(() => {
     if (utils && typeof window !== "undefined" && !isInit.current) {
       console.log("setting react-query defaults");
@@ -75,9 +68,9 @@ const App: AppType = ({ pageProps,  Component }): JSX.Element => {
               // for when the session expires and any other query that is not "next-auth.get_session"
               // picks up on it and propogates the error down.
               console.log("error with auth session. should re-route to home.")
+              utils.queryClient.setQueryData(["next-auth.get_session"], null);
               router.push("/");
               // }
-              utils.queryClient.setQueryData(["next-auth.get_session"], null);
               return false;
             }
             return true;
@@ -87,17 +80,16 @@ const App: AppType = ({ pageProps,  Component }): JSX.Element => {
       isInit.current = true;
     }
   }, []);
-  const router = useRouter();
-  const _session = React.useRef(auth_data);
+  const sessionRef = React.useRef(auth_data);
   const session = React.useMemo(() => {
-    // console.log("new session or error found")
+    console.log("new session or error found")
     // console.log("session: ", auth_data);
     // console.log("error: ", error?.message?.includes("NO_SESSION"));
-    if (!_session.current && auth_data) {
-      _session.current = auth_data;
-      return _session.current;
+    if (!sessionRef.current && auth_data) {
+      sessionRef.current = auth_data;
+      return sessionRef.current;
     }
-    if (auth_data == _session.current) return _session.current;
+    if (auth_data == sessionRef.current) return sessionRef.current;
     return undefined;
   }, [auth_data, error]);
   return (
@@ -105,7 +97,7 @@ const App: AppType = ({ pageProps,  Component }): JSX.Element => {
     <AuthContext.Provider value={{ session: session }} >
       <Head >
         <title>ExBuddy</title>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
       </Head >
       <MainLayout session={session}>
         <Component {...pageProps} />
@@ -135,21 +127,6 @@ const getStaticProps: GetStaticProps = async (ctx: GetStaticPropsContext) => {
   }
 
 }
-// App.getInitialProps = async ({ ctx }) => {
-//   const { data: exercise_directory } = trpc.useQuery(["exercise.public.directory"], {
-//     context: { skipBatch: false },
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: false,
-//     refetchOnReconnect: false,
-//     retry: false,
-//   });
-//   return {
-//     pageProps: {
-//       exercise_directory,
-//     }
-
-//   }
-// }
 function getBaseUrl() {
   if (typeof window !== "undefined") {
     // return `http://localhost:${process.env.PORT ?? 3000}`;

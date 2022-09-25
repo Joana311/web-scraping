@@ -7,7 +7,7 @@ export default class MyDocument extends Document {
       <Html lang="en">
         <Head>
           {/* PWA primary color */}
-          <meta name="theme-color" content="#ffffff" />
+          <meta name="theme-color" content="#08080C" />
           <link rel='manifest' href='/manifest.json' />
           <link rel='icon' type='image/png' href='/logo.png' />
           {
