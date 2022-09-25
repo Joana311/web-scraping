@@ -78,32 +78,15 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
             }}
             className="flex
                 h-screen
-                max-h-screen
                 flex-col
                 overflow-hidden
-                /border-4
-                /rounded-b-[2.25rem]
+                border-4
                 border-emerald-500
                 overscroll-none
                 md:pb-5
-                from-black bg-gradient-to-t 
-                to-bg.primary px-[1rem]"
-            style={{
-                // height: "100dvh",
-                // maxHeight: "100vh",
-                maxHeight: "100svh"
-            }}>
+               bg-primary px-[1rem]">
             <header id="nav-header"
-                className="
-                    flex
-                    max-h-[5.5rem]
-                    min-h-[5.5rem]
-                    flex-row
-                    items-center
-                    justify-between
-                    pt-2 font-light
-                    text-white
-                    ">
+                className="flex h-[5.5rem] flex-row items-center justify-between pt-2 font-light">
                 <div id="date-and-app-location" className="h-min">
                     <span id="current date" className="text-[.9rem]">
                         {todaysDate}
@@ -116,14 +99,13 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 <div id="avatar-container"
                     onClick={onHomeClick}
                     className={`my-1 mr-4 
-                     rounded-full
+                    rounded-full
                     p-0
                     flex 
                     h-[4rem] w-[4rem]
                     items-center justify-center 
                     text-[4rem]
                     active:translate-y-[-2px]  ${!!img_src && "border border-theme"}`}>
-
                     {avatar()}
 
                 </div>
@@ -134,16 +116,13 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 id="page-container"
                 className="relative
                     flex
-                    fill-height
-                    grow
+                    flex-1
                     flex-col
-                    /border
-                    /overflow-y-hidden
+                    border
+                    overflow-y-hidden
                     z-0
                     border-orange-500
-                    pt-[2rem]"
-            // style={{ height: "fill-available" }}
-            >
+                    pt-[2rem]">
                 {children}
             </div>
 
