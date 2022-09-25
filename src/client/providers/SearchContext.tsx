@@ -8,8 +8,8 @@ import { useDebounce } from '@client/hooks'
 type ExerciseDirectoryContext = {
     exercises: Exercise[] | undefined
     searchQuery: string
-    updateSearchQuery: (query: string, should_debounce: boolean) => void
-    updateSearchFilters: (filters: string[]) => void
+    useUpdateSearchQuery: (query: string, should_debounce: boolean) => void
+    useUpdateSearchFilters?: (filters: string[]) => void
 }
 type ExerciseProvider = {
     children: React.ReactNode
@@ -23,7 +23,7 @@ export const useUpdateSearchQuery = () => {
     if (!context) {
         throw new Error('useUpdateSearchQuery must be used within a ExerciseDirectoryProvider')
     }
-    return context.updateSearchQuery
+    return context.useUpdateSearchQuery
 }
 export const useExerciseDirectory = () => {
     const context = React.useContext(ExDirectoryContext)
@@ -90,7 +90,7 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
         console.log('router: ', router.query.term)
     }, [router.query.term])
 
-    const updateSearchQuery = (search_term: string, should_debounce: boolean) => {
+    const useUpdateSearchQuery = (search_term: string, should_debounce: boolean) => {
         if (search_term.trim() == '') {
             setSearchQuery('')
             router.replace({ query: { ...router.query, term: '' } })
@@ -106,7 +106,7 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
         }
     }
 
-    const updateSearchFilters = (filters: string[]) => {
+    const useUpdateSearchFilters = (filters: string[]) => {
         const ctx = React.useContext(ExDirectoryContext)
         if (!ctx) {
             throw new Error('useUpdateSearchFilters must be used within a SearchProvider')
@@ -114,7 +114,7 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
         setSearchFilters(filters)
     }
 
-    const value = React.useMemo(() => ({ exercises: directory, updateSearchQuery, updateSearchFilters, searchQuery }), [directory, searchQuery])
+    const value = React.useMemo(() => ({ exercises: directory, useUpdateSearchQuery, useUpdateSearchFilters, searchQuery }), [directory, searchQuery])
 
     return <ExDirectoryContext.Provider value={value}>{children}</ExDirectoryContext.Provider>
 }
