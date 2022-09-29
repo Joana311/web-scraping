@@ -1,9 +1,8 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import trpc, { inferQueryOutput, inferUseTRPCQueryOptions } from '@client/trpc'
+import trpc from '@client/trpc'
 import { Exercise } from '@prisma/client'
 import debounce from 'lodash/debounce'
-import { useDebounce } from '@client/hooks'
 type ExerciseDirectoryContext = {
     exercises: Exercise[] | undefined
     searchQuery: string

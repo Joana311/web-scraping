@@ -1,7 +1,6 @@
-import { debounce } from 'lodash';
-import { ChevronRight, CancelIcon, InfoIcon } from "../../SvgIcons"
+import { InfoIcon } from "../../SvgIcons"
 import Link from "next/link";
-import React, { SyntheticEvent, useMemo } from "react";
+import React from "react";
 import { Exercise } from "@prisma/client";
 import { useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";

@@ -17,7 +17,6 @@ const Workout = () => {
       onError(e) {
         query_context.invalidateQueries("workout.get_current");
         query_context.invalidateQueries("workout.get_recent");
-        // if (!e.message.includes("NO_SESSION")) router.push(`/${router.query.user}`);
       },
     });
   const [showModal, setShowModal] = React.useState(false);

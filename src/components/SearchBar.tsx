@@ -1,11 +1,8 @@
-import { ChevronRight, CancelIcon, InfoIcon } from "./SvgIcons"
+import { ChevronRight, CancelIcon } from "./SvgIcons"
 import { WithRouterProps } from 'next/dist/client/with-router'
 import { withRouter } from 'next/router'
 import React, { HTMLAttributes } from 'react'
-import trpc from "@client/trpc"
-import debounce from "lodash/debounce"
-import { useDebounce } from "@client/hooks"
-import { useSearchFilters, useSearchQuery, useUpdateSearchFilters, useUpdateSearchQuery } from "@client/providers/SearchContext"
+import { useSearchQuery, useUpdateSearchFilters, useUpdateSearchQuery } from "@client/providers/SearchContext"
 type SearchBarProps = {
     className: HTMLAttributes<HTMLDivElement>['className']
     selectedTab: "all" | "recent"

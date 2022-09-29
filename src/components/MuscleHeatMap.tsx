@@ -1,8 +1,5 @@
 import React from "react";
-import musclemap from "../../public/musclemap.svg";
-import Image from "next/image";
-import trpc, { inferQueryOutput, inferUseTRPCQueryOptions } from "@client/trpc";
-import Head from "next/head";
+import trpc, { inferQueryOutput } from "@client/trpc";
 const muscle_path_labels = [
     "Sternocleidomastoid",
     "Hands",
