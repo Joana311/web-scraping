@@ -7,7 +7,7 @@ import { useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
 import trpc from "@client/trpc";
 import SearchBar from 'src/components/SearchBar';
-import { useExerciseDirectory, useSearchQuery } from '@client/providers/SearchContext';
+import { useExerciseDirectory, useSearchFilters, useSearchQuery } from '@client/providers/SearchContext';
 
 
 interface AddExerciseProps {
@@ -48,32 +48,38 @@ const AddNewExerciseModal = ({
 
   const recent_exercises = trpc.useQuery(["exercise.me.recent_unique", {}], { enabled: selectedTab == "recent" });
 
-  const selectedFilters = useMemo(() => {
-    let filters = router.query.tags || [];
-    if (typeof filters === "string") {
-      filters = [filters];
-    }
-    return filters;
-  }, [router.query.tags])
+  const selectedFilters = useSearchFilters();
 
   const directory = useExerciseDirectory()
   const currentSearchQuery = useSearchQuery()
 
   const exerciseResults = React.useMemo(() => {
     let current = directory;
+    // console.log("updating Exercise Results")
+    // console.log("last query results = ", current)
     if (selectedTab == "recent") {
       current = recent_exercises.data?.filter(exercise => {
         if (!currentSearchQuery) return true;
         return exercise.name.toLowerCase().includes(currentSearchQuery.toLowerCase())
       })
     }
+    // console.log("selected: ", selectedFilters.length)
     if (selectedFilters.length > 0) {
+      // console.log("filtering")
+      // debugger
       current = current?.filter(exercise => {
-        return selectedFilters.every(filter => {
+        let bool = selectedFilters.every(filter => {
+          // console.log("filtering by ", filter)
+          // console.log("exercise: ", exercise.equipment_name, exercise.force)
+          // console.log("accpeted: ", exercise.equipment_name?.includes(filter) || exercise.force?.includes(filter))
           return (exercise.equipment_name?.includes(filter) || exercise.force?.includes(filter))
         })
+        // console.log("bool: ", bool)
+        return bool
       })
+      // console.log("filtered: ", current)
     }
+    // console.log("filtered results: ", current)
     return current;
   }, [directory, recent_exercises.data, selectedTab, currentSearchQuery, selectedFilters])
 

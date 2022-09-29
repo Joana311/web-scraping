@@ -92,14 +92,32 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     if (auth_data == sessionRef.current) return sessionRef.current;
     return undefined;
   }, [auth_data, error]);
+
+  const appLocation = React.useMemo(() => {
+    switch (router.pathname) {
+      case "/":
+        // set the head title
+        return "Welcome!";
+      case "/[user]":
+        return "Daily Summary";
+      case "/[user]/workout/[workout_id]":
+        return "Workout Report";
+      case "/[user]/workout/history":
+        return "Workout History";
+      case "/[user]/exercise/[exercise_id]":
+        return "Exercise Info";
+      default:
+        return "404";
+    }
+  }, [router.pathname]);
   return (
 
     <AuthContext.Provider value={{ session: session }} >
       <Head >
-        <title>ExBuddy</title>
+        <title>{`ExBuddy${appLocation != '404' && (' | ' + appLocation)}`}</title>
         <meta name="viewport" content="initial-scale=1, width=device-width, user-scalable=no" />
       </Head >
-      <MainLayout session={session}>
+      <MainLayout session={session} appLocation={appLocation}>
         <Component {...pageProps} />
       </MainLayout>
       {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}

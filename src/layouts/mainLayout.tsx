@@ -7,13 +7,15 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useSession } from "src/pages/_app";
 import trpc from "@client/trpc";
+import Head from "next/head";
 
 type LayoutProps = {
     children: React.ReactNode;
     session?: Session | undefined;
+    appLocation: string;
 }
 
-export const MainLayout = ({ session, children }: LayoutProps) => {
+export const MainLayout = ({ session, children, appLocation }: LayoutProps) => {
     // const { session } = useSession();
     // const session = 
     React.useEffect(() => {
@@ -25,7 +27,7 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
         [dayjs().toDate()]
     );
     const img_src = React.useMemo(() => session?.user?.image, [session?.user?.image]);
-    const avatar = React.useCallback(() => {
+    const avatar = React.useMemo(() => {
         if (img_src) {
             return (
                 <Image src={img_src as string}
@@ -40,25 +42,15 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [img_src])
     const router = useRouter();
-    const appLocation = React.useMemo(() => {
-        switch (router.pathname) {
-            case "/":
-                return "Welcome!";
-            case "/[user]":
-                return "Daily Summary";
-            case "/[user]/workout/[workout_id]":
-                return "Workout Report";
-            case "/[user]/workout/history":
-                return "Workout History";
-            case "/[user]/exercise/[exercise_id]":
-                return "Exercise Info";
-            default:
-                return router.pathname
-        }
-    }, [router.pathname]);
+
     const onHomeClick = () => {
-        // router.push(`/${session?.user.name || ""}`);
-        router.push('/');
+        let currentPath = router.pathname;
+        if (currentPath === "/") {
+            router.reload();
+        } else {
+            router.push(`/${session?.user.name || ""}`);
+        }
+        // router.push('/');
     }
 
     trpc.useQuery(["exercise.public.directory"], {
@@ -71,20 +63,21 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
     })
 
     return (
+
         <div id="app-container"
             onScroll={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
             }}
             className="flex
-                h-screen
-                flex-col
-                overflow-hidden
-                /border-4
-                border-emerald-500
-                overscroll-none
-                md:pb-5
-               bg-primary px-[1rem]">
+                    h-screen
+                    flex-col
+                    overflow-hidden
+                    /border-4
+                    border-emerald-500
+                    overscroll-none
+                    md:pb-5
+                   bg-primary px-[1rem]">
             <header id="nav-header"
                 className="flex h-[5.5rem] flex-row items-center justify-between pt-2 font-light">
                 <div id="date-and-app-location" className="h-min">
@@ -99,32 +92,33 @@ export const MainLayout = ({ session, children }: LayoutProps) => {
                 <div id="avatar-container"
                     onClick={onHomeClick}
                     className={`my-1 mr-4 
-                    rounded-full
-                    p-0
-                    flex 
-                    h-[4rem] w-[4rem]
-                    items-center justify-center 
-                    text-[4rem]
-                    active:translate-y-[-2px]  ${!!img_src && "border border-theme"}`}>
-                    {avatar()}
+                        rounded-full
+                        p-0
+                        flex 
+                        h-[4rem] w-[4rem]
+                        items-center justify-center 
+                        text-[4rem]
+                        active:translate-y-[-2px]  ${!!img_src && "border border-theme"}`}>
+                    {avatar}
 
                 </div>
             </header>
             {/* using overflow-y-hidden makes it work on desktop but,
-            it messes up one of the scale animations by clipping on the x-axis */}
+                it messes up one of the scale animations by clipping on the x-axis */}
             <div
                 id="page-container"
                 className="relative
-                    flex
-                    flex-1
-                    flex-col
-                    /border
-                    overflow-y-hidden
-                    z-0
-                    border-orange-500
-                    pt-[2rem]">
+                        flex
+                        flex-1
+                        flex-col
+                        /border
+                        overflow-y-hidden
+                        z-0
+                        border-orange-500
+                        pt-[2rem]">
                 {children}
             </div>
 
-        </div >)
+        </div >
+    )
 }

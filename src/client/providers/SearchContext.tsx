@@ -7,6 +7,7 @@ import { useDebounce } from '@client/hooks'
 type ExerciseDirectoryContext = {
     exercises: Exercise[] | undefined
     searchQuery: string
+    searchFilters: string[]
     useUpdateSearchQuery: (query: string, should_debounce: boolean) => void
     useUpdateSearchFilters?: (filters: string[]) => void
 }
@@ -16,7 +17,13 @@ type ExerciseProvider = {
 }
 
 const ExDirectoryContext = React.createContext<ExerciseDirectoryContext | undefined>(undefined)
-
+export const useSearchFilters = () => {
+    const ctx = React.useContext(ExDirectoryContext)
+    if (!ctx) {
+        throw new Error('useSearchFilters must be used within a SearchProvider')
+    }
+    return ctx.searchFilters
+}
 export const useUpdateSearchQuery = () => {
     const context = React.useContext(ExDirectoryContext)
     if (!context) {
@@ -30,6 +37,13 @@ export const useExerciseDirectory = () => {
         throw new Error('useExerciseDirectory must be used within a ExerciseDirectoryProvider')
     }
     return context.exercises
+}
+export const useUpdateSearchFilters = () => {
+    const context = React.useContext(ExDirectoryContext)
+    if (!context) {
+        throw new Error('useUpdateSearchFilters must be used within a ExerciseDirectoryProvider')
+    }
+    return context.useUpdateSearchFilters
 }
 
 export const useSearchQuery = () => {
@@ -61,9 +75,9 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
     }
 
     React.useEffect(() => {
-        console.log('search state', searchQuery)
+        // console.log('search state', searchQuery)
         if (searchQueryResults && searchQueryResults.length == 0 && searchQuery.length > 0) {
-            console.log("should be setting to exrx")
+            // console.log("should be setting to exrx")
             setDirectory(getFilteredFallback(searchQuery))
             return
         }
@@ -72,7 +86,7 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
             return
         }
         let searchResult = queryContext.getQueryData(['exercise.public.search_exercises', { query: searchQuery }]) || []
-        console.log("search result", searchResult)
+        // console.log("search result", searchResult)
         setDirectory(searchResult);
         // return setDirectory(exrx_directory)
     }, [searchQueryResults, searchQuery])
@@ -94,14 +108,13 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
     }
 
     const useUpdateSearchFilters = (filters: string[]) => {
-        const ctx = React.useContext(ExDirectoryContext)
-        if (!ctx) {
-            throw new Error('useUpdateSearchFilters must be used within a SearchProvider')
-        }
+        router.replace({
+            query: { ...router.query, tags: filters }
+        })
         setSearchFilters(filters)
     }
 
-    const value = React.useMemo(() => ({ exercises: directory, useUpdateSearchQuery, useUpdateSearchFilters, searchQuery }), [directory, searchQuery])
+    const value = React.useMemo(() => ({ exercises: directory, useUpdateSearchQuery, useUpdateSearchFilters, searchQuery, searchFilters }), [directory, searchQuery, searchFilters])
 
     return <ExDirectoryContext.Provider value={value}>{children}</ExDirectoryContext.Provider>
 }

@@ -2,6 +2,7 @@ import React from "react";
 import musclemap from "../../public/musclemap.svg";
 import Image from "next/image";
 import trpc, { inferQueryOutput, inferUseTRPCQueryOptions } from "@client/trpc";
+import Head from "next/head";
 const muscle_path_labels = [
     "Sternocleidomastoid",
     "Hands",
@@ -31,13 +32,13 @@ type CurrentWorkout = inferQueryOutput<"workout.get_current">
 type Props = {
     current_workout?: CurrentWorkout
 }
-const MuscleHeatMap = ({ current_workout }: Props) => {
+const MuscleHeatMap = ({ }: Props) => {
     // const { data: current_workout } = trpc.useQuery(["workout.get_current"])
+    const { data: todays_workouts } = trpc.useQuery(["workout.get_daily_recent", { amount: 3 }])
     const current_muscles = React.useMemo(() => {
-        if (!current_workout) return []
-        let muscles = current_workout.exercises.map((e) => {
+        if (!todays_workouts) return []
+        let muscles = todays_workouts.map((wo) => wo.exercises).flat().map((e) => {
             let name = e.exercise.muscle_name || ""
-
             if (name?.includes("pect")) {
                 name = "Pecs"
             } else if (name?.includes("anterior delt")) {
@@ -62,14 +63,13 @@ const MuscleHeatMap = ({ current_workout }: Props) => {
             if (svg) {
                 // console.log(svg)
                 svg.style.fill = "#DC0000";
-                svg.style.opacity = "0.8";
+                svg.style.opacity = "0.7";
             }
 
         })
-        console.log(muscles)
+        // console.log(muscles)
         return muscles
-    }, [current_workout])
-    // console.log(current_muscles)
+    }, [todays_workouts])
     return (
         <svg
             className="border-white"

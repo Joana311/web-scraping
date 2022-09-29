@@ -5,7 +5,7 @@ import React, { HTMLAttributes } from 'react'
 import trpc from "@client/trpc"
 import debounce from "lodash/debounce"
 import { useDebounce } from "@client/hooks"
-import { useSearchQuery, useUpdateSearchQuery } from "@client/providers/SearchContext"
+import { useSearchFilters, useSearchQuery, useUpdateSearchFilters, useUpdateSearchQuery } from "@client/providers/SearchContext"
 type SearchBarProps = {
     className: HTMLAttributes<HTMLDivElement>['className']
     selectedTab: "all" | "recent"
@@ -30,15 +30,10 @@ const filter_labels = {
 const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRouterProps) => {
     let inputRef = React.useRef<HTMLInputElement>(null)
     const [filters, setFilters] = React.useState(new Map<string, boolean>());
+    const [_filters, _setFilters] = React.useState<string[]>([]);
     const updateSearchQuery = useUpdateSearchQuery()
+    const updateSearchFilters = useUpdateSearchFilters()
     const currentQuery = useSearchQuery()
-    React.useEffect(() => {
-        // store filters in a tags param in router
-        const tags = Array.from(filters.entries()).filter(([_, v]) => v).map(([k, _]) => k)
-        router.replace({
-            query: { ...router.query, tags }
-        })
-    }, [filters])
 
     const onTermChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const text = event.target.value
@@ -51,16 +46,17 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
 
     const clearSearch = (event?: React.ChangeEvent<HTMLInputElement>) => {
         updateSearchQuery('', false)
+        // setFilters(new Map())
         delete router.query["term"]
         event ? (event.target.value = "") : (inputRef.current && (inputRef.current.value = ""))
     }
 
 
     const [showFilters, setShowFilters] = React.useState(false);
-    const areFiltersEmpty = () => [...filters.values()].filter(tag => true).length === 0;
+    const areFiltersEmpty = [...filters.values()].every((value) => !value)
 
-    const getFilterName = (filter_key: string) => {
-        switch (filter_key) {
+    const getFilterCategory = (key: string) => {
+        switch (key) {
             case "exercise_equipment":
                 return "Equipment"
             case "exercise_mechanics":
@@ -98,7 +94,7 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
                         clearSearch()
                         setFilters(new Map())
                     }}
-                    className={`absolute  right-3 ${!currentQuery && areFiltersEmpty() && "hidden"}`}>
+                    className={`absolute  right-3 ${!currentQuery && areFiltersEmpty && "hidden"}`}>
                     <CancelIcon />
                 </button>
             </fieldset>
@@ -113,29 +109,34 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
                 className={`flex flex-col space-y-0 /border border-rose-600 transition-all duration-[500] ease-out overflow-hidden ${!showFilters ? 'max-h-0' : 'max-h-24'}`}>
                 {Object.entries(filter_labels).map((filter, index) => {
                     const [filter_key, filter_value] = filter;
-                    const isRadio = getFilterName(filter_key) === "Mechanics"
                     return (
-                        <form className="flex //border items-start" key={index}>
+                        <form className="flex //border items-start" key={index} onChange={e => { }}>
                             <span id='filter-category' className="text-sm text-text.secondary mr-4 mt-[.2rem]">
-                                {getFilterName(filter_key)}:
+                                {getFilterCategory(filter_key)}:
                             </span>
-                            <ul id="tag-list" className="flex flex-wrap gap-x-1">
+                            <fieldset id={`tag-list-${getFilterCategory(filter_key)}`} className="flex flex-wrap gap-x-1">
+                                {/* <input id="" type={"radio"} className="appearance-none" name="filter" value="null">
+                                </input> */}
                                 {filter_value.map((filter_name, index) => {
-                                    let isChecked = !!filters.get(filter_name);
                                     return (
-                                        <label htmlFor={filter_name.replace(' ', '-')} key={index}>
+                                        <label key={index} htmlFor={filter_name.replace(' ', '-')}>
                                             <input id={filter_name.replace(' ', '-')}
                                                 className="peer appearance-none"
                                                 type={"checkbox"}
-                                                checked={!!filters.get(filter_name)}
+                                                name={"filter"}
+                                                value={filter_name}
+                                                checked={filters.get(filter_name) || false}
                                                 onChange={(e) => {
-                                                    setFilters(prev => new Map([...prev, [filter_name, !filters.get(filter_name)]]))
+                                                    const newMap = new Map([...filters, [filter_name, !filters.get(filter_name)]])
+                                                    updateSearchFilters && updateSearchFilters(Array.from(newMap.entries()).filter(([_, v]) => v).map(([k, _]) => k))
+                                                    setFilters(newMap)
                                                 }} />
                                             <span className="whitespace-nowrap rounded-md bg-white/90 px-2 text-xs font-bold capitalize text-black peer-checked:bg-theme peer-checked:text-white">{filter_name}</span>
-                                        </label>)
+                                        </label>
+                                    )
                                 }
                                 )}
-                            </ul>
+                            </fieldset>
                         </form>
                     );
                 })}
