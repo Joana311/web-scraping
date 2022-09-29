@@ -4,6 +4,7 @@ import { useSession } from "../pages/_app"
 import { useRouter } from "next/router";
 import trpc from "@client/trpc";
 import { router } from "@trpc/server";
+import Button from "src/components/ui/Button";
 export function LandingPage() {
   const router = useRouter();
   const { session } = useSession();
@@ -68,6 +69,9 @@ const LandingPageMenu = (props: { session: any }) => {
             placeholder="provider" />
           {!!session ? "Sign Out" : "Sign in with Discord"}
         </button>
+        {/* <Button className="bg-theme">
+          Hello World
+        </Button> */}
       </div>
     </>
   );
