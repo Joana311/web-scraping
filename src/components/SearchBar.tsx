@@ -99,7 +99,7 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
                         setFilters(new Map())
                     }}
                     className={`absolute  right-3 ${!currentQuery && areFiltersEmpty() && "hidden"}`}>
-                    <CancelIcon/>
+                    <CancelIcon />
                 </button>
             </fieldset>
             <div id="show-filter-toggle"
@@ -113,6 +113,7 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
                 className={`flex flex-col space-y-0 /border border-rose-600 transition-all duration-[500] ease-out overflow-hidden ${!showFilters ? 'max-h-0' : 'max-h-24'}`}>
                 {Object.entries(filter_labels).map((filter, index) => {
                     const [filter_key, filter_value] = filter;
+                    const isRadio = getFilterName(filter_key) === "Mechanics"
                     return (
                         <form className="flex //border items-start" key={index}>
                             <span id='filter-category' className="text-sm text-text.secondary mr-4 mt-[.2rem]">
@@ -125,9 +126,9 @@ const SearchBar = ({ className, router, selectedTab }: SearchBarProps & WithRout
                                         <label htmlFor={filter_name.replace(' ', '-')} key={index}>
                                             <input id={filter_name.replace(' ', '-')}
                                                 className="peer appearance-none"
-                                                type="checkbox"
+                                                type={"checkbox"}
                                                 checked={!!filters.get(filter_name)}
-                                                onChange={() => {
+                                                onChange={(e) => {
                                                     setFilters(prev => new Map([...prev, [filter_name, !filters.get(filter_name)]]))
                                                 }} />
                                             <span className="whitespace-nowrap rounded-md bg-white/90 px-2 text-xs font-bold capitalize text-black peer-checked:bg-theme peer-checked:text-white">{filter_name}</span>

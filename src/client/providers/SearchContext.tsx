@@ -1,10 +1,9 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import trpc from '@client/trpc'
+import trpc, { inferQueryOutput, inferUseTRPCQueryOptions } from '@client/trpc'
 import { Exercise } from '@prisma/client'
 import debounce from 'lodash/debounce'
 import { useDebounce } from '@client/hooks'
-
 type ExerciseDirectoryContext = {
     exercises: Exercise[] | undefined
     searchQuery: string
@@ -48,47 +47,35 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
     const [directory, setDirectory] = React.useState(exrx_directory)
     const [searchFilters, setSearchFilters] = React.useState<string[]>([])
 
-    // let term = router.query.term as string
     const { data: searchQueryResults } = trpc.useQuery(['exercise.public.search_exercises', { query: searchQuery }], {
         enabled: (!!searchQuery || searchQuery != ''), staleTime: Infinity,
-        onSuccess: (data) => {
-            setDirectory(data)
-        }
     });
     const update_query = (search_query: string) => {
         setSearchQuery(search_query);
         router.replace({ query: { ...router.query, term: search_query } })
     }
-    const debouncedQueryUpdate = React.useMemo(() => debounce(update_query, 800), [])
+    const debouncedQueryUpdate = React.useMemo(() => debounce(update_query, 280), [])
 
-    // React.useEffect(() => {
-    //     console.log('search state', searchQuery)
-    //     // if (searchQuery.length === 0) {
-    //         //     debouncedRouterUpdate.cancel()
-    //     //     update_router_query('')
-    //     //     delete router.query["term"]
-    //     //     return
-    //     // }
-    //     // debouncedRouterUpdate(searchQuery)
-    //     // return debouncedRouterUpdate.cancel
-    // }, [searchQuery])
+    const getFilteredFallback = (search_query: string) => {
+        return exrx_directory ? exrx_directory.filter(ex => ex.name.toLowerCase().includes(search_query.toLowerCase())) : []
+    }
 
     React.useEffect(() => {
         console.log('search state', searchQuery)
-        if (searchQuery.length == 0 || searchQuery == '') {
+        if (searchQueryResults && searchQueryResults.length == 0 && searchQuery.length > 0) {
             console.log("should be setting to exrx")
+            setDirectory(getFilteredFallback(searchQuery))
+            return
+        }
+        if (searchQuery.length === 0) {
             setDirectory(exrx_directory)
             return
         }
-        // let searchResult = queryContext.getQueryData(['exercise.public.search_exercises', { query: searchQuery }]) || []
-        // console.log("search result", searchResult)
-        // setDirectory(searchResult);
+        let searchResult = queryContext.getQueryData(['exercise.public.search_exercises', { query: searchQuery }]) || []
+        console.log("search result", searchResult)
+        setDirectory(searchResult);
         // return setDirectory(exrx_directory)
-    }, [searchQuery])
-    // create useEffect to monitor router.query.term in console.log
-    React.useEffect(() => {
-        console.log('router: ', router.query.term)
-    }, [router.query.term])
+    }, [searchQueryResults, searchQuery])
 
     const useUpdateSearchQuery = (search_term: string, should_debounce: boolean) => {
         if (search_term.trim() == '') {

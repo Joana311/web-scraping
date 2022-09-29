@@ -48,19 +48,38 @@ const AddNewExerciseModal = ({
 
   const recent_exercises = trpc.useQuery(["exercise.me.recent_unique", {}], { enabled: selectedTab == "recent" });
 
+  const selectedFilters = useMemo(() => {
+    let filters = router.query.tags || [];
+    if (typeof filters === "string") {
+      filters = [filters];
+    }
+    return filters;
+  }, [router.query.tags])
+
   const directory = useExerciseDirectory()
   const currentSearchQuery = useSearchQuery()
 
-  const searchResults = React.useMemo(() => {
+  const exerciseResults = React.useMemo(() => {
+    let current = directory;
     if (selectedTab == "recent") {
-      return recent_exercises.data?.filter(exercise => {
+      current = recent_exercises.data?.filter(exercise => {
         if (!currentSearchQuery) return true;
         return exercise.name.toLowerCase().includes(currentSearchQuery.toLowerCase())
       })
     }
-    return directory
-  }, [directory, recent_exercises.data, selectedTab, currentSearchQuery])
+    if (selectedFilters.length > 0) {
+      current = current?.filter(exercise => {
+        return selectedFilters.every(filter => {
+          return (exercise.equipment_name?.includes(filter) || exercise.force?.includes(filter))
+        })
+      })
+    }
+    return current;
+  }, [directory, recent_exercises.data, selectedTab, currentSearchQuery, selectedFilters])
 
+  React.useEffect(() => {
+
+  }, [selectedFilters])
   const RESULT_RENDER_LIMIT = 25;
 
   const add_exercises = trpc.useMutation("exercise.add_to_current_workout", {
@@ -252,8 +271,8 @@ const AddNewExerciseModal = ({
         //   maxHeight: "100dvh"
         // }}
         >
-          {searchResults &&
-            searchResults.map((exercise, key) => {
+          {exerciseResults &&
+            exerciseResults.map((exercise, key) => {
               if (key < RESULT_RENDER_LIMIT) {
                 return <ExerciseOverviewCard key={exercise.id} exercise={exercise} />;
               }

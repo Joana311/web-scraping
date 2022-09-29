@@ -39,6 +39,8 @@ mobile has a hard time displaying negative margins
 
     [x] getServerSession is sometimes returning another users account info.
         * seems to be caused by turning on ssr for trpc. *
+    [ ] searching for a particular term only returns results the first time you perform that search.
+        probably cause by the way im using useRef and react-query.
 
 ## Minor Bugs
 
@@ -49,10 +51,14 @@ mobile has a hard time displaying negative margins
 
     [ ] navigating forward from /[user] to /[user]/recent after recent was deleted takes you to a blank page because it cannot get the session i should handle this with a 404 page and then reroute.
 
-    [ ] adding an exercise when viewing a different workout (as in not current) doesnt return an error it instead it adds to the current workout.
+    [ ] adding an exercise when viewing a different workout (as in not current) doesn't return an error it instead it adds to the current workout.
         (fix by changing the route to add via workout id and check if the workout is closed and return an error if it is)
 
 ## Todo
+
+    [ ] re-implement the tag filtering now that we have server search. maybe preserve what tags are selected with router and add a small blue dot next to the dropdown to indicate when any are selected.
+
+    [ ] reduce debounce time for firing the useQuery request for a search
 
     [ ] add additional Oauth providers
 
