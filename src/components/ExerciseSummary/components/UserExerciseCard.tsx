@@ -309,7 +309,7 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                         <td className="items-center">
                           <fieldset id='input-field' className="relative mx-auto mb-1 flex w-max">
                             <input id='rpe-input'
-                              className='peer
+                              className={`peer
                                   font-semibold
                                   pb-1
                                   outline-none
@@ -319,12 +319,22 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
                                   pt-1.5
                                   pl-2
                                   rounded-md
-                                  mt-1.5 w-[8.5ch]'
+                                  mt-1.5 w-[8.5ch]
+`}
                               type="number"
                               inputMode="numeric"
                               maxLength={5}
-                              onChange={(e) =>
-                                (set.current.rpe = parseInt(e.target.value))
+                              max={11}
+                              onChange={(e) => {
+                                const rpe_value = parseInt(e.target.value)
+                                if (rpe_value > 11) {
+                                  e.target.classList.add("text-red-500", "focus:border-red-500")
+                                } else {
+                                  e.target.classList.remove("text-red-500", "focus:border-red-500")
+                                }
+                                set.current.rpe = rpe_value
+                              }
+
                               } />
                             <label htmlFor="rpe-input"
                               className="absolute 

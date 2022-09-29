@@ -12,34 +12,31 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   onNewExerciseClick,
   is_current,
 }: ExerciseSummaryProps) => {
-  const { data: workout, isLoading: workout_isLoading } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }], { enabled: !!workout_id }
+  const { data: workout, isLoading: workout_isLoading } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }],
+    { enabled: !!workout_id }
   );
-  const [showMore, toggleShowMore] = React.useState(false)
   const [currentFocus, setCurrentFocus] = React.useState(-1)
   const formatted_exercises = React.useMemo(() =>
-    workout?.exercises.map((exercise) => {
-      return {
-        user_exercise_id: exercise.id,
-        exercise_id: exercise.exercise_id,
-        name: exercise.exercise.name,
-        muscle: exercise.exercise.muscle_name,
-        variant: exercise.exercise.equipment_name,
-        sets: exercise.sets.map((set) => {
-          return {
-            id: set.id,
-            weight: set.weight,
-            reps: set.reps,
-            rpe: set.rpe,
-          };
-        }),
-      };
-    }) || []
-    , [workout?.exercises])
-  useEffect(() => {
-    formatted_exercises.length > 2
-      ? toggleShowMore(true)
-      : toggleShowMore(false);
-  }, [formatted_exercises.length]);
+    workout?.exercises
+      .sort((a, b) => b.id - a.id)
+      .map((exercise) => {
+        return {
+          user_exercise_id: exercise.id,
+          exercise_id: exercise.exercise_id,
+          name: exercise.exercise.name,
+          muscle: exercise.exercise.muscle_name,
+          variant: exercise.exercise.equipment_name,
+          sets: exercise.sets
+            .map((set) => {
+              return {
+                id: set.id,
+                weight: set.weight,
+                reps: set.reps,
+                rpe: set.rpe,
+              };
+            }),
+        };
+      }) || [], [workout?.exercises])
 
   const scrollListRef = React.useRef<HTMLDivElement>(null);
 
@@ -65,26 +62,19 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
           }
         }}
       >
-        {formatted_exercises
-          // .sort((a, b) => {
-          //   let _a = typeof a === "number" ? a : 0;
-          //   let _b = typeof b === "number" ? b : 0;
-          //   return _b - _a;
-          // })
-          .reverse()
-          .map((exercise, index) => {
-            return (
-              <UserExerciseCard
-                index={index}
-                key={exercise.user_exercise_id}
-                workout_id={workout_id}
-                exercise={exercise}
-                isFocused={index === currentFocus}
-                is_current={is_current}
-                setCurrentFocus={setCurrentFocus}
-              />
-            );
-          })}
+        {formatted_exercises.map((exercise, index) => {
+          return (
+            <UserExerciseCard
+              index={index}
+              key={exercise.user_exercise_id}
+              workout_id={workout_id}
+              exercise={exercise}
+              isFocused={index === currentFocus}
+              is_current={is_current}
+              setCurrentFocus={setCurrentFocus}
+            />
+          );
+        })}
         <div className={`sticky ${formatted_exercises.length == 0 && "hidden"} pointer-events-none bottom-0 min-h-[5rem] bg-gradient-to-t from-black to-transparent flex items-center justify-center`}>
           {/* <div id='scroll-notifier'
             hidden={!!scrollListRef.current && scrollListRef.current?.scrollHeight <= scrollListRef.current?.clientHeight}

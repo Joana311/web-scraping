@@ -151,9 +151,9 @@ export const exerciseRouter = createRouter()
       user_exercise_id: z.number().gte(0),
       workout_id: z.string().cuid(),
       set: z.object({
-        reps: z.number().lt(700).gt(0),
+        reps: z.number().lt(255).gt(0),
         weight: z.number().gt(0).optional(),
-        rpe: z.number().lt(15).gt(0).optional(),
+        rpe: z.number().lte(11).gt(0).optional(),
       }),
     }),
     async resolve({ input: { user_exercise_id, set, workout_id }, ctx }) {
