@@ -42,6 +42,9 @@ const UserExercisePage: NextPage = () => {
                     <span className="text-xs rounded-sm px-1 mr-2 bg-gray-500/90 font-bold text-black">Equipment Variant:</span> {userExercise?.exercise.equipment_name}
                 </span>
             </div>
+            <video className="w-full h-[10rem] border">
+                <iframe src={userExercise?.exercise.video_url || ""} title="exercise video" />
+            </video>
             <div id="user-historic-data">
                 <h2 className="text-xl">Recent Data</h2>
                 <div id="user-historic-data-list" className="no-scrollbar flex flex-col space-y-4 bg-card rounded md shadow-md shadow-black/50 min-h-[5rem] max-h-[16rem] overflow-y-scroll px-2 pb-2 relative">
