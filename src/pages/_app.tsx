@@ -11,7 +11,6 @@ import { useRouter } from "next/router";
 import { Session } from "next-auth/core/types";
 import { GetStaticProps, GetStaticPropsContext } from "next";
 import { createServerSideHelpers } from "@trpc/react-query/server";
-import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 // interface MyAppProps extends AppProps {
 //   emotionCache?: EmotionCache;
@@ -37,41 +36,8 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
       staleTime: 5 * 60 * 1000,
       retryOnMount: false,
   });
-  const queryContext = trpcNextHooks.useContext();
-  const isInit = React.useRef(false)
   const router = useRouter();
-  const queryClient = useQueryClient(); // the react-query client should have been instantiated by withTRPC()
   // One-time use effect to set the react-query client default behaviors
-  React.useEffect(() => {
-    if (queryContext && typeof window !== "undefined" && !isInit.current) {
-      console.log("[_app.tsx] Setting react-query defaults");
-      queryClient.setDefaultOptions({
-        queries: {
-          retry(failureCount, error: any) {
-            if (
-              (error.data?.code === "UNAUTHORIZED" &&
-                error.message.includes("NO_SESSION")) &&
-              failureCount == 1
-            ) {
-              console.log("[_app.tsx] Session not found invalidating client session")
-              console.log("[_app.tsx] failureCount: ", failureCount);
-              // i think whats happening here is that 2 queries are fired. then on failure query is invalidated.
-              // which causes itself to be refetched. which causes the error to be thrown again.
-              // i dont think we actually need to invalidate. the purpose of it is for when the session expires-
-              // if any other query that is not "next-auth.get_session" picks up on the expiration, the error gets propogated down.
-              console.log("[_app.tsx] error with auth session. should re-route to home.")
-              queryContext.next_auth.get_session.setData(undefined, () => null as any); // what happens if i dont try to invalidate?
-              router.push("/");
-              // }
-              return false;
-            }
-            return true;
-          },
-        }
-      });
-      isInit.current = true;
-    }
-  }, []);
   const sessionRef = React.useRef(auth_data);
   const session = React.useMemo(() => {
     console.log("[_app.tsx] Change in Session detected") 

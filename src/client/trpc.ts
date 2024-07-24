@@ -1,5 +1,5 @@
 // UseTRPCQueryOptions,
-import { createReactQueryHooks, createTRPCReact, TRPCClientErrorLike} from "@trpc/react-query";
+import { getQueryKey, TRPCClientErrorLike} from "@trpc/react-query";
 import type { inferProcedureInput, inferProcedureOutput } from "@trpc/server";
 import { NextPageContext } from "next";
 import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
@@ -12,9 +12,11 @@ import { IncomingHttpHeaders } from "http2";
 // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export
 import type { AppRouter } from "@server/routers/_app";
 import { nextAuthOptions } from "src/pages/api/auth/[...nextauth]";
-import { useQueryClient } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { createTRPCNext } from "@trpc/next";
+import router from "next/router";
 
+const SESSION_RETRY_ATTEMPTS = 2;
 /**
  * Extend `NextPageContext` with meta data that can be picked up by `responseMeta()` when server-side rendering
  */
@@ -44,6 +46,29 @@ function getBaseUrl() {
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
 
+console.log("[trpc Handler] Initializing react-query client with defaults");
+const ReactQueryClient = new QueryClient({
+  defaultOptions: {
+    queries:{
+      retry(failureCount, error: any) {
+        if (
+          (error.data?.code === "UNAUTHORIZED" &&
+            error.message.includes("NO_SESSION")) &&
+          failureCount == SESSION_RETRY_ATTEMPTS
+        ) {
+          console.log("[trpc react-query] Session not found")
+          console.log("[trpc react-query] failureCount: ", failureCount);
+          ReactQueryClient.setQueryData(getQueryKey(trpcNextHooks.next_auth.get_session, undefined, "query"), null)
+          console.log("[trpc react-query] error with auth session. should re-route to home.")
+          router.push("/");
+          // }
+          return false;
+        }
+        return true;
+      }
+    },
+  }
+});
 /**
  * A set of strongly-typed React hooks from your `AppRouter` type signature with `createReactQueryHooks`.
  * @link https://trpc.io/docs/react#3-create-trpc-hooks
@@ -51,7 +76,8 @@ function getBaseUrl() {
 const trpcNextHooks = createTRPCNext<AppRouter>({
     config({ ctx }) {
       const host_url = ctx?.req?.headers?.host || '';
-      if (typeof window !== "undefined") {
+      if (typeof window === "undefined") { // config for the server side client
+        console.log("[trpc Handler] Initializing trpc handler on Server-side");
         return {
           // url: "/api/trpc",
           transformer: superjson,
@@ -78,6 +104,7 @@ const trpcNextHooks = createTRPCNext<AppRouter>({
        * If you want to use SSR, you need to use the server's full URL
        * @link https://trpc.io/docs/ssr
        */
+      console.log("[trpc Handler] Initializing trpc NextJS api handler on Client-side");
       return {
         // url: getBaseUrl() + "/api/trpc", moved 
         // url: host_url + "/api/trpc",
@@ -106,7 +133,7 @@ const trpcNextHooks = createTRPCNext<AppRouter>({
           })
         ],
         transformer: superjson,
-        queryClientConfig: {},
+        queryClient: ReactQueryClient,
         headers: () => {
           //on ssr forward cookies to the server to check for auth sessions
           const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
@@ -116,37 +143,36 @@ const trpcNextHooks = createTRPCNext<AppRouter>({
             ...client_headers,
             "x-ssr": "1"
           };
-  
-        }
-      };
-    },
-    /**
-     * @link https://trpc.io/docs/ssr
-     */
-    ssr: false,
-    // responseMeta(opts) {
-  
-    //   const error = opts.clientErrors[0];
-    //   if (error) {
-    //     // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
-    //     // if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
-    //     //   console.log("No sessions found should reroute to: ", host_url);
-    //     //   return {
-    //     //     status: 303, //"SEE_OTHER"
-    //     //     headers: {
-    //     //       location: '/api/auth/signin'
-    //     //     }
-    //     //   };
-    //     // }
-    //     // Propagate http first error from API calls
-    //     return {
-    //       status: error.data?.httpStatus ?? 500
-    //     };
-    //   }
-    //   // For app caching with SSR see https://trpc.io/docs/caching
-    //   // if (opts.)
-    //   return {};
-    // }
+        },
+        /**
+         * @link https://trpc.io/docs/ssr
+         */
+        ssr: false,
+        // responseMeta(opts) {
+      
+        //   const error = opts.clientErrors[0];
+        //   if (error) {
+        //     // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
+        //     // if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
+        //     //   console.log("No sessions found should reroute to: ", host_url);
+        //     //   return {
+        //     //     status: 303, //"SEE_OTHER"
+        //     //     headers: {
+        //     //       location: '/api/auth/signin'
+        //     //     }
+        //     //   };
+        //     // }
+        //     // Propagate http first error from API calls
+        //     return {
+        //       status: error.data?.httpStatus ?? 500
+        //     };
+        //   }
+        //   // For app caching with SSR see https://trpc.io/docs/caching
+        //   // if (opts.)
+        //   return {};
+        // }
+      }
+    }
   });
 export default trpcNextHooks;
 // export const trpcHooks = createReactQueryHooks<AppRouter>();
