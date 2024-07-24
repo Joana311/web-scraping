@@ -27,14 +27,15 @@ export function useSession() {
   return React.useContext(AuthContext);
 }
 const App: AppType = ({ pageProps, Component }): JSX.Element => {
-  const { data: auth_data, error } = trpcNextHooks.next_auth.get_session.useQuery(undefined, {
-    // context: { skipBatch: true },
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    enabled: typeof window !== "undefined",
-    // 5 minutes in milliseconds
-    staleTime: 5 * 60 * 1000,
-    retryOnMount: false,
+  const { data: auth_data, error } = trpcNextHooks.next_auth.get_session
+    .useQuery(undefined, {
+      trpc: { context: { skipBatch: true } },
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      enabled: typeof window !== "undefined",
+      // 5 minutes in milliseconds
+      staleTime: 5 * 60 * 1000,
+      retryOnMount: false,
   });
   const queryContext = trpcNextHooks.useContext();
   const isInit = React.useRef(false)
@@ -43,7 +44,7 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
   // One-time use effect to set the react-query client default behaviors
   React.useEffect(() => {
     if (queryContext && typeof window !== "undefined" && !isInit.current) {
-      console.log("setting react-query defaults");
+      console.log("[_app.tsx] Setting react-query defaults");
       queryClient.setDefaultOptions({
         queries: {
           retry(failureCount, error: any) {
@@ -52,13 +53,13 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
                 error.message.includes("NO_SESSION")) &&
               failureCount == 1
             ) {
-              console.log("Session not found invalidating client session")
-              console.log("failureCount: ", 2);
+              console.log("[_app.tsx] Session not found invalidating client session")
+              console.log("[_app.tsx] failureCount: ", failureCount);
               // i think whats happening here is that 2 queries are fired. then on failure query is invalidated.
               // which causes itself to be refetched. which causes the error to be thrown again.
               // i dont think we actually need to invalidate. the purpose of it is for when the session expires-
               // if any other query that is not "next-auth.get_session" picks up on the expiration, the error gets propogated down.
-              console.log("error with auth session. should re-route to home.")
+              console.log("[_app.tsx] error with auth session. should re-route to home.")
               queryContext.next_auth.get_session.setData(undefined, () => null as any); // what happens if i dont try to invalidate?
               router.push("/");
               // }
@@ -73,14 +74,18 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
   }, []);
   const sessionRef = React.useRef(auth_data);
   const session = React.useMemo(() => {
-    console.log("new session or error found")
-    // console.log("session: ", auth_data);
-    // console.log("error: ", error?.message?.includes("NO_SESSION"));
+    console.log("[_app.tsx] Change in Session detected") 
+    
     if (!sessionRef.current && auth_data) {
-      sessionRef.current = auth_data;
+      sessionRef.current = auth_data; 
+      console.log("[_app.tsx] New Session started: ", auth_data);
       return sessionRef.current;
     }
-    if (auth_data == sessionRef.current) return sessionRef.current;
+    if (auth_data == sessionRef.current) {
+      console.log("[_app.tsx] No session change: ", sessionRef.current);
+      return sessionRef.current;
+    }
+    console.log("[_app.tsx] No session found: ", {auth_data, error});
     return undefined;
   }, [auth_data, error]);
 

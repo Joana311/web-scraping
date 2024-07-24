@@ -3,8 +3,8 @@ import { TRPCError } from "@trpc/server";
 
 export const authRouter = router({
   get_session: publicProcedure.query(async ({ ctx }) => {
-    console.log("headers in req for get_session", ctx.req?.headers);
-    console.log("get_session route response: ", ctx.session);
+    console.log(`[trpc Procedure]["get_session"] Incoming request headers: `, ctx.req?.headers);
+    console.log(`[trpc Procedure]["get_session"] Available Session: `, ctx.session);
     if (!ctx.session) {
         throw new TRPCError({
             code: "UNAUTHORIZED",

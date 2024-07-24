@@ -69,23 +69,24 @@ export type TRPCClientCtx = inferAsyncReturnType<typeof createContextInner>;
  */
 export async function createTRPCClientContext(opts: CreateNextContextOptions): Promise<TRPCClientCtx> {
   // for API-response caching see https://trpc.io/docs/caching
-  // console.log("trpc route: ", opts.req.query.trpc)
-  // opts.req.query['nextauth'] = " ";
-  console.log("Incoming query to server", opts.req.query);
-  console.log("Incoming cookie info, ", opts.req.cookies);
+  console.log("[trpc Handler] Preparing trpc procedures context for trpc request: ", opts.req.query.trpc);
+  console.debug("[trpc Handler] Information incoming to server: ", {query: opts.req.query, cookies: opts.req.cookies});
+
 
   // innerContext usefull for testing purposes to mock req/res
   // const ctx = await createContextInner({ session, req: opts.req, res: opts.res });
 
   // check first for public routes (move to this to procedure level)
   if (typeof opts.req.query.trpc === "string" && opts.req.query.trpc.includes("public")) {
-    console.log("public route, no session needed");
+    console.log("[trpc Handler] Public API route detected! no session needed!");
     return {
       ...opts,
     }
   }
-  const session = await getServerSession(opts.req as NextApiRequest, opts.res as NextApiResponse, { ...nextAuthOptions })
-  console.log("preparing server context: session returned from next-auth", session);
+  // when is sessions non null and when is it null?
+  console.log("[trpc Handler] Private API route! using session from next-auth");
+  const session = await getServerSession(opts.req, opts.res, nextAuthOptions)
+  console.log("[trpc Handler] Session returned from next-auth: ", session);
   // console.log("Creating context from session: ", session)
   if (!session) {
     throw new TRPCError({

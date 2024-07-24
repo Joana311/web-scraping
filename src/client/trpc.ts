@@ -110,7 +110,8 @@ const trpcNextHooks = createTRPCNext<AppRouter>({
         headers: () => {
           //on ssr forward cookies to the server to check for auth sessions
           const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
-          console.log("forwarding headers", client_headers);
+          console.log("[trpc Handler] Forwarding request client headers to server (i think)");
+          console.log("[trpc Handler] ", client_headers);
           return {
             ...client_headers,
             "x-ssr": "1"

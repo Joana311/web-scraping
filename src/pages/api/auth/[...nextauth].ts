@@ -12,18 +12,37 @@ export const nextAuthOptions: NextAuthOptions = {
             clientSecret: process.env.DISCORD_CLIENT_SECRET!,
         })
     ],
+    callbacks: {
+        signIn(params) {
+            console.log("[NextAuth] signIn callback invoked w/ params: ", params)
+            return true
+        },
+        async session({ session, user, token}) {
+            console.log("[NextAuth] Invoking /api/session")
+            // Token only used with jwt strategy, not the session cookie strategy
+            console.log("[NextAuth] next-auth session token :", token)
+            session.user = {
+                id: user.id,
+                name: user.name || null,
+                username: user.name || null,
+                image: user.image || null,
+            }
+            return session
+        },
+    },
     events: {
         createUser: ({ user }) => {
-            console.log("creating user in database")
+            console.log("[NextAuth] Creating user in database")
             console.log(user)
         },
         linkAccount({ user, account }) {
-            console.log("linkAccount");
-            console.log(account)
+            console.log("[NextAuth] User provider accounts linked");
+            console.log(user, account)
         },
         signIn: async ({ user, isNewUser, account }) => {
-            console.log("Signing in user")
-            console.log("Cleaning up expired sessions")
+            console.log("[NextAuth] User has been 'Signed-In': ", user.name)
+            console.log("[NextAuth] Provider Account: ", account)
+            console.log("[NextAuth] Cleaning up expired sessions for User")
             await prisma.session.deleteMany({
                 where: {
                     userId: user.id,
@@ -37,28 +56,9 @@ export const nextAuthOptions: NextAuthOptions = {
             console.log('updateUser', user);
         },
     },
-    callbacks: {
-        // signIn(params) {
-        //     console.log("signIn callback, user retreived")
-        //     console.log(params.user)
-        //     console.log(params.credentials)
-        //     return true
-        // },
-        async session({ session, user }) {
-            console.log("session response from nextauth/prisma received")
-            console.log("created next-auth session user info: ", session.user.name, user.id)
-            session.user = {
-                id: user.id,
-                name: user.name || null,
-                username: user.name || null,
-                image: user.image || null,
-            }
-            return session
-        }
-    },
     session: {
         strategy: "database",
-        maxAge: 60 * 60 * 1.5, // 1.5 hours
+        maxAge: 60 * 60 * 2, // 2 hours
     },
     theme: {
         logo: "https://i.imgur.com/OX5mAdU.png",
@@ -70,10 +70,7 @@ export const nextAuthOptions: NextAuthOptions = {
 
 }
 
-export default NextAuth(
-    { ...nextAuthOptions }
-
-)
+export default NextAuth(nextAuthOptions)
 type callback_types = NonNullable<typeof nextAuthOptions.callbacks>
 type session_cb = NonNullable<callback_types["session"]>
 export type UserSession = Awaited<ReturnType<session_cb>>

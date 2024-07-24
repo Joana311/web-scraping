@@ -152,7 +152,6 @@ const RecentWorkouts = () => {
           <>
             {create_workout.isLoading && current_isFetching && <SummaryCardSkeleton />}
             {todaysSessions!.map((workout, index) => {
-              console.log(workout)
               return <WorkoutSummaryCard
                 is_current={workout.id == open_workout?.id}
                 workout={workout}
