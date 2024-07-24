@@ -1,15 +1,13 @@
 /**
  * This file contains tRPC's HTTP response handler
  */
-import * as trpcNext from "@trpc/server/adapters/next";
-import { createContext } from "@server/trpc/context";
+import { createNextApiHandler } from "@trpc/server/adapters/next";
+import { createTRPCClientContext } from "@server/context";
 import { appRouter } from "@server/routers/_app";
-import type { NodeHTTPHandlerOptions } from "@trpc/server/dist/declarations/src/adapters/node-http";
 import { NextApiRequest, NextApiResponse } from "next/types";
 
-type TRPCHandlerOptions = NodeHTTPHandlerOptions<typeof appRouter, NextApiRequest, NextApiResponse>
+// type TRPCHandlerOptions = NodeHTTPHandlerOptions<typeof appRouter, NextApiRequest, NextApiResponse>
 function getBaseUrl() {
-
   if (typeof window !== "undefined") {
     return "";
   }
@@ -20,8 +18,8 @@ function getBaseUrl() {
   // assume localhost
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }
-export default trpcNext.createNextApiHandler({
 
+export default createNextApiHandler({
   responseMeta: ({ paths, errors, ctx, data }) => {
     // if (errors) {
     //   let error = errors[0];
@@ -57,7 +55,7 @@ export default trpcNext.createNextApiHandler({
   /**
    * @link https://trpc.io/docs/context
    */
-  createContext,
+  createContext: createTRPCClientContext,
   /**
    * @link https://trpc.io/docs/error-handling
    */

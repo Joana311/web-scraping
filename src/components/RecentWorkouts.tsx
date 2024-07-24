@@ -1,12 +1,14 @@
 
-import trpc from "@client/trpc";
+import trpcNextHooks from "@client/trpc";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { SVGAttributes } from "react";
 import { TrashIcon } from "../components/SvgIcons"
+import { useIsFetching } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
 const RecentWorkouts = () => {
-  const query_client = trpc.useContext();
+  const queryContext = trpcNextHooks.useContext();
   const [isWorkoutOpen, setIsWorkoutOpen] = React.useState(false);
   const [todaysSessions, setTodaysSessions] = React.useState<
     {
@@ -20,47 +22,49 @@ const RecentWorkouts = () => {
     }[] | null
   >(null);
   const [showMore, toggleShowMore] = React.useState(false);
-  const close_workout = trpc.useMutation("workout.close_by_id", {
+  const close_workout = trpcNextHooks.workout.close_by_id.useMutation({
     onSuccess: () => {
       // setOpenWorkoutId(undefined);
-      query_client.invalidateQueries("workout.get_current");
-      query_client.invalidateQueries("workout.get_daily_recent");
+      queryContext.workout.get_current.invalidate();
+      queryContext.workout.get_daily_recent.invalidate();
     }
   })
-  const delete_workout = trpc.useMutation("workout.delete_by_id", {
+  const delete_workout = trpcNextHooks.workout.delete_by_id.useMutation({
     onSuccess: () => {
-      query_client.invalidateQueries("workout.get_daily_recent");
-      query_client.invalidateQueries("workout.get_current");
+      queryContext.workout.get_daily_recent.invalidate();
+      queryContext.workout.get_current.invalidate();
     }
   })
   const router = useRouter();
-  const create_workout = trpc.useMutation("workout.create_new", {
+  const create_workout = trpcNextHooks.workout.create_new.useMutation({
     onSuccess: (new_workout) => {
       router.push(router.asPath + `/workout/${new_workout.id}`)
-      query_client.setQueryData(["workout.get_current"], {
+      queryContext.workout.get_current.setData(undefined,{
         ...new_workout
       })
-      query_client.invalidateQueries("workout.get_current");
-      query_client.invalidateQueries("workout.get_daily_recent");
+      queryContext.workout.get_current.invalidate();
+      queryContext.workout.get_daily_recent.invalidate();
     },
   })
-  const { data: open_workout, isFetching: current_isFetching } = trpc.useQuery(["workout.get_current"], {
-    // enabled: typeof window !== "undefined",
-    refetchOnMount: true,
-    onSuccess(open_workout) {
-      if (!!open_workout) {
-        setIsWorkoutOpen(true);
-      } else {
-        setIsWorkoutOpen(false);
-      }
-    },
-    ssr: false
-  });
-  const { data: daily_recent_workouts, isError, isFetching: daily_recent_isFetching } = trpc.useQuery(
-    ["workout.get_daily_recent", { amount: 3 }],
-    {
+  const { data: open_workout, isFetching: current_isFetching } = 
+    trpcNextHooks.workout.get_current.useQuery(undefined, {
+      // enabled: typeof window !== "undefined",
+      refetchOnMount: true,
+      onSuccess(open_workout) {
+        if (!!open_workout) {
+          setIsWorkoutOpen(true);
+        } else {
+          setIsWorkoutOpen(false);
+        }
+      },
+      trpc: { ssr: false }
+    });
+  const { data: daily_recent_workouts, isError, isFetching: daily_recent_isFetching } = 
+    trpcNextHooks.workout.get_daily_recent.useQuery({ amount: 3 }, {
       // enabled: typeof window == "undefined",
-      ssr: false,
+      trpc: {
+        ssr: false,
+      },
       refetchOnMount: true,
       refetchOnWindowFocus: false,
       onSuccess(daily_recent_workouts) {
@@ -69,8 +73,7 @@ const RecentWorkouts = () => {
         daily_recent_workouts.length === 0 && setIsWorkoutOpen(false);
 
       }
-    }
-  );
+    });
 
   type UserWorkoutWithExercises = NonNullable<typeof open_workout>;
   const workoutToSession = React.useCallback(
@@ -109,9 +112,9 @@ const RecentWorkouts = () => {
         ref.hidden = true
         delete_workout.mutate({ workout_id: workout.id, is_confirmed: true }, {
           onSuccess: () => {
-            let _old_daily = query_client.getQueryData(["workout.get_daily_recent"]) || [];
-            query_client.setQueryData(["workout.get_current"], null)
-            query_client.setQueryData(["workout.get_daily_recent"],
+            let _old_daily = queryContext.workout.get_daily_recent.getData() || [];
+            queryContext.workout.get_current.setData(undefined, null)
+            queryContext.workout.get_daily_recent.setData({},
               _old_daily.filter((w: any) => w.id !== workout.id))
           }
         });
@@ -124,7 +127,7 @@ const RecentWorkouts = () => {
       }
     }
     remove()
-  }, [delete_workout, open_workout?.id, query_client])
+  }, [delete_workout, open_workout?.id, queryContext])
 
   return (
     <>
@@ -201,8 +204,10 @@ const WorkoutSummaryCard = (props: {
 }) => {
   const { workout, onEndWorkout, onDeleteWorkout, is_current } = props;
   const router = useRouter();
-  const query_client = trpc.useContext();
-  query_client.queryClient.getQueryState("workout.delete_by_id")?.isFetching
+  const isDeleting = function() {
+    const key = getQueryKey(trpcNextHooks.workout.delete_by_id);
+    return useIsFetching({ queryKey: key });
+  }
   const selfRef = React.useRef<HTMLLIElement>(null);
   return (
     <>
@@ -283,7 +288,7 @@ const WorkoutSummaryCard = (props: {
             onClick={() => {
               onDeleteWorkout(workout, selfRef.current)
             }}
-            disabled={query_client.queryClient.getQueryState("workout.delete_by_id")?.isFetching}
+            disabled={!!isDeleting()}
             className="flex items-center rounded-lg bg-red-700 px-2 text-[2.5rem] disabled:button-disabled" >
             <TrashIcon className="w-[2.5rem] h-[2.5rem]" /></button>
           <button id="end-workout"

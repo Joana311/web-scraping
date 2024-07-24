@@ -5,9 +5,7 @@ import React from "react";
 import { UserCircle } from "src/components/SvgIcons";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useSession } from "src/pages/_app";
-import trpc from "@client/trpc";
-import Head from "next/head";
+import trpcNextHooks from "@client/trpc";
 
 type LayoutProps = {
     children: React.ReactNode;
@@ -53,17 +51,15 @@ export const MainLayout = ({ session, children, appLocation }: LayoutProps) => {
         // router.push('/');
     }
 
-    trpc.useQuery(["exercise.public.directory"], {
-        context: { skipBatch: true },
+    trpcNextHooks.exercise.public_directory.useQuery(undefined, {
+        // context: { skipBatch: true },
         staleTime: Infinity,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         refetchOnReconnect: true,
         retry: false,
-    })
-
+    });
     return (
-
         <div id="app-container"
             onScroll={(e) => {
                 e.preventDefault();

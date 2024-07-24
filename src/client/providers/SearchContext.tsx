@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import trpc from '@client/trpc'
+import trpcNextHooks from '@client/trpc'
 import { Exercise } from '@prisma/client'
 import debounce from 'lodash/debounce'
 type ExerciseDirectoryContext = {
@@ -54,14 +54,15 @@ export const useSearchQuery = () => {
 }
 export const ExerciseProvider = ({ children }: ExerciseProvider) => {
     const router = useRouter()
-    const queryContext = trpc.useContext()
+    const queryContext = trpcNextHooks.useContext()
     const [searchQuery, setSearchQuery] = React.useState('')
-    const exrx_directory = queryContext.getQueryData(['exercise.public.directory'])
+    const exrx_directory = queryContext.exercise.public_directory.getData()
     const [directory, setDirectory] = React.useState(exrx_directory)
     const [searchFilters, setSearchFilters] = React.useState<string[]>([])
 
-    const { data: searchQueryResults } = trpc.useQuery(['exercise.public.search_exercises', { query: searchQuery }], {
-        enabled: (!!searchQuery || searchQuery != ''), staleTime: Infinity,
+    const { data: searchQueryResults } = trpcNextHooks.exercise.public_search_exercises
+        .useQuery({ query: searchQuery }, {
+            enabled: (!!searchQuery || searchQuery != ''), staleTime: Infinity,
     });
     const update_query = (search_query: string) => {
         setSearchQuery(search_query);
@@ -84,7 +85,8 @@ export const ExerciseProvider = ({ children }: ExerciseProvider) => {
             setDirectory(exrx_directory)
             return
         }
-        let searchResult = queryContext.getQueryData(['exercise.public.search_exercises', { query: searchQuery }]) || []
+        let searchResult = queryContext.exercise.public_search_exercises
+            .getData({ query: searchQuery }) || []
         // console.log("search result", searchResult)
         setDirectory(searchResult);
         // return setDirectory(exrx_directory)

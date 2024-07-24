@@ -1,5 +1,7 @@
 import React from "react";
-import trpc, { inferQueryOutput } from "@client/trpc";
+import trpcNextHooks from "@client/trpc";
+import { inferProcedureOutput } from "@trpc/server";
+import { appRouter } from "@server/routers/_app";
 const muscle_path_labels = [
     "Sternocleidomastoid",
     "Hands",
@@ -25,16 +27,15 @@ const muscle_path_labels = [
     "Proneus",
     "Tibialis_Anterior",
 ]
-type CurrentWorkout = inferQueryOutput<"workout.get_current">
+type CurrentWorkout = inferProcedureOutput<typeof appRouter.workout.get_current>
 type Props = {
     current_workout?: CurrentWorkout
 }
 const MuscleHeatMap = ({ }: Props) => {
-    // const { data: current_workout } = trpc.useQuery(["workout.get_current"])
-    const { data: todays_workouts } = trpc.useQuery(["workout.get_daily_recent", { amount: 3 }])
+    const { data: todays_workouts} = trpcNextHooks.workout.get_daily_recent.useQuery({ amount: 3 })
     const current_muscles = React.useMemo(() => {
         if (!todays_workouts) return []
-        let muscles = todays_workouts.map((wo) => wo.exercises).flat().map((e) => {
+        let muscles = (todays_workouts as CurrentWorkout[]).map((wo) => wo!!.exercises).flat().map((e) => {
             let name = e.exercise.muscle_name || ""
             if (name?.includes("pect")) {
                 name = "Pecs"

@@ -1,9 +1,9 @@
-import trpc from "@client/trpc";
+import trpcNextHooks from "@client/trpc";
 import React from "react";
 import MuscleHeatMap from "./MuscleHeatMap";
 
 const DailyActivitySummary = () => {
-  const { data: current_workout } = trpc.useQuery(["workout.get_current"]);
+  const { data: current_workout } = trpcNextHooks.workout.get_current.useQuery();
   const summary_info = React.useMemo(() => {
     let weight_moved = 0
     current_workout?.exercises.forEach(e => {

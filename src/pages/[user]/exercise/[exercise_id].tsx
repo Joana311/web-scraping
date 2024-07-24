@@ -1,4 +1,4 @@
-import trpc from "@client/trpc";
+import trpcNextHooks from "@client/trpc";
 import dayjs from "dayjs";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
@@ -17,9 +17,8 @@ type HeadersEnum = "weight" | "reps" | "rpe" | "date"
 const UserExercisePage: NextPage = () => {
     const router = useRouter();
     const exercise_id = router.query.exercise_id as string;
-
-
-    const { data: userExercise, isLoading: exercise_isLoading } = trpc.useQuery(["user.me.get_exercise_data_by_id", { exercise_id }], { enabled: !!exercise_id, staleTime: 1000 * 60 * 30, });
+    const { data: userExercise, isLoading: exercise_isLoading } = trpcNextHooks.user.me_get_exercise_data_by_id
+        .useQuery({ exercise_id }, { enabled: !!exercise_id, staleTime: 1000 * 60 * 30, });
     console.log(router, exercise_id)
     return (
         <div id="users-exercise-history" className="flex flex-col space-y-[.6rem] overflow-hidden bg-card-dark px-2 rounded-md pb-10 pt-2">

@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { UserExerciseCard } from "./components/UserExerciseCard";
-
-import trpc from "@client/trpc";
+import trpcNextHooks from "@client/trpc";
 interface ExerciseSummaryProps {
   onNewExerciseClick: () => void;
   workout_id: string;
@@ -12,7 +11,9 @@ const CurrentExercises: React.FC<ExerciseSummaryProps> = ({
   onNewExerciseClick,
   is_current,
 }: ExerciseSummaryProps) => {
-  const { data: workout, isLoading: workout_isLoading } = trpc.useQuery(["workout.get_by_id", { workout_id: workout_id }],
+  
+  const { data: workout, isLoading: workout_isLoading } = trpcNextHooks.workout.get_by_id.useQuery(
+    { workout_id: workout_id },
     { enabled: !!workout_id }
   );
   const [currentFocus, setCurrentFocus] = React.useState(-1)

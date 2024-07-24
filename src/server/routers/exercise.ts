@@ -1,17 +1,14 @@
-import { Prisma, UserWorkout } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
 import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 import { Exercise } from "@prisma/client";
+import { publicProcedure, router } from "@server/trpc";
 
-export const exerciseRouter = createRouter()
-  .query("public.search_exercises", {
-    input: z.object({
-      query: z.string().optional(),
-    }),
-    resolve: async ({ input }) => {
+export const exerciseRouter = router({
+  public_search_exercises: publicProcedure
+    .input( z.object({ query: z.string().optional() }))
+    .query(async ({ input }) => {
       if (!input.query || input.query.length === 0) return [];
       const found_ids: [{ id: string }] = await prisma.$queryRaw`SELECT id FROM search_exercises(${input.query});`
       // async function usingFindMany() {
@@ -85,21 +82,13 @@ export const exerciseRouter = createRouter()
 
       console.log("order matches?: ", doesOrderMatch())
       return found_exercises;
-    }
-  })
-  .query("public.directory", {
-    // input: z.object({
-    //   take: z.number().optional().default(100),
-    // }),
-    async resolve({ ctx }) {
+  }),
+  public_directory: publicProcedure.query(async() => {
       return await prisma.exercise.findMany();
-    }
-  })
-  .query("me.recent_unique", {
-    input: z.object({
-      limit: z.number().optional().default(25),
-    }),
-    async resolve({ input, ctx }) {
+  }),
+  me_recent_unique: publicProcedure
+    .input( z.object({ limit: z.number().optional().default(25) }))
+    .query(async({ input, ctx }) => {
       const { session } = ctx
       const { limit } = input
       // get the most recent unique exercises from userExercise
@@ -143,11 +132,10 @@ export const exerciseRouter = createRouter()
       exercises = (exercises.filter(e => e !== null))
       // console.log(`unique exercises for ${session!.user.name}: `, exercises)
       return exercises as Exercise[]
-    }
-
-  })
-  .mutation("add_set", {
-    input: z.object({
+    }),
+  
+  add_set: publicProcedure.
+    input( z.object({
       user_exercise_id: z.number().gte(0),
       workout_id: z.string().cuid(),
       set: z.object({
@@ -155,8 +143,8 @@ export const exerciseRouter = createRouter()
         weight: z.number().gt(0).optional(),
         rpe: z.number().lte(11).gt(0).optional(),
       }),
-    }),
-    async resolve({ input: { user_exercise_id, set, workout_id }, ctx }) {
+    }))
+    .mutation(async ({ input: { user_exercise_id, set, workout_id }, ctx }) => {
       const current_workout = await open_workout_if_exists(ctx.session?.user.id!);
       if (current_workout?.id !== workout_id) {
         throw new TRPCError({
@@ -181,16 +169,14 @@ export const exerciseRouter = createRouter()
         include: defaultWorkoutSelect,
       });
       return workout;
-    },
-  })
-
-  .mutation("remove_set", {
-    input: z.object({
+  }),
+  remove_set: publicProcedure
+    .input(z.object({
       user_exercise_id: z.number().gte(0),
       workout_id: z.string().cuid(),
       set_id: z.number().gt(0)
-    }),
-    async resolve({ input: { user_exercise_id, set_id, workout_id }, ctx }) {
+    }))
+    .mutation(async ({ input: { user_exercise_id, set_id, workout_id }, ctx }) => {
       const current_workout = await open_workout_if_exists(ctx.session?.user.id!);
       if (current_workout?.id !== workout_id) {
         throw new TRPCError({
@@ -217,13 +203,12 @@ export const exerciseRouter = createRouter()
         include: defaultWorkoutSelect,
       });
       return workout;
-    }
-  })
-  .mutation("add_to_current_workout", {
-    input: z.object({
-      exercise_id: z.string().uuid().array(),
     }),
-    async resolve({ input: { exercise_id }, ctx }) {
+  add_to_current_workout: publicProcedure
+  .input(z.object({
+      exercise_id: z.string().uuid().array(),
+    }))
+  .mutation(async({ input: { exercise_id }, ctx }) => {
       console.log("adding exercises", exercise_id);
       const owner_id = ctx?.session?.user.id;
       let open_workout = await open_workout_if_exists(owner_id!);
@@ -252,13 +237,12 @@ export const exerciseRouter = createRouter()
         console.log("workout updated: Exercise(s) added");
         return workout;
       }
-    },
-  })
-  .mutation("remove_from_current_workout", {
-    input: z.object({
-      user_exercise_id: z.number().gte(0),
     }),
-    async resolve({ input: { user_exercise_id }, ctx }) {
+  remove_from_current_workout: publicProcedure
+    .input( z.object({
+      user_exercise_id: z.number().gte(0),
+    }))
+    .mutation(async ({ input: { user_exercise_id }, ctx }) => {
       const owner_id = ctx?.session?.user.id;
       let open_workout = await open_workout_if_exists(owner_id!);
 
@@ -285,5 +269,5 @@ export const exerciseRouter = createRouter()
         console.log("workout updated: Exercise removed");
         return workout;
       }
-    },
-  });
+    })
+});

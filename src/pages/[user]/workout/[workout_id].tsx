@@ -1,24 +1,25 @@
 import React from "react";
 import { useRouter } from "next/router";
-import trpc from "@client/trpc";
+import trpcNextHooks from "@client/trpc";
 import CurrentExercises from "src/components/ExerciseSummary/CurrentExercises";
 import AddNewExerciseModal from "src/components/ExerciseSummary/containers/AddNewExerciseModal";
 import { CancelIcon } from "src/components/SvgIcons";
 import { ExerciseProvider } from "@client/providers/SearchContext";
+
 const Workout = () => {
   const router = useRouter();
-  const query_context = trpc.useContext()
+  const queryContext = trpcNextHooks.useContext()
   let { query: { workout_id, add_new } } = router;
 
-  trpc.useQuery(["workout.get_current"], { enabled: !query_context.getQueryData(["workout.get_current"])?.id })
-  const { data: workout, isLoading: workout_isLoading } = trpc.useQuery(["workout.get_by_id",
-    { workout_id: workout_id as string }],
-    {
-      onError(e) {
-        query_context.invalidateQueries("workout.get_current");
-        query_context.invalidateQueries("workout.get_recent");
-      },
-    });
+  trpcNextHooks.workout.get_current.useQuery(undefined, { enabled: !queryContext.workout.get_current.getData()?.id})
+  const { data: workout, isLoading: workout_isLoading } = 
+    trpcNextHooks.workout.get_by_id.useQuery(
+      { workout_id: workout_id as string },
+      { onError(e) {
+          queryContext.workout.get_current.invalidate();
+          queryContext.workout.get_recent.invalidate();
+      }}
+    );
   const [showModal, setShowModal] = React.useState(false);
 
   React.useEffect(() => {
@@ -42,11 +43,11 @@ const Workout = () => {
     }
   }
 
-  const close_workout = trpc.useMutation("workout.close_by_id", {
+  const close_workout = trpcNextHooks.workout.close_by_id.useMutation({
     onSuccess: () => {
-      query_context.invalidateQueries("workout.get_current");
-      query_context.invalidateQueries("workout.get_daily_recent");
-      query_context.invalidateQueries("workout.get_by_id");
+      queryContext.workout.get_current.invalidate();
+      queryContext.workout.get_daily_recent.invalidate();
+      queryContext.workout.get_by_id.invalidate();
       router.push(`/${router.query.user}`);
     }
   })
@@ -57,10 +58,10 @@ const Workout = () => {
     }
   }
   const isCurrentWorkout = React.useCallback(() => {
-    let current_workout_id = query_context.getQueryData(["workout.get_current"])?.id
+    let current_workout_id = queryContext.workout.get_current.getData()?.id
     return workout_id === current_workout_id
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workout_id, query_context.getQueryData(["workout.get_current"])?.id]);
+  }, [workout_id, queryContext.workout.get_current.getData()?.id]);
 
   if (showModal && isCurrentWorkout()) {
     return (

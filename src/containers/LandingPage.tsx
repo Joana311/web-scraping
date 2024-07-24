@@ -2,9 +2,7 @@ import Link from "next/link";
 import { signIn, signOut } from "next-auth/react";
 import { useSession } from "../pages/_app"
 import { useRouter } from "next/router";
-import trpc from "@client/trpc";
-import { router } from "@trpc/server";
-import Button from "src/components/ui/Button";
+
 export function LandingPage() {
   const router = useRouter();
   const { session } = useSession();

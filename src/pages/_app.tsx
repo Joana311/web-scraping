@@ -1,24 +1,18 @@
 import React from "react";
 import Head from "next/head";
-import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
-import { loggerLink } from "@trpc/client/links/loggerLink";
-import { withTRPC } from "@trpc/next";
 import { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import { MainLayout } from "../layouts/mainLayout";
-import { appRouter, AppRouter } from "@server/routers/_app";
-import trpc, { SSRContext } from "src/client/trpc";
-import { ReactQueryDevtools } from "react-query/devtools";
-import { SessionProvider } from "next-auth/react";
-import { splitLink } from "@trpc/client/links/splitLink";
-import { httpLink } from "@trpc/client/links/httpLink";
+import { appRouter } from "@server/routers/_app";
+import trpcNextHooks from "src/client/trpc";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"; 
 import "../../styles/globals.css";
 import { useRouter } from "next/router";
-import { IncomingHttpHeaders } from "http2";
 import { Session } from "next-auth/core/types";
 import { GetStaticProps, GetStaticPropsContext } from "next";
-import { createSSGHelpers } from "@trpc/react/ssg";
-
+import { createServerSideHelpers } from "@trpc/react-query/server";
+import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query";
 // interface MyAppProps extends AppProps {
 //   emotionCache?: EmotionCache;
 //   pageProps: any;
@@ -33,11 +27,8 @@ export function useSession() {
   return React.useContext(AuthContext);
 }
 const App: AppType = ({ pageProps, Component }): JSX.Element => {
-  const {
-    data: auth_data,
-    error
-  } = trpc.useQuery(["next-auth.get_session"], {
-    context: { skipBatch: true },
+  const { data: auth_data, error } = trpcNextHooks.next_auth.get_session.useQuery(undefined, {
+    // context: { skipBatch: true },
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     enabled: typeof window !== "undefined",
@@ -45,14 +36,15 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     staleTime: 5 * 60 * 1000,
     retryOnMount: false,
   });
-  const utils = trpc.useContext();
+  const queryContext = trpcNextHooks.useContext();
   const isInit = React.useRef(false)
   const router = useRouter();
-
+  const queryClient = useQueryClient(); // the react-query client should have been instantiated by withTRPC()
+  // One-time use effect to set the react-query client default behaviors
   React.useEffect(() => {
-    if (utils && typeof window !== "undefined" && !isInit.current) {
+    if (queryContext && typeof window !== "undefined" && !isInit.current) {
       console.log("setting react-query defaults");
-      utils.queryClient.setDefaultOptions({
+      queryClient.setDefaultOptions({
         queries: {
           retry(failureCount, error: any) {
             if (
@@ -64,11 +56,10 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
               console.log("failureCount: ", 2);
               // i think whats happening here is that 2 queries are fired. then on failure query is invalidated.
               // which causes itself to be refetched. which causes the error to be thrown again.
-              // i dont think we actually need to invalidate. the purpose of it is
-              // for when the session expires and any other query that is not "next-auth.get_session"
-              // picks up on it and propogates the error down.
+              // i dont think we actually need to invalidate. the purpose of it is for when the session expires-
+              // if any other query that is not "next-auth.get_session" picks up on the expiration, the error gets propogated down.
               console.log("error with auth session. should re-route to home.")
-              utils.queryClient.setQueryData(["next-auth.get_session"], null);
+              queryContext.next_auth.get_session.setData(undefined, () => null as any); // what happens if i dont try to invalidate?
               router.push("/");
               // }
               return false;
@@ -111,7 +102,6 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
     }
   }, [router.pathname]);
   return (
-
     <AuthContext.Provider value={{ session: session }} >
       <Head >
         <title>{`ExBuddy${appLocation != '404' && (' | ' + appLocation)}`}</title>
@@ -122,137 +112,27 @@ const App: AppType = ({ pageProps, Component }): JSX.Element => {
       </MainLayout>
       {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}
     </AuthContext.Provider>
-
   )
 };
 const getStaticProps: GetStaticProps = async (ctx: GetStaticPropsContext) => {
   // create a dummy request and response to pass to the server;
 
-  const ssg = await createSSGHelpers({
+  const ssg = await createServerSideHelpers({
     router: appRouter,
     ctx: { session: undefined, },
     transformer: superjson,
   })
-
-  await ssg.fetchQuery("exercise.public.directory");
+  // todo: setup static caching for the exercise directory to improve SEO by keeping all the exercise data in the index page?
+  const directoryQueryKey = getQueryKey(trpcNextHooks.exercise.public_directory, undefined, 'query')
+  await ssg.queryClient.fetchQuery(directoryQueryKey);
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      exerciseDirectory: ssg.queryClient.getQueryData("exercise.public.directory"),
+      exerciseDirectory: ssg.queryClient.getQueryData(directoryQueryKey)
     },
     // 1 hour in seconds
     revalidate: 60 * 60,
   }
-
 }
-function getBaseUrl() {
-  if (typeof window !== "undefined") {
-    // return `http://localhost:${process.env.PORT ?? 3000}`;
-    return "";
-  }
-  // reference for vercel.com
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  // assume localhost
-  return `http://localhost:${process.env.PORT ?? 3000}`;
-}
-export default withTRPC<AppRouter>({
-  config({ ctx }) {
-    const host_url = ctx?.req?.headers?.host || '';
-    if (typeof window !== "undefined") {
-      return {
-        transformer: superjson,
-        url: "/api/trpc",
-        links: [
-          loggerLink({
-            enabled: (opts) => true
-          }),
-          // adds opt-out support for batching
-          splitLink({
-            condition(operation) {
-              return operation.context.skipBatch === true;
-            },
-            false: httpBatchLink({
-              url: `${getBaseUrl()}/api/trpc`
-            }),
-            true: httpLink({
-              url: `${getBaseUrl()}/api/trpc`
-            })
-          })
-        ]
-      }
-    }
-    /**
-     * If you want to use SSR, you need to use the server's full URL
-     * @link https://trpc.io/docs/ssr
-     */
-    return {
-      url: getBaseUrl() + "/api/trpc",
-      // url: host_url + "/api/trpc",
-      /**
-       * @link https://trpc.io/docs/links
-       */
-      links: [
-        // adds pretty logs to your console in development and logs errors in production
-        loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === "development" || true
-          // || (opts.direction === "down" && opts.result! instanceof Error)
-        }),
 
-        // adds opt-out support for batching
-        splitLink({
-          condition(operation) {
-            return operation.context.skipBatch === true;
-          },
-          false: httpBatchLink({
-            url: `${getBaseUrl()}/api/trpc`
-          }),
-          true: httpLink({
-            url: `${getBaseUrl()}/api/trpc`
-          })
-        })
-      ],
-      transformer: superjson,
-      queryClientConfig: {},
-      headers: () => {
-        //on ssr forward cookies to the server to check for auth sessions
-        const client_headers: IncomingHttpHeaders | undefined = ctx?.req?.headers;
-        console.log("forwarding headers", client_headers);
-        return {
-          ...client_headers,
-          "x-ssr": "1"
-        };
-
-      }
-    };
-  },
-  /**
-   * @link https://trpc.io/docs/ssr
-   */
-  ssr: false,
-  // responseMeta(opts) {
-
-  //   const error = opts.clientErrors[0];
-  //   if (error) {
-  //     // const host_url = ctx.req?.headers?.host ?? getBaseUrl();
-  //     // if (error.message.includes("NO_SESSION") && opts.ctx.asPath !== "/") {
-  //     //   console.log("No sessions found should reroute to: ", host_url);
-  //     //   return {
-  //     //     status: 303, //"SEE_OTHER"
-  //     //     headers: {
-  //     //       location: '/api/auth/signin'
-  //     //     }
-  //     //   };
-  //     // }
-  //     // Propagate http first error from API calls
-  //     return {
-  //       status: error.data?.httpStatus ?? 500
-  //     };
-  //   }
-  //   // For app caching with SSR see https://trpc.io/docs/caching
-  //   // if (opts.)
-  //   return {};
-  // }
-})(App);
+export default trpcNextHooks.withTRPC(App)

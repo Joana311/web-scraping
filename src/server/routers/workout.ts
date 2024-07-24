@@ -1,10 +1,9 @@
 import { Prisma as _Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createRouter } from "@server/trpc/createRouter";
 import prisma from "@server/prisma/client";
 import dayjs from "dayjs";
-import { resolve } from "path";
+import { publicProcedure, router } from "@server/trpc";
 export const defaultWorkoutSelect =
   _Prisma.validator<_Prisma.UserWorkoutInclude>()({
     exercises: { include: { exercise: true, sets: true } },
@@ -44,63 +43,49 @@ export const open_workout_if_exists = async (owner_id: string) => {
 
 };
 
-export const workoutRouter = createRouter()
-  .query("all_by_owner_id", {
-    input: z.object({
-      owner_id: z.string().cuid(),
-    }),
-    async resolve({ input: { owner_id } }) {
+export const workoutRouter = router({
+  all_by_owner_id: publicProcedure
+    .input(z.object({ owner_id: z.string().cuid() }))
+    .query(async ({ input: { owner_id } }) => {
       return await prisma.userWorkout.findMany({
         where: { owner_id },
-        include: defaultWorkoutSelect,
+        include: defaultWorkoutSelect
       });
-    },
-  })
-  .query("current_by_owner_id", {
-    input: z.object({
-      owner_id: z.string().cuid(),
     }),
-    async resolve({ input: { owner_id } }) {
+  current_by_owner_id: publicProcedure
+    .input(
+      z.object({
+        owner_id: z.string().cuid()
+      })
+    )
+    .query(async ({ input: { owner_id } }) => {
       let open_workout = await open_workout_if_exists(owner_id);
       console.log("open_workout", open_workout);
       return open_workout;
-    },
-  })
-  .query("get_by_id", {
-    input: z.object({
-      workout_id: z.string().cuid(),
     }),
-    async resolve({ input: { workout_id }, ctx }) {
+  get_by_id: publicProcedure
+    .input(z.object({ workout_id: z.string().cuid() }))
+    .query(async ({ input: { workout_id }, ctx }) => {
       return await prisma.userWorkout.findFirst({
         where: { id: workout_id },
-        include: defaultWorkoutSelect,
+        include: defaultWorkoutSelect
       });
-    },
-  }).query("get_recent", {
-    input: z.object({
-      amount: z.number().optional(),
     }),
-    async resolve({ input: { amount }, ctx }) {
+  get_recent: publicProcedure
+    .input(z.object({ amount: z.number().optional() }))
+    .query(async ({ input: { amount }, ctx }) => {
       const owner_id = ctx?.session?.user.id;
       return await prisma.userWorkout.findMany({
         orderBy: { created_at: "desc" },
         where: { owner_id },
         include: { exercises: { include: { exercise: true, sets: true } } },
-        take: amount || 1,
+        take: amount || 1
       });
-    },
-  }).query("get_daily_recent", {
-    input: z.object({
-      amount: z.number().optional(),
     }),
-    async resolve({ input: { amount }, ctx }) {
+  get_daily_recent: publicProcedure
+    .input(z.object({ amount: z.number().optional() }))
+    .query(async ({ input: { amount }, ctx }) => {
       const owner_id = ctx?.session?.user.id;
-      // return await prisma.userWorkout.findMany({
-      //   orderBy: { created_at: "desc" },
-      //   where: { owner_id },
-      //   include: { exercises: { include: { exercise: true, sets: true } } },
-      //   take: amount || 1,
-      // });
       const todays_date = dayjs();
       const todays_workouts = await prisma.userWorkout.findMany({
         orderBy: { created_at: "desc" },
@@ -112,70 +97,58 @@ export const workoutRouter = createRouter()
                 gte: todays_date.startOf("day").toISOString()
               }
             }
-          ],
+          ]
         },
         include: { exercises: { include: { exercise: true, sets: true } } },
-        take: amount,
-      })
+        take: amount
+      });
       return todays_workouts;
-    },
-  }).query("get_current", {
-    async resolve({ ctx }) {
-      const owner_id = ctx?.session?.user.id;
-      return await open_workout_if_exists(owner_id!);
-    }
-
-  }).mutation("create_new", {
-    async resolve({ ctx }) {
-      const owner_id = ctx?.session?.user.id;
-      // console.log("owner_id", owner_id);
-      let open_workout = await open_workout_if_exists(owner_id!);
-      // console.log("open_workout", open_workout);
-      if (open_workout) {
-        throw new TRPCError({
-          message: "open workout already exists",
-          code: "BAD_REQUEST",
-        });
-      } else {
-        return await prisma.userWorkout.create({
-          data: { owner_id },
-          include: defaultWorkoutSelect,
-        });
-      }
-    },
-  }).mutation("close_by_id", {
-    input: z.object({
-      workout_id: z.string().cuid(),
     }),
-    async resolve({ input: { workout_id }, ctx: { session } }) {
+  get_current: publicProcedure.query(async ({ ctx }) => {
+    const owner_id = ctx?.session?.user.id;
+    return await open_workout_if_exists(owner_id!);
+  }),
+  create_new: publicProcedure.mutation(async ({ ctx }) => {
+    const owner_id = ctx?.session?.user.id;
+    let open_workout = await open_workout_if_exists(owner_id!);
+    if (open_workout) {
+      throw new TRPCError({
+        message: "open workout already exists",
+        code: "BAD_REQUEST"
+      });
+    } else {
+      return await prisma.userWorkout.create({
+        data: { owner_id },
+        include: defaultWorkoutSelect
+      });
+    }
+  }),
+  close_by_id: publicProcedure
+    .input(z.object({ workout_id: z.string().cuid() }))
+    .mutation(async ({ input: { workout_id }, ctx: { session } }) => {
       const owner_id = session?.user.id!;
-      console.log("workout_id: ", workout_id);
-      console.log("owner_id: ", owner_id);
       try {
-
-
         let workout = await prisma.userWorkout.update({
           where: {
             owner_and_workout_id: {
               owner_id: owner_id,
-              id: workout_id,
-            },
+              id: workout_id
+            }
           },
           data: {
             closed: true,
-            ended_at: new Date(),
+            ended_at: new Date()
           },
-          select: defaultWorkoutSelect,
-        })
-        console.log("workout", workout);
+          select: defaultWorkoutSelect
+        });
         if (!workout) {
           throw new TRPCError({
             message: "workout not found",
-            code: "BAD_REQUEST",
+            code: "BAD_REQUEST"
           });
         } else {
           console.log("workout updated", workout);
-          return true
+          return true;
         }
       } catch (error) {
         console.log("error", error);
@@ -184,54 +157,54 @@ export const workoutRouter = createRouter()
         //   code: "BAD_REQUEST",
         // });
       }
-
-
-    }
-
-  }).mutation("delete_by_id", {
-    input: z.object({
-      workout_id: z.string().cuid(),
-      is_confirmed: z.boolean().optional(),
     }),
-    async resolve({ input: { workout_id, is_confirmed }, ctx: { session } }) {
-      const owner_id = session?.user.id!;
-      try {
-        let workout = await prisma.userWorkout.findUniqueOrThrow({
-          where: {
-            owner_and_workout_id: {
-              owner_id: owner_id,
-              id: workout_id,
+  delete_by_id: publicProcedure
+    .input(
+      z.object({
+        workout_id: z.string().cuid(),
+        is_confirmed: z.boolean().optional()
+      })
+    )
+    .mutation(async ({ input: { workout_id, is_confirmed }, ctx: { session } }) => {
+        const owner_id = session?.user.id!;
+        try {
+          let workout = await prisma.userWorkout.findUniqueOrThrow({
+            where: {
+              owner_and_workout_id: {
+                owner_id: owner_id,
+                id: workout_id
+              }
             },
-          },
-          select: defaultWorkoutSelect,
-        })
-        if (is_confirmed || is_workout_empty(workout)) {
-          try {
-            await prisma.userWorkout.delete({
-              where: {
-                owner_and_workout_id: {
-                  owner_id: owner_id,
-                  id: workout_id,
-                },
-              },
-            });
-          } catch (error) {
+            select: defaultWorkoutSelect
+          });
+          if (is_confirmed || is_workout_empty(workout)) {
+            try {
+              await prisma.userWorkout.delete({
+                where: {
+                  owner_and_workout_id: {
+                    owner_id: owner_id,
+                    id: workout_id
+                  }
+                }
+              });
+            } catch (error) {
+              throw new TRPCError({
+                message: "There was an error deleting the workout",
+                code: "INTERNAL_SERVER_ERROR"
+              });
+            }
+          } else {
             throw new TRPCError({
-              message: "There was an error deleting the workout",
-              code: "INTERNAL_SERVER_ERROR",
-            })
+              message: "workout is not empty",
+              code: "BAD_REQUEST"
+            });
           }
-        } else {
+        } catch (error: any) {
           throw new TRPCError({
-            message: "workout is not empty",
-            code: "BAD_REQUEST",
+            message: error.message,
+            code: "BAD_REQUEST"
           });
         }
-      } catch (error: any) {
-        throw new TRPCError({
-          message: error.message,
-          code: "BAD_REQUEST",
-        });
       }
-    }
-  });
+    )
+});

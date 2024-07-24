@@ -1,12 +1,11 @@
 /**
  * This file contains the root router of your tRPC-backend
  */
-import { createRouter } from "../trpc/createRouter";
 import { userRouter } from "./user";
-import superjson from "superjson";
 import { workoutRouter } from "./workout";
 import { exerciseRouter } from "./exercise";
 import { authRouter } from "./next-auth";
+import { publicProcedure, router } from "@server/trpc";
 
 /**
  * Create your application's root router
@@ -14,33 +13,13 @@ import { authRouter } from "./next-auth";
  * @link https://trpc.io/docs/ssg
  * @link https://trpc.io/docs/router
  */
-export const appRouter = createRouter()
-  .transformer(superjson)
-  /**
-   * Optionally do custom error (type safe!) formatting
-   * @link https://trpc.io/docs/error-formatting
-   */
-  .formatError(({ shape, error, ctx }) => {
-    return {
-      code: shape.code,
-      message: shape.message,
-      data: {
-        httpStatus: shape.data.httpStatus,
-        code: shape.data.code,
-        path: shape.data.path,
-        req_source: ctx?.req?.url,
-        session: ctx?.session,
-      }
-    }
-  }
-  )
-  /**
-   * 
-  /**
-   * Merge `postRouter` under `post.`
-   */
-  .merge("user.", userRouter)
-  .merge("workout.", workoutRouter)
-  .merge("exercise.", exerciseRouter)
-  .merge("next-auth.", authRouter)
+const mainRouter = router({
+  greeting: publicProcedure.query(() => "hello from trpc v10"),
+  user: userRouter,
+  workout: workoutRouter,
+  exercise: exerciseRouter,
+  next_auth: authRouter
+});
+
+export const appRouter = mainRouter;
 export type AppRouter = typeof appRouter;

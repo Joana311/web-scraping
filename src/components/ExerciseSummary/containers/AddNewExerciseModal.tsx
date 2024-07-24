@@ -4,7 +4,7 @@ import React from "react";
 import { Exercise } from "@prisma/client";
 import { useRouter, withRouter } from "next/router";
 import { WithRouterProps } from "next/dist/client/with-router";
-import trpc from "@client/trpc";
+import trpcNextHooks from "@client/trpc";
 import SearchBar from 'src/components/SearchBar';
 import { useExerciseDirectory, useSearchFilters, useSearchQuery } from '@client/providers/SearchContext';
 
@@ -36,7 +36,7 @@ const AddNewExerciseModal = ({
 
   close_modal,
 }: AddExerciseProps & WithRouterProps) => {
-  const query_context = trpc.useContext()
+  const queryContext = trpcNextHooks.useContext()
   const router = useRouter()
   const workout_id = router.query.workout_id! as string;
 
@@ -45,7 +45,8 @@ const AddNewExerciseModal = ({
   const [selectedExerciseMap, setExerciseSelected] = React.useState(new Map<string, boolean>());
   const [selectedTab, setSelectedTab] = React.useState<"all" | "recent">("all");
 
-  const recent_exercises = trpc.useQuery(["exercise.me.recent_unique", {}], { enabled: selectedTab == "recent" });
+  const recent_exercises = trpcNextHooks.exercise.me_recent_unique
+    .useQuery({}, { enabled: selectedTab == "recent" });
 
   const selectedFilters = useSearchFilters();
 
@@ -87,14 +88,11 @@ const AddNewExerciseModal = ({
   }, [selectedFilters])
   const RESULT_RENDER_LIMIT = 25;
 
-  const add_exercises = trpc.useMutation("exercise.add_to_current_workout", {
+  const add_exercises = trpcNextHooks.exercise.add_to_current_workout.useMutation({
     onSuccess(updated_workout) {
-      query_context.invalidateQueries("workout.get_by_id");
+      queryContext.workout.get_by_id.invalidate({workout_id})
       if (workout_id) {
-        query_context.setQueryData(
-          ["workout.get_by_id", { workout_id }],
-          updated_workout
-        );
+        queryContext.workout.get_by_id.setData({ workout_id }, updated_workout);
       }
     },
   });

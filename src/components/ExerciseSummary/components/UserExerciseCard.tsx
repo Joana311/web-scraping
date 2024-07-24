@@ -1,6 +1,5 @@
-import trpc from "@client/trpc";
-import { router } from "@trpc/server";
-import { debug } from "console";
+import trpcNextHooks from "@client/trpc";
+import trpcReactQueryClient from "@client/trpc";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
@@ -43,37 +42,31 @@ export const UserExerciseCard: React.FC<SummaryCardProps> = ({ exercise, isFocus
   React.useMemo(() => {
     setExpanded(isFocused);
   }, [isFocused]);
-  const userName = trpc.useContext().getQueryData(["next-auth.get_session"])?.user.name;
+  const userName = trpcReactQueryClient.useContext().next_auth.get_session.getData()?.user.name;
   const router = useRouter();
   // debugger;
   const selfRef = React.useRef<HTMLLIElement>(null);
-  const query_context = trpc.useContext();
-  const useAddSet = trpc.useMutation("exercise.add_set", {
+  const query_context = trpcNextHooks.useContext();
+  const useAddSet = trpcNextHooks.exercise.add_set.useMutation({
     onSuccess: (current_workout, _) => {
-      console.log(selfRef.current)
+      console.log("current workout: ", current_workout);
+      console.log("selfRef: ", selfRef.current)
+      // console.log(selfRef.current)
+      console.log("unknown ", _);
       // selfRef.current?.remove();
-      query_context.setQueryData(
-        ["workout.get_by_id", { workout_id: workout_id }],
-        current_workout
-      );
-    },
+        query_context.workout.get_by_id.setData({ workout_id: workout_id }, current_workout);
+      },
   });
-  const useDeleteSet = trpc.useMutation("exercise.remove_set", {
+  const useDeleteSet = trpcReactQueryClient.exercise.remove_set.useMutation({
     onSuccess: (current_workout, _) => {
-      query_context.setQueryData(
-        ["workout.get_by_id", { workout_id: workout_id }],
-        current_workout
-      );
+      query_context.workout.get_by_id.setData({ workout_id: workout_id }, current_workout);
     },
   });
-  const useRemoveEx = trpc.useMutation("exercise.remove_from_current_workout", {
+  const useRemoveEx = trpcReactQueryClient.exercise.remove_from_current_workout.useMutation({
     onSuccess(updated_workout) {
-      query_context.invalidateQueries("workout.get_by_id");
+      query_context.workout.get_by_id.invalidate();
       if (workout_id) {
-        query_context.setQueryData(
-          ["workout.get_by_id", { workout_id }],
-          updated_workout
-        );
+        query_context.workout.get_by_id.setData({ workout_id }, updated_workout);
       }
     },
   })
