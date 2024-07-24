@@ -17,7 +17,7 @@ type HeadersEnum = "weight" | "reps" | "rpe" | "date"
 const UserExercisePage: NextPage = () => {
     const router = useRouter();
     const exercise_id = router.query.exercise_id as string;
-    const { data: userExercise, isLoading: exercise_isLoading } = trpcNextHooks.user.me_get_exercise_data_by_id
+    const { data: userExercise, isLoading: exercise_isLoading } = trpcNextHooks.user.my_specific_exercise_data
         .useQuery({ exercise_id }, { enabled: !!exercise_id, staleTime: 1000 * 60 * 30, });
     console.log(router, exercise_id)
     return (

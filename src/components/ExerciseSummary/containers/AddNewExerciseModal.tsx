@@ -45,7 +45,7 @@ const AddNewExerciseModal = ({
   const [selectedExerciseMap, setExerciseSelected] = React.useState(new Map<string, boolean>());
   const [selectedTab, setSelectedTab] = React.useState<"all" | "recent">("all");
 
-  const recent_exercises = trpcNextHooks.exercise.me_recent_unique
+  const recent_exercises = trpcNextHooks.exercise.my_unique_recent
     .useQuery({}, { enabled: selectedTab == "recent" });
 
   const selectedFilters = useSearchFilters();

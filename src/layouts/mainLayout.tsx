@@ -52,7 +52,7 @@ export const MainLayout = ({ session, children, appLocation }: LayoutProps) => {
     }
 
     trpcNextHooks.exercise.public_directory.useQuery(undefined, {
-        // context: { skipBatch: true },
+        trpc: { context: { skipBatch: true } },
         staleTime: Infinity,
         refetchOnWindowFocus: false,
         refetchOnMount: false,

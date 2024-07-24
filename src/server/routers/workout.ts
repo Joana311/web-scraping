@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import prisma from "@server/prisma/client";
 import dayjs from "dayjs";
-import { publicProcedure, router } from "@server/trpc";
+import { appUserProcedure, sessionProcedure, router, publicProcedure } from "@server/trpc";
 export const defaultWorkoutSelect =
   _Prisma.validator<_Prisma.UserWorkoutInclude>()({
     exercises: { include: { exercise: true, sets: true } },
@@ -44,7 +44,7 @@ export const open_workout_if_exists = async (owner_id: string) => {
 };
 
 export const workoutRouter = router({
-  all_by_owner_id: publicProcedure
+  all_by_owner_id: sessionProcedure
     .input(z.object({ owner_id: z.string().cuid() }))
     .query(async ({ input: { owner_id } }) => {
       return await prisma.userWorkout.findMany({
@@ -52,7 +52,7 @@ export const workoutRouter = router({
         include: defaultWorkoutSelect
       });
     }),
-  current_by_owner_id: publicProcedure
+  current_by_owner_id: sessionProcedure
     .input(
       z.object({
         owner_id: z.string().cuid()
@@ -63,7 +63,7 @@ export const workoutRouter = router({
       console.log("open_workout", open_workout);
       return open_workout;
     }),
-  get_by_id: publicProcedure
+  get_by_id: sessionProcedure
     .input(z.object({ workout_id: z.string().cuid() }))
     .query(async ({ input: { workout_id }, ctx }) => {
       return await prisma.userWorkout.findFirst({
@@ -71,7 +71,7 @@ export const workoutRouter = router({
         include: defaultWorkoutSelect
       });
     }),
-  get_recent: publicProcedure
+  get_recent: appUserProcedure
     .input(z.object({ amount: z.number().optional() }))
     .query(async ({ input: { amount }, ctx }) => {
       const owner_id = ctx?.session?.user.id;
@@ -82,10 +82,10 @@ export const workoutRouter = router({
         take: amount || 1
       });
     }),
-  get_daily_recent: publicProcedure
+  get_daily_recent: appUserProcedure
     .input(z.object({ amount: z.number().optional() }))
     .query(async ({ input: { amount }, ctx }) => {
-      const owner_id = ctx?.session?.user.id;
+      const owner_id = ctx.session!!.user.id;
       const todays_date = dayjs();
       const todays_workouts = await prisma.userWorkout.findMany({
         orderBy: { created_at: "desc" },
@@ -104,26 +104,28 @@ export const workoutRouter = router({
       });
       return todays_workouts;
     }),
-  get_current: publicProcedure.query(async ({ ctx }) => {
-    const owner_id = ctx?.session?.user.id;
-    return await open_workout_if_exists(owner_id!);
-  }),
-  create_new: publicProcedure.mutation(async ({ ctx }) => {
-    const owner_id = ctx?.session?.user.id;
-    let open_workout = await open_workout_if_exists(owner_id!);
-    if (open_workout) {
-      throw new TRPCError({
-        message: "open workout already exists",
-        code: "BAD_REQUEST"
-      });
-    } else {
-      return await prisma.userWorkout.create({
-        data: { owner_id },
-        include: defaultWorkoutSelect
-      });
-    }
-  }),
-  close_by_id: publicProcedure
+  get_current: appUserProcedure
+    .query(async ({ ctx }) => {
+      const owner_id = ctx?.session?.user.id;
+      return await open_workout_if_exists(owner_id!);
+    }),
+  create_new: appUserProcedure
+    .mutation(async ({ ctx }) => {
+      const owner_id = ctx?.session?.user.id;
+      let open_workout = await open_workout_if_exists(owner_id!);
+      if (open_workout) {
+        throw new TRPCError({
+          message: "open workout already exists",
+          code: "BAD_REQUEST"
+        });
+      } else {
+        return await prisma.userWorkout.create({
+          data: { owner_id },
+          include: defaultWorkoutSelect
+        });
+      }
+    }),
+  close_by_id: appUserProcedure
     .input(z.object({ workout_id: z.string().cuid() }))
     .mutation(async ({ input: { workout_id }, ctx: { session } }) => {
       const owner_id = session?.user.id!;
@@ -158,53 +160,50 @@ export const workoutRouter = router({
         // });
       }
     }),
-  delete_by_id: publicProcedure
-    .input(
-      z.object({
+  delete_by_id: appUserProcedure
+    .input(z.object({
         workout_id: z.string().cuid(),
         is_confirmed: z.boolean().optional()
-      })
-    )
+    }))
     .mutation(async ({ input: { workout_id, is_confirmed }, ctx: { session } }) => {
-        const owner_id = session?.user.id!;
-        try {
-          let workout = await prisma.userWorkout.findUniqueOrThrow({
-            where: {
-              owner_and_workout_id: {
-                owner_id: owner_id,
-                id: workout_id
-              }
-            },
-            select: defaultWorkoutSelect
-          });
-          if (is_confirmed || is_workout_empty(workout)) {
-            try {
-              await prisma.userWorkout.delete({
-                where: {
-                  owner_and_workout_id: {
-                    owner_id: owner_id,
-                    id: workout_id
-                  }
-                }
-              });
-            } catch (error) {
-              throw new TRPCError({
-                message: "There was an error deleting the workout",
-                code: "INTERNAL_SERVER_ERROR"
-              });
+      const owner_id = session?.user.id!;
+      try {
+        let workout = await prisma.userWorkout.findUniqueOrThrow({
+          where: {
+            owner_and_workout_id: {
+              owner_id: owner_id,
+              id: workout_id
             }
-          } else {
+          },
+          select: defaultWorkoutSelect
+        });
+        if (is_confirmed || is_workout_empty(workout)) {
+          try {
+            await prisma.userWorkout.delete({
+              where: {
+                owner_and_workout_id: {
+                  owner_id: owner_id,
+                  id: workout_id
+                }
+              }
+            });
+          } catch (error) {
             throw new TRPCError({
-              message: "workout is not empty",
-              code: "BAD_REQUEST"
+              message: "There was an error deleting the workout",
+              code: "INTERNAL_SERVER_ERROR"
             });
           }
-        } catch (error: any) {
+        } else {
           throw new TRPCError({
-            message: error.message,
+            message: "workout is not empty",
             code: "BAD_REQUEST"
           });
         }
+      } catch (error: any) {
+        throw new TRPCError({
+          message: error.message,
+          code: "BAD_REQUEST"
+        });
       }
-    )
+    })
 });

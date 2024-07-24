@@ -3,7 +3,7 @@ import { z } from "zod";
 import prisma from "@server/prisma/client";
 import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 import { Exercise } from "@prisma/client";
-import { publicProcedure, router } from "@server/trpc";
+import { appUserProcedure, publicProcedure, router } from "@server/trpc";
 
 export const exerciseRouter = router({
   public_search_exercises: publicProcedure
@@ -82,11 +82,10 @@ export const exerciseRouter = router({
 
       console.log("order matches?: ", doesOrderMatch())
       return found_exercises;
-  }),
-  public_directory: publicProcedure.query(async() => {
-      return await prisma.exercise.findMany();
-  }),
-  me_recent_unique: publicProcedure
+    }),
+  public_directory: publicProcedure
+    .query(async() => { return await prisma.exercise.findMany() }),
+  my_unique_recent: appUserProcedure
     .input( z.object({ limit: z.number().optional().default(25) }))
     .query(async({ input, ctx }) => {
       const { session } = ctx
@@ -133,8 +132,7 @@ export const exerciseRouter = router({
       // console.log(`unique exercises for ${session!.user.name}: `, exercises)
       return exercises as Exercise[]
     }),
-  
-  add_set: publicProcedure.
+  add_set: appUserProcedure.
     input( z.object({
       user_exercise_id: z.number().gte(0),
       workout_id: z.string().cuid(),
@@ -169,8 +167,8 @@ export const exerciseRouter = router({
         include: defaultWorkoutSelect,
       });
       return workout;
-  }),
-  remove_set: publicProcedure
+    }),
+  remove_set: appUserProcedure
     .input(z.object({
       user_exercise_id: z.number().gte(0),
       workout_id: z.string().cuid(),
@@ -204,41 +202,41 @@ export const exerciseRouter = router({
       });
       return workout;
     }),
-  add_to_current_workout: publicProcedure
-  .input(z.object({
-      exercise_id: z.string().uuid().array(),
+  add_to_current_workout: appUserProcedure
+    .input(z.object({
+        exercise_id: z.string().uuid().array(),
     }))
-  .mutation(async({ input: { exercise_id }, ctx }) => {
-      console.log("adding exercises", exercise_id);
-      const owner_id = ctx?.session?.user.id;
-      let open_workout = await open_workout_if_exists(owner_id!);
-      if (!open_workout) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "open workout does not exist",
-        });
-      } else {
-        console.log("trying to add to workout", open_workout);
-        const workout = await prisma.userWorkout.update({
-          where: { id: open_workout.id },
-          data: {
-            exercises: {
-              createMany: {
-                data: exercise_id.map((cuid) => ({
-                  exercise_id: cuid,
-                })),
+    .mutation(async({ input: { exercise_id }, ctx }) => {
+        console.log("adding exercises", exercise_id);
+        const owner_id = ctx?.session?.user.id;
+        let open_workout = await open_workout_if_exists(owner_id!);
+        if (!open_workout) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "open workout does not exist",
+          });
+        } else {
+          console.log("trying to add to workout", open_workout);
+          const workout = await prisma.userWorkout.update({
+            where: { id: open_workout.id },
+            data: {
+              exercises: {
+                createMany: {
+                  data: exercise_id.map((cuid) => ({
+                    exercise_id: cuid,
+                  })),
+                },
               },
             },
-          },
-          include: {
-            exercises: { include: { exercise: true, sets: true } },
-          },
-        });
-        console.log("workout updated: Exercise(s) added");
-        return workout;
-      }
+            include: {
+              exercises: { include: { exercise: true, sets: true } },
+            },
+          });
+          console.log("workout updated: Exercise(s) added");
+          return workout;
+        }
     }),
-  remove_from_current_workout: publicProcedure
+  remove_from_current_workout: appUserProcedure
     .input( z.object({
       user_exercise_id: z.number().gte(0),
     }))

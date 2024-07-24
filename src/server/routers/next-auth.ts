@@ -1,8 +1,8 @@
-import { publicProcedure, router } from "@server/trpc";
+import { appUserProcedure, publicProcedure, router } from "@server/trpc";
 import { TRPCError } from "@trpc/server";
 
 export const authRouter = router({
-  get_session: publicProcedure.query(async ({ ctx }) => {
+  get_session: appUserProcedure.query(async ({ ctx }) => {
     console.log(`[trpc Procedure]["get_session"] Incoming request headers: `, ctx.req?.headers);
     console.log(`[trpc Procedure]["get_session"] Available Session: `, ctx.session);
     if (!ctx.session) {

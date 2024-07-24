@@ -3,7 +3,7 @@ import { Prisma, UserWorkout } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import prisma from "@server/prisma/client";
-import { publicProcedure, router } from "@server/trpc";
+import { appUserProcedure, publicProcedure, router, sessionProcedure } from "@server/trpc";
 
 const defaultUserInclude = Prisma.validator<Prisma.UserInclude>()({
   workouts: false,
@@ -32,19 +32,19 @@ export const userRouter = router({
       })
     )
     .mutation(async ({ input: { username, password } }) => {
-      // throw new TRPCError({
-      //   code: "METHOD_NOT_SUPPORTED",
-      //   message: "not implemented ",
-      // });
-      const user = await prisma.user.findFirst({
-        where: {
-          name: username,
-        },
-        include: authorizedUserInclude,
+      throw new TRPCError({
+        code: "METHOD_NOT_SUPPORTED",
+        message: "not implemented ",
       });
-      return user;
+      // const user = await prisma.user.findFirst({
+      //   where: {
+      //     name: username,
+      //   },
+      //   include: authorizedUserInclude,
+      // });
+      // return user;
     }),
-  me_get_exercise_data_by_id: publicProcedure
+  my_specific_exercise_data: appUserProcedure
     .input(z.object({ exercise_id: z.string().uuid() }))
     .query(async ({ input: { exercise_id }, ctx }) => {
       const me = ctx.session!.user;
@@ -73,7 +73,7 @@ export const userRouter = router({
       console.log(ex_data);
       return ex_data;
     }),
-  get_by_name: publicProcedure
+  get_user_by_name: sessionProcedure
     .input(z.object({ name: z.string() }))
     .query(async ({ ctx, input: { name } }) => {
       const user = await prisma?.user.findFirst({
