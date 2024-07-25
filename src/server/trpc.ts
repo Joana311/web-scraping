@@ -10,6 +10,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { TRPCClientCtx } from './context';
+
 const trpcClient = initTRPC.context<TRPCClientCtx>().create({
   /**
    * @link https://trpc.io/docs/v10/data-transformers
@@ -42,6 +43,25 @@ export const router = trpcClient.router;
  * @link https://trpc.io/docs/v10/procedures
  **/
 export const publicProcedure = trpcClient.procedure;
+
+export const cachedProcedure = publicProcedure.use(async (opts) => {
+    const { ctx, next, path, type } = opts;
+    if (path.includes("public")) {
+        console.log("[trpc Handler][cached procedure] Adding Cache headers to public query response: ", path);
+        const ONE_HOUR_IN_SECONDS = 60 * 60;
+        const ONE_DAY_IN_SECONDS = ONE_HOUR_IN_SECONDS * 24;
+        const ONE_WEEK_IN_SECONDS = ONE_DAY_IN_SECONDS * 7;
+        // use `s-maxage` if caching for CDN only
+        const headers = {
+            "Cache-Control": `maxage=${ONE_WEEK_IN_SECONDS}, public, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`
+        };
+        for (const [key, value] of Object.entries(headers)) {
+            ctx.res?.setHeader(key, value);
+        }
+        console.log("[trpc Handler] Set additional response Headers: ", headers);
+    }
+    return next(opts);
+});
 
 // these procedures all validate the user with the action
 export const sessionProcedure = publicProcedure.use(async (opts) => {

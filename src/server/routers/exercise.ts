@@ -3,7 +3,7 @@ import { z } from "zod";
 import prisma from "@server/prisma/client";
 import { defaultWorkoutSelect, open_workout_if_exists } from "./workout";
 import { Exercise } from "@prisma/client";
-import { appUserProcedure, publicProcedure, router } from "@server/trpc";
+import { appUserProcedure, cachedProcedure, publicProcedure, router } from "@server/trpc";
 
 export const exerciseRouter = router({
   public_search_exercises: publicProcedure
@@ -83,7 +83,7 @@ export const exerciseRouter = router({
       console.log("order matches?: ", doesOrderMatch())
       return found_exercises;
     }),
-  public_directory: publicProcedure
+  public_directory: cachedProcedure
     .query(async() => { return await prisma.exercise.findMany() }),
   my_unique_recent: appUserProcedure
     .input( z.object({ limit: z.number().optional().default(25) }))
