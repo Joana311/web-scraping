@@ -64,7 +64,7 @@ const LandingPageMenu = (props: { session: any }) => {
           <img
             className="h-6 w-6 mr-2 pointer-events-none"
             src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/62595384f934b806f37f4956_145dc557845548a36a82337912ca3ac5.svg"
-            placeholder="provider" />
+            alt="provider" />
           {!!session ? "Sign Out" : "Sign in with Discord"}
         </button>
         {/* <Button className="bg-theme">
