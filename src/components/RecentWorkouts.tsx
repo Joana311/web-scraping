@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { SVGAttributes } from "react";
 import { TrashIcon } from "../components/SvgIcons"
-import { useIsFetching } from "@tanstack/react-query";
+import { useIsMutating } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 const RecentWorkouts = () => {
   const queryContext = trpcNextHooks.useContext();
@@ -76,8 +76,7 @@ const RecentWorkouts = () => {
     });
 
   type UserWorkoutWithExercises = NonNullable<typeof open_workout>;
-  const workoutToSession = React.useCallback(
-    (workout: UserWorkoutWithExercises) => ({
+  const workoutToSession = (workout: UserWorkoutWithExercises) => ({
       start: dayjs(workout.created_at).format("h:mmA"),
       end: workout.ended_at ? dayjs(workout.ended_at)?.format("h:mmA") : null,
       closed: workout.closed,
@@ -89,10 +88,7 @@ const RecentWorkouts = () => {
         .reduce((a, b) => a + b, 0),
       estimated_cals: "N/A",
       id: workout.id,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [daily_recent_workouts]
-  );
+    })
 
   const onCreateNewWorkout = async () => {
     await create_workout.mutateAsync();
@@ -105,11 +101,11 @@ const RecentWorkouts = () => {
     }
   }
   const onDeleteWorkout = React.useCallback((workout: ReturnType<typeof workoutToSession>, ref: HTMLElement) => {
+    // removed the workout summary card and deletes the workout entry from the database.
     const remove = () => {
       ref && (ref.scrollLeft = 0)
       ref && ref.classList.add("-translate-x-[150%]")
-      ref && (ref.ontransitionend = () => {
-        ref.hidden = true
+      ref && (ref.ontransitionend = () => { // delete the workout **after** the animation ends.
         delete_workout.mutate({ workout_id: workout.id, is_confirmed: true }, {
           onSuccess: () => {
             let _old_daily = queryContext.workout.get_daily_recent.getData() || [];
@@ -120,14 +116,15 @@ const RecentWorkouts = () => {
         });
       })
     }
+    // confirm deletes. only when the workout has some exercises and sets associated.
     if (workout.exercises > 0 && workout.sets > 0) {
       let confirm_delete = confirm("This workout has data. Are you sure you want to delete it?");
-      if (confirm_delete == false) {
-        return
+      if (confirm_delete === false) {
+        return // early return if confirm failed
       }
     }
     remove()
-  }, [delete_workout, open_workout?.id, queryContext])
+  }, [delete_workout, open_workout?.id])
 
   return (
     <>
@@ -203,10 +200,6 @@ const WorkoutSummaryCard = (props: {
 }) => {
   const { workout, onEndWorkout, onDeleteWorkout, is_current } = props;
   const router = useRouter();
-  const isDeleting = function() {
-    const key = getQueryKey(trpcNextHooks.workout.delete_by_id);
-    return useIsFetching({ queryKey: key });
-  }
   const selfRef = React.useRef<HTMLLIElement>(null);
   return (
     <>
@@ -284,10 +277,8 @@ const WorkoutSummaryCard = (props: {
         {is_current && <section id="additional-actions"
           className="ml-2 flex min-w-full snap-start snap-always justify-between rounded-lg bg-secondary px-4 py-1 ">
           <button id="delete-workout"
-            onClick={() => {
-              onDeleteWorkout(workout, selfRef.current)
-            }}
-            disabled={!!isDeleting()}
+            onClick={() => { onDeleteWorkout(workout, selfRef.current) }}
+            // disabled={ useIsMutating(getQueryKey(trpcNextHooks.workout.delete_by_id)) > 0 } // causes react hook order issues
             className="flex items-center rounded-lg bg-red-700 px-2 text-[2.5rem] disabled:button-disabled" >
             <TrashIcon className="w-[2.5rem] h-[2.5rem]" /></button>
           <button id="end-workout"
