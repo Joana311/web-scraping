@@ -1,0 +1,37 @@
+model Exercise {
+  id               String                   @id @default(uuid())
+  UserExercise     UserExercise[]           @relation(name: "ExerciseToUserExercise")
+  name             String
+  href             String?
+  force            String?
+  equipment        Equipment?               @relation(name: "EquipmentToExercise", fields: [equipment_name], references: [name])
+  equipment_name   String?
+  muscle           Muscle?                  @relation(name: "ExerciseToMuscle", fields: [muscle_name], references: [name])
+  muscle_name      String?
+  video_url        String?
+  variations       Exercise[]               @relation(name: "ExerciseVariation")
+  base_exercise    Exercise?                @relation(name: "ExerciseVariation", fields: [base_exercise_id], references: [id])
+  base_exercise_id String?
+  document         Unsupported("TSVECTOR")?
+
+  @@unique([href, name, equipment_name, muscle_name])
+  @@index([document], name: "document_idx")
+}
+
+model Equipment {
+  name      String     @unique
+  exercises Exercise[] @relation(name: "EquipmentToExercise")
+}
+
+model BodyPart {
+  name    String   @unique
+  muscles Muscle[] @relation(name: "BodyPartToMuscle")
+  href    String?
+}
+
+model Muscle {
+  name          String     @unique
+  bodypart      BodyPart   @relation(name: "BodyPartToMuscle", fields: [bodypart_name], references: [name])
+  bodypart_name String
+  exercises     Exercise[] @relation(name: "ExerciseToMuscle")
+}

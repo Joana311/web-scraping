@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 const main = async () => {
     const bad_exercises = await prisma.userExercise.findMany({
         where: {
-            workout_id: null
+            workout_id: null as any
         }
     })
     console.log("to be deleted", bad_exercises)

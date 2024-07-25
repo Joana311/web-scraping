@@ -1,0 +1,65 @@
+//The [db push] command pushes the state of your Prisma schema file
+// to the database without using migrations.
+//It creates the database if the database does not exist.
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Note: `User` has to be shaped a certain way to behave well with NextAuth.js
+model User {
+  id            String        @id @default(cuid())
+  workouts      UserWorkout[] @relation(name: "UserToUserWorkout")
+  name          String?
+  username      String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]     @relation(name: "AccountToUser")
+  sessions      Session[]     @relation(name: "SessionToUser")
+  created_at    DateTime      @default(now())
+}
+
+model UserSecrets {
+  user_id String @unique
+  secret  String
+}
+
+model UserWorkout {
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+  ended_at   DateTime?
+  id         String         @id @default(cuid())
+  owner      User?          @relation(name: "UserToUserWorkout", fields: [owner_id], references: [id])
+  owner_id   String
+  exercises  UserExercise[] @relation(name: "UserExerciseToUserWorkout")
+  closed     Boolean        @default(false)
+
+  @@unique([owner_id, id], name: "owner_and_workout_id")
+}
+
+model UserExercise {
+  exercise    Exercise    @relation(name: "ExerciseToUserExercise", fields: [exercise_id], references: [id])
+  exercise_id String
+  id          Int         @id @default(autoincrement())
+  sets        Set[]       @relation(name: "SetToUserExercise")
+  Workout     UserWorkout @relation(name: "UserExerciseToUserWorkout", fields: [workout_id], references: [id], onDelete: Cascade)
+  workout_id  String
+
+  @@unique([exercise_id, workout_id, id])
+}
+
+model Set {
+  id               Int          @id @default(autoincrement())
+  updated_at       DateTime     @default(now()) @updatedAt
+  weight           Int?
+  reps             Int          @default(0)
+  rpe              Int          @default(0)
+  UserExercise     UserExercise @relation(name: "SetToUserExercise", fields: [user_exercise_id], references: [id], onDelete: Cascade)
+  user_exercise_id Int
+}
